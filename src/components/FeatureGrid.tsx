@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Calendar, FileText, CheckCircle, Clock, Shield, Clock as AlarmClock } from 'lucide-react';
+import { Calendar, FileText, CheckCircle, Target, Shield, Clock } from 'lucide-react';
 
 interface FeatureCardProps {
   title: string;
@@ -72,7 +71,7 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
     {
       title: "Focus Mode+",
       description: "Distraction-free environment with focus music and custom timers",
-      icon: <Clock className="w-6 h-6 text-white" />,
+      icon: <Target className="w-6 h-6 text-white" />,
       bgColor: "bg-gradient-to-br from-purple-500 to-purple-600",
       key: "focus"
     },
@@ -86,7 +85,7 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
     {
       title: "Smart Alarms",
       description: "Set custom alarms with various ringtones and smart scheduling",
-      icon: <AlarmClock className="w-6 h-6 text-white" />,
+      icon: <Clock className="w-6 h-6 text-white" />,
       bgColor: "bg-gradient-to-br from-indigo-500 to-indigo-600",
       key: "alarms"
     }

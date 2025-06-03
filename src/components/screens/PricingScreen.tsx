@@ -36,7 +36,7 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16 pb-8">
       <div className="p-4 max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
