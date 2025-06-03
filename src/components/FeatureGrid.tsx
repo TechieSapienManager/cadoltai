@@ -8,6 +8,7 @@ interface FeatureCardProps {
   icon: React.ReactNode;
   bgColor: string;
   onClick: () => void;
+  delay?: number;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
@@ -15,19 +16,21 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   description,
   icon,
   bgColor,
-  onClick
+  onClick,
+  delay = 0
 }) => {
   return (
     <div
       onClick={onClick}
-      className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md hover:scale-102 transition-all duration-200"
+      className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-xl hover:scale-105 hover:-translate-y-2 transition-all duration-500 group animate-fade-in"
+      style={{ animationDelay: `${delay}s` }}
     >
       <div className="flex items-start space-x-4">
-        <div className={`${bgColor} rounded-lg p-2.5 flex-shrink-0`}>
+        <div className={`${bgColor} rounded-2xl p-4 flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
           {icon}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">
+          <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
             {title}
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -48,51 +51,51 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
     {
       title: "Advanced Calendar",
       description: "Manage your schedule with drag-and-drop, weather integration, and smart suggestions",
-      icon: <Calendar className="w-5 h-5 text-white" />,
-      bgColor: "bg-blue-500",
+      icon: <Calendar className="w-6 h-6 text-white" />,
+      bgColor: "bg-gradient-to-br from-blue-500 to-blue-600",
       key: "calendar"
     },
     {
       title: "Smart Notes",
       description: "Create unlimited notes with rich formatting and templates",
-      icon: <FileText className="w-5 h-5 text-white" />,
-      bgColor: "bg-green-500",
+      icon: <FileText className="w-6 h-6 text-white" />,
+      bgColor: "bg-gradient-to-br from-green-500 to-green-600",
       key: "notes"
     },
     {
       title: "AI To-Do Lists",
       description: "Smart task management with insights and productivity reports",
-      icon: <CheckCircle className="w-5 h-5 text-white" />,
-      bgColor: "bg-orange-500",
+      icon: <CheckCircle className="w-6 h-6 text-white" />,
+      bgColor: "bg-gradient-to-br from-orange-500 to-orange-600",
       key: "todo"
     },
     {
       title: "Focus Mode+",
       description: "Distraction-free environment with focus music and custom timers",
-      icon: <Clock className="w-5 h-5 text-white" />,
-      bgColor: "bg-purple-500",
+      icon: <Clock className="w-6 h-6 text-white" />,
+      bgColor: "bg-gradient-to-br from-purple-500 to-purple-600",
       key: "focus"
     },
     {
       title: "Advanced Vault",
       description: "Secure password vault with biometric lock and cloud backup",
-      icon: <Shield className="w-5 h-5 text-white" />,
-      bgColor: "bg-gray-700",
+      icon: <Shield className="w-6 h-6 text-white" />,
+      bgColor: "bg-gradient-to-br from-gray-700 to-gray-800",
       key: "vault"
     },
     {
       title: "Smart Alarms",
       description: "Set custom alarms with various ringtones and smart scheduling",
-      icon: <AlarmClock className="w-5 h-5 text-white" />,
-      bgColor: "bg-purple-500",
+      icon: <AlarmClock className="w-6 h-6 text-white" />,
+      bgColor: "bg-gradient-to-br from-indigo-500 to-indigo-600",
       key: "alarms"
     }
   ];
 
   return (
-    <div className="px-4 mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {features.map((feature) => (
+    <div className="px-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {features.map((feature, index) => (
           <FeatureCard
             key={feature.key}
             title={feature.title}
@@ -100,6 +103,7 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
             icon={feature.icon}
             bgColor={feature.bgColor}
             onClick={() => onFeatureClick(feature.key)}
+            delay={0.7 + index * 0.1}
           />
         ))}
       </div>

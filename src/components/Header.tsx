@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Brain, ArrowLeft, Sparkles } from 'lucide-react';
+import { Brain, ArrowLeft, Sparkles, Settings } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
@@ -29,22 +29,29 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-100 dark:border-gray-700 h-16">
-      <div className="flex items-center justify-between px-4 h-full">
+      <div className="flex items-center justify-between px-6 h-full max-w-7xl mx-auto">
         {/* Left Section */}
         <div className="flex items-center space-x-4">
           {showBackButton ? (
             <button
               onClick={onBack}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             </button>
           ) : (
-            <div className="flex items-center space-x-2">
-              <Brain className="w-6 h-6 text-blue-500" />
-              <span className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                Cadolt AI
-              </span>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <span className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                  Cadolt AI
+                </span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
+                  AI-Powered Productivity Suite
+                </p>
+              </div>
             </div>
           )}
           
@@ -57,26 +64,28 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Center Section - Tabs (only show on dashboard) */}
         {!showBackButton && (
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
             <button
               onClick={() => onTabChange('dashboard')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                 activeTab === 'dashboard'
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'bg-white dark:bg-gray-600 text-blue-600 shadow-sm transform scale-105'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'
               }`}
             >
-              Dashboard
+              <Settings className="w-4 h-4" />
+              <span>Dashboard</span>
             </button>
             <button
               onClick={() => onTabChange('pricing')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                 activeTab === 'pricing'
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'bg-white dark:bg-gray-600 text-blue-600 shadow-sm transform scale-105'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'
               }`}
             >
-              Pricing
+              <span>💲</span>
+              <span>Pricing</span>
             </button>
           </div>
         )}
@@ -86,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
           {!showBackButton && (
             <button
               onClick={onAskAI}
-              className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-gray-700 border-2 border-blue-500 rounded-lg text-blue-500 hover:bg-blue-50 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-102"
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-sm font-medium">Ask AI</span>
@@ -95,7 +104,7 @@ export const Header: React.FC<HeaderProps> = ({
           
           <button
             onClick={onProfileClick}
-            className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm hover:bg-blue-600 transition-colors duration-200 hover:scale-105"
+            className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm hover:scale-110 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl"
           >
             SA
           </button>
