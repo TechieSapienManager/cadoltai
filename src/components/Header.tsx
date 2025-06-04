@@ -24,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   const getDisplayTitle = () => {
     if (screenTitle === 'dashboard') return '';
     if (screenTitle === 'ask-ai') return 'Ask AI';
+    if (screenTitle === 'pricing') return 'Pricing Plans';
     return screenTitle.charAt(0).toUpperCase() + screenTitle.slice(1);
   };
 

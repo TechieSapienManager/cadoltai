@@ -87,7 +87,7 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
       title: "Smart Alarms",
       description: "Set custom alarms with various ringtones and smart scheduling",
       icon: <Clock className="w-6 h-6 text-white" />,
-      bgColor: "bg-gradient-to-br from-indigo-500 to-indigo-600",
+      bgColor: "bg-gradient-to-br from-red-500 to-red-600",
       key: "alarms"
     }
   ];
@@ -106,16 +106,6 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
             delay={0.7 + index * 0.1}
           />
         ))}
-      </div>
-      
-      {/* Add Pricing Button */}
-      <div className="flex justify-center mt-8">
-        <button
-          onClick={() => onFeatureClick('pricing')}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-full font-semibold hover:scale-105 transition-all duration-300 shadow-lg"
-        >
-          View Pricing Plans
-        </button>
       </div>
     </div>
   );
