@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Calendar, FileText, CheckCircle, Target, Shield, Clock } from 'lucide-react';
 
@@ -105,6 +106,16 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
             delay={0.7 + index * 0.1}
           />
         ))}
+      </div>
+      
+      {/* Add Pricing Button */}
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={() => onFeatureClick('pricing')}
+          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-full font-semibold hover:scale-105 transition-all duration-300 shadow-lg"
+        >
+          View Pricing Plans
+        </button>
       </div>
     </div>
   );
