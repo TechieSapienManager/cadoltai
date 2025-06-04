@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Phone, Eye, EyeOff, Brain, Zap } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Eye, EyeOff, Brain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
@@ -136,66 +135,54 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#4B00D1] to-[#6A1FC9] flex items-center justify-center p-4 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-br from-[#4169E1] via-[#6A4C93] to-[#8A2BE2] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center text-white/80 hover:text-white transition-colors mb-6 group"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
-        </button>
-
-        {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 animate-scale-in">
-          {/* Top Section - Branding */}
-          <div className="flex items-center mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
-              <div className="relative">
-                <Brain className="w-6 h-6 text-white" />
-                <Zap className="w-3 h-3 text-yellow-300 absolute -top-1 -right-1" />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 font-['Inter']">Cadolt AI</h1>
-              <p className="text-sm text-gray-600 font-['Inter']">AI-Powered Productivity Suite</p>
+        {/* Logo Section */}
+        <div className="text-center mb-8">
+          <div className="inline-block relative mb-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 rounded-3xl flex items-center justify-center shadow-2xl relative">
+              <Brain className="w-10 h-10 text-white" />
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-orange-400 rounded-full"></div>
             </div>
           </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+            Cadolt AI
+          </h1>
+        </div>
 
-          {/* Middle Section - Login Container */}
+        {/* Login Card */}
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
+          {/* Get Started Section */}
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2 font-['Inter']">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
               ✨ Get Started ✨
             </h2>
-            <p className="text-gray-600 font-['Inter']">
+            <p className="text-gray-600">
               Join thousands of users boosting their productivity
             </p>
           </div>
 
           {/* Tabs */}
-          <div className="flex mb-6 relative">
+          <div className="flex mb-6 bg-gray-100 rounded-xl p-1">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-3 text-center font-semibold transition-all duration-300 relative ${
-                isLogin ? 'text-gray-900' : 'text-gray-500'
+              className={`flex-1 py-3 text-center font-semibold rounded-lg transition-all duration-300 ${
+                isLogin 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg' 
+                  : 'text-gray-500'
               }`}
             >
               Sign In
-              {isLogin && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-slide-in-right"></div>
-              )}
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-3 text-center font-semibold transition-all duration-300 relative ${
-                !isLogin ? 'text-gray-900' : 'text-gray-500'
+              className={`flex-1 py-3 text-center font-semibold rounded-lg transition-all duration-300 ${
+                !isLogin 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg' 
+                  : 'text-gray-500'
               }`}
             >
               Sign Up
-              {!isLogin && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-slide-in-right"></div>
-              )}
             </button>
           </div>
 
@@ -204,67 +191,52 @@ const Auth = () => {
             <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
               {!isLogin && (
                 <div>
-                  <Label htmlFor="fullName" className="text-gray-700 font-medium">Full Name</Label>
                   <Input
-                    id="fullName"
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
-                    className="mt-1 h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500 transition-colors"
+                    className="h-12 border-gray-200 rounded-xl"
                     placeholder="Enter your full name"
                   />
                 </div>
               )}
               
               <div>
-                <Label htmlFor="email" className="text-gray-700 font-medium">📧 Email</Label>
                 <Input
-                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="mt-1 h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500 transition-colors"
+                  className="h-12 border-gray-200 rounded-xl"
                   placeholder="Enter your email"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="password" className="text-gray-700 font-medium">🔒 Password</Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="h-12 pr-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500 transition-colors"
-                    placeholder="Enter your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="h-12 pr-12 border-gray-200 rounded-xl"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]" 
+                className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg" 
                 disabled={loading}
               >
-                {loading ? (
-                  <div className="flex items-center">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Loading...
-                  </div>
-                ) : (
-                  `${isLogin ? 'Sign In' : 'Sign Up'} to Cadolt AI`
-                )}
+                {loading ? "Loading..." : `Sign In to Cadolt AI`}
               </Button>
             </form>
           )}
@@ -274,35 +246,31 @@ const Auth = () => {
             <form onSubmit={handlePhoneAuth} className="space-y-4 mb-6">
               {!isOtpStep ? (
                 <div>
-                  <Label htmlFor="phone" className="text-gray-700 font-medium">📞 Phone Number</Label>
                   <Input
-                    id="phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+1 (555) 123-4567"
                     required
-                    className="mt-1 h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500 transition-colors"
+                    className="h-12 border-gray-200 rounded-xl"
                   />
                 </div>
               ) : (
                 <div>
-                  <Label htmlFor="otp" className="text-gray-700 font-medium">Verification Code</Label>
                   <Input
-                    id="otp"
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     placeholder="Enter 6-digit code"
                     required
-                    className="mt-1 h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500 transition-colors text-center text-lg tracking-widest"
+                    className="h-12 border-gray-200 rounded-xl text-center text-lg tracking-widest"
                   />
                 </div>
               )}
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]" 
+                className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300" 
                 disabled={loading}
               >
                 {loading ? 'Loading...' : (isOtpStep ? 'Verify Code' : 'Send Code')}
@@ -327,7 +295,7 @@ const Auth = () => {
               variant="outline"
               onClick={handleGoogleAuth}
               disabled={loading}
-              className="w-full h-12 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full h-12 border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-xl transition-all duration-300"
             >
               <Mail className="w-5 h-5 mr-3 text-red-500" />
               <span className="text-gray-700 font-medium">Continue with Gmail</span>
@@ -340,7 +308,7 @@ const Auth = () => {
                 setIsPhoneAuth(!isPhoneAuth);
                 setIsOtpStep(false);
               }}
-              className="w-full h-12 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full h-12 border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-xl transition-all duration-300"
             >
               <Phone className="w-5 h-5 mr-3 text-green-500" />
               <span className="text-gray-700 font-medium">Continue with Phone</span>

@@ -16,7 +16,6 @@ import { VaultScreen } from '@/components/screens/VaultScreen';
 import { AlarmsScreen } from '@/components/screens/AlarmsScreen';
 import { PricingScreen } from '@/components/screens/PricingScreen';
 import { AskAIScreen } from '@/components/screens/AskAIScreen';
-import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -64,7 +63,7 @@ const Index = () => {
         return <AskAIScreen onBack={() => setActiveScreen('dashboard')} />;
       default:
         return (
-          <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+          <div className="min-h-screen bg-gray-900 transition-colors duration-200">
             <AdPlaceholder />
             <WelcomeSection />
             <FeatureGrid onFeatureClick={setActiveScreen} />
@@ -77,17 +76,17 @@ const Index = () => {
   // Show loading state while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading...</p>
+          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-purple-300">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 w-full">
+    <div className="min-h-screen bg-gray-900 w-full">
       <Header 
         activeTab={activeTab}
         onTabChange={handleTabChange}
