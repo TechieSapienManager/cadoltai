@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,12 +15,14 @@ import { VaultScreen } from '@/components/screens/VaultScreen';
 import { AlarmsScreen } from '@/components/screens/AlarmsScreen';
 import { PricingScreen } from '@/components/screens/PricingScreen';
 import { AskAIScreen } from '@/components/screens/AskAIScreen';
-
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeScreen, setActiveScreen] = useState('dashboard');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const {
+    user,
+    loading
+  } = useAuth();
   const navigate = useNavigate();
 
   // Redirect to auth if not logged in
@@ -30,7 +31,6 @@ const Index = () => {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
-
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     if (tab === 'pricing') {
@@ -39,7 +39,6 @@ const Index = () => {
       setActiveScreen('dashboard');
     }
   };
-
   const renderScreen = () => {
     switch (activeScreen) {
       case 'calendar':
@@ -62,59 +61,35 @@ const Index = () => {
       case 'ask-ai':
         return <AskAIScreen onBack={() => setActiveScreen('dashboard')} />;
       default:
-        return (
-          <div className="min-h-screen bg-gray-900 transition-colors duration-200">
+        return <div className="min-h-screen transition-colors duration-200 bg-slate-50">
             <AdPlaceholder />
             <WelcomeSection />
             <FeatureGrid onFeatureClick={setActiveScreen} />
             <div className="pb-20" />
-          </div>
-        );
+          </div>;
     }
   };
 
   // Show loading state while checking auth
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+    return <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-purple-300">Loading...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gray-900 w-full">
-      <Header 
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        onProfileClick={() => setIsProfileOpen(true)}
-        onAskAI={() => setActiveScreen('ask-ai')}
-        showBackButton={activeScreen !== 'dashboard' && activeScreen !== 'pricing'}
-        onBack={() => {
-          setActiveScreen('dashboard');
-          setActiveTab('dashboard');
-        }}
-        screenTitle={activeScreen}
-      />
+  return <div className="min-h-screen bg-gray-900 w-full">
+      <Header activeTab={activeTab} onTabChange={handleTabChange} onProfileClick={() => setIsProfileOpen(true)} onAskAI={() => setActiveScreen('ask-ai')} showBackButton={activeScreen !== 'dashboard' && activeScreen !== 'pricing'} onBack={() => {
+      setActiveScreen('dashboard');
+      setActiveTab('dashboard');
+    }} screenTitle={activeScreen} />
       
       {renderScreen()}
       
-      {(activeScreen === 'dashboard' || activeScreen === 'pricing') && (
-        <BottomNavigation 
-          activeItem=""
-          onItemClick={setActiveScreen}
-        />
-      )}
+      {(activeScreen === 'dashboard' || activeScreen === 'pricing') && <BottomNavigation activeItem="" onItemClick={setActiveScreen} />}
       
-      <ProfileModal 
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
-      />
-    </div>
-  );
+      <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+    </div>;
 };
-
 export default Index;
