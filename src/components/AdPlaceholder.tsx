@@ -1,8 +1,18 @@
+
 import React from 'react';
+
 export const AdPlaceholder: React.FC = () => {
-  return <div className="mt-20 mx-6 mb-6 animate-fade-in">
-      <div className="h-32 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-600 rounded-3xl flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300">
-        
+  // This would only show for Basic Plan users
+  return (
+    <div className="mx-4 mb-6 mt-16 pt-4">
+      <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-xl p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+          📱 AdMob Banner Space
+        </p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          Upgrade to Pro to remove ads
+        </p>
       </div>
-    </div>;
+    </div>
+  );
 };

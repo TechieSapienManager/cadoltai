@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,16 @@ const Auth = () => {
   const { signUp, signIn, signInWithGoogle, signInWithPhone, verifyOtp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Auto theme detection
+  useEffect(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,54 +145,57 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#4B00D1] to-[#6A1FC9] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo Section */}
-        <div className="text-center mb-8">
-          <div className="inline-block relative mb-4">
-            <div className="w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl relative">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-500 to-purple-800 dark:from-gray-900 dark:via-purple-900 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        {/* Logo Section - Single horizontal line with smaller logo */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center">
               <img 
                 src="/lovable-uploads/dcde5e95-fc3e-4fcf-b71a-2c7767551ce1.png" 
                 alt="Cadolt AI Logo" 
                 className="w-full h-full object-contain"
               />
             </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Cadolt AI
+            </h1>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 animate-gradient-pulse">
-            Cadolt AI
-          </h1>
+          <p className="text-sm text-white/80 dark:text-gray-300">
+            AI-Powered Productivity Suite
+          </p>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
+        {/* Compact Login Card */}
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-xl p-6">
           {/* Get Started Section */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-              ✨ Get Started ✨
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-1">
+              Get Started
             </h2>
-            <p className="text-gray-600">
-              Join thousands of users boosting their productivity
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Join thousands boosting productivity
             </p>
           </div>
 
-          {/* Tabs */}
-          <div className="flex mb-6 bg-gray-100 rounded-xl p-1">
+          {/* Tabs with subtle animation */}
+          <div className="flex mb-4 bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-3 text-center font-semibold rounded-lg transition-all duration-300 ${
+              className={`flex-1 py-2 text-center font-medium rounded-lg transition-all duration-300 transform ${
                 isLogin 
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg' 
-                  : 'text-gray-500'
+                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg scale-105' 
+                  : 'text-gray-600 dark:text-gray-300 hover:scale-105'
               }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-3 text-center font-semibold rounded-lg transition-all duration-300 ${
+              className={`flex-1 py-2 text-center font-medium rounded-lg transition-all duration-300 transform ${
                 !isLogin 
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg' 
-                  : 'text-gray-500'
+                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg scale-105' 
+                  : 'text-gray-600 dark:text-gray-300 hover:scale-105'
               }`}
             >
               Sign Up
@@ -191,30 +204,26 @@ const Auth = () => {
 
           {/* Email/Password Form */}
           {!isPhoneAuth && (
-            <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
+            <form onSubmit={handleEmailAuth} className="space-y-3 mb-4">
               {!isLogin && (
-                <div>
-                  <Input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                    className="h-12 border-gray-200 rounded-xl"
-                    placeholder="Enter your full name"
-                  />
-                </div>
+                <Input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  className="h-10 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="Full name"
+                />
               )}
               
-              <div>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="h-12 border-gray-200 rounded-xl"
-                  placeholder="Enter your email"
-                />
-              </div>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-10 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="Email address"
+              />
 
               <div className="relative">
                 <Input
@@ -222,58 +231,54 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-12 pr-12 border-gray-200 rounded-xl"
-                  placeholder="Enter your password"
+                  className="h-10 pr-10 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="Password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg" 
+                className="w-full h-10 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-medium rounded-xl transition-all duration-300 hover:shadow-lg" 
                 disabled={loading}
               >
-                {loading ? "Loading..." : `Sign In to Cadolt AI`}
+                {loading ? "Loading..." : `${isLogin ? 'Sign In' : 'Sign Up'}`}
               </Button>
             </form>
           )}
 
           {/* Phone Auth Form */}
           {isPhoneAuth && (
-            <form onSubmit={handlePhoneAuth} className="space-y-4 mb-6">
+            <form onSubmit={handlePhoneAuth} className="space-y-3 mb-4">
               {!isOtpStep ? (
-                <div>
-                  <Input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+1 (555) 123-4567"
-                    required
-                    className="h-12 border-gray-200 rounded-xl"
-                  />
-                </div>
+                <Input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 (555) 123-4567"
+                  required
+                  className="h-10 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
               ) : (
-                <div>
-                  <Input
-                    type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="Enter 6-digit code"
-                    required
-                    className="h-12 border-gray-200 rounded-xl text-center text-lg tracking-widest"
-                  />
-                </div>
+                <Input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="Enter 6-digit code"
+                  required
+                  className="h-10 border-gray-200 dark:border-gray-600 rounded-xl text-center text-lg tracking-widest bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
               )}
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300" 
+                className="w-full h-10 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-medium rounded-xl transition-all duration-300" 
                 disabled={loading}
               >
                 {loading ? 'Loading...' : (isOtpStep ? 'Verify Code' : 'Send Code')}
@@ -282,26 +287,26 @@ const Auth = () => {
           )}
 
           {/* OR Divider */}
-          <div className="relative my-6">
+          <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-gray-200 dark:border-gray-600" />
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500 font-medium">OR CONTINUE WITH</span>
+            <div className="relative flex justify-center text-xs">
+              <span className="px-3 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium">OR CONTINUE WITH</span>
             </div>
           </div>
 
           {/* Social Buttons */}
-          <div className="space-y-3 mb-6">
+          <div className="space-y-2 mb-4">
             <Button
               type="button"
               variant="outline"
               onClick={handleGoogleAuth}
               disabled={loading}
-              className="w-full h-12 border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-xl transition-all duration-300"
+              className="w-full h-10 border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
-              <Mail className="w-5 h-5 mr-3 text-red-500" />
-              <span className="text-gray-700 font-medium">Continue with Gmail</span>
+              <Mail className="w-4 h-4 mr-2 text-red-500" />
+              <span className="font-medium">Continue with Gmail</span>
             </Button>
 
             <Button
@@ -311,21 +316,21 @@ const Auth = () => {
                 setIsPhoneAuth(!isPhoneAuth);
                 setIsOtpStep(false);
               }}
-              className="w-full h-12 border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-xl transition-all duration-300"
+              className="w-full h-10 border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
-              <Phone className="w-5 h-5 mr-3 text-green-500" />
-              <span className="text-gray-700 font-medium">Continue with Phone</span>
+              <Phone className="w-4 h-4 mr-2 text-green-500" />
+              <span className="font-medium">Continue with Phone</span>
             </Button>
           </div>
 
           {/* Bottom Text */}
-          <p className="text-xs text-gray-500 text-center leading-relaxed">
-            By signing up, you agree to our{' '}
-            <a href="#" className="text-purple-600 hover:text-purple-700 transition-colors">
-              Terms of Service
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center leading-relaxed">
+            By continuing, you agree to our{' '}
+            <a href="#" className="text-purple-600 dark:text-purple-400 hover:text-purple-700 transition-colors">
+              Terms
             </a>{' '}
             and{' '}
-            <a href="#" className="text-purple-600 hover:text-purple-700 transition-colors">
+            <a href="#" className="text-purple-600 dark:text-purple-400 hover:text-purple-700 transition-colors">
               Privacy Policy
             </a>
           </p>

@@ -3,29 +3,38 @@ export interface Sound {
   id: string;
   name: string;
   type: 'ambient' | 'alarm';
-  frequency?: number; // For generating audio
-  waveType?: OscillatorType;
 }
 
 export const ambientSounds: Sound[] = [
-  { id: 'ocean', name: 'Calm Ocean', type: 'ambient', frequency: 200, waveType: 'sine' },
-  { id: 'rain', name: 'Rainfall', type: 'ambient', frequency: 300, waveType: 'sawtooth' },
-  { id: 'lofi', name: 'Lo-fi Beats', type: 'ambient', frequency: 150, waveType: 'triangle' },
-  { id: 'birds', name: 'Forest Birds', type: 'ambient', frequency: 800, waveType: 'sine' },
-  { id: 'whitenoise', name: 'White Noise', type: 'ambient', frequency: 440, waveType: 'square' }
+  { id: 'rainfall', name: 'Rainfall', type: 'ambient' },
+  { id: 'lofi', name: 'Lo-Fi Beats', type: 'ambient' },
+  { id: 'ocean', name: 'Ocean Waves', type: 'ambient' },
+  { id: 'birds', name: 'Forest Birds', type: 'ambient' },
+  { id: 'fireplace', name: 'Fireplace Crackle', type: 'ambient' },
+  { id: 'crickets', name: 'Night Crickets', type: 'ambient' },
+  { id: 'whitenoise', name: 'White Noise', type: 'ambient' },
+  { id: 'bowls', name: 'Tibetan Bowls', type: 'ambient' },
+  { id: 'cafe', name: 'Café Background', type: 'ambient' },
+  { id: 'wind', name: 'Wind in Trees', type: 'ambient' }
 ];
 
 export const alarmSounds: Sound[] = [
-  { id: 'classic', name: 'Classic Ring', type: 'alarm', frequency: 800, waveType: 'sine' },
-  { id: 'beep', name: 'Digital Beep', type: 'alarm', frequency: 1000, waveType: 'square' },
-  { id: 'morning', name: 'Morning Light', type: 'alarm', frequency: 600, waveType: 'triangle' }
+  { id: 'beep', name: 'Digital Beep', type: 'alarm' },
+  { id: 'classic', name: 'Classic Ring', type: 'alarm' },
+  { id: 'piano', name: 'Gentle Piano', type: 'alarm' },
+  { id: 'nature', name: 'Nature Wake', type: 'alarm' },
+  { id: 'bell', name: 'Church Bell', type: 'alarm' },
+  { id: 'space', name: 'Space Ambience', type: 'alarm' },
+  { id: 'chime', name: 'Chime Melody', type: 'alarm' },
+  { id: 'morning', name: 'Morning Birds', type: 'alarm' }
 ];
 
 class AudioService {
   private audioContext: AudioContext | null = null;
   private currentOscillator: OscillatorNode | null = null;
   private gainNode: GainNode | null = null;
-  private isPlaying: boolean = false;
+  private isPlaying = false;
+  private currentSound: string | null = null;
 
   constructor() {
     this.initAudioContext();
@@ -35,71 +44,98 @@ class AudioService {
     try {
       this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     } catch (error) {
-      console.error('Audio context not supported', error);
+      console.warn('Web Audio API not supported');
     }
   }
 
   async playSound(sound: Sound, loop: boolean = false, duration?: number) {
     if (!this.audioContext) return;
 
-    // Resume audio context if suspended
     if (this.audioContext.state === 'suspended') {
       await this.audioContext.resume();
     }
 
     this.stopSound();
 
-    // Create oscillator and gain nodes
     this.currentOscillator = this.audioContext.createOscillator();
     this.gainNode = this.audioContext.createGain();
 
-    // Configure oscillator
-    this.currentOscillator.type = sound.waveType || 'sine';
-    this.currentOscillator.frequency.setValueAtTime(sound.frequency || 440, this.audioContext.currentTime);
+    // Configure based on sound type
+    const frequency = this.getFrequencyForSound(sound.id);
+    const waveType = this.getWaveTypeForSound(sound.id);
 
-    // Configure gain (volume)
+    this.currentOscillator.type = waveType;
+    this.currentOscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
     this.gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
 
-    // Connect nodes
     this.currentOscillator.connect(this.gainNode);
     this.gainNode.connect(this.audioContext.destination);
 
-    // Add some variation for ambient sounds
-    if (sound.type === 'ambient') {
-      this.addAmbientVariation(sound);
-    }
-
-    // Start playing
     this.currentOscillator.start();
     this.isPlaying = true;
+    this.currentSound = sound.id;
 
-    // Handle loop
-    if (loop && sound.type === 'ambient') {
-      this.currentOscillator.loop = true;
-    }
-
-    // Stop after duration if specified
+    // Handle duration
     if (duration && !loop) {
       setTimeout(() => this.stopSound(), duration);
     }
 
-    return this.currentOscillator;
+    // For ambient sounds that should loop, restart when ended
+    if (loop && sound.type === 'ambient') {
+      this.currentOscillator.onended = () => {
+        if (this.isPlaying && this.currentSound === sound.id) {
+          setTimeout(() => this.playSound(sound, true), 100);
+        }
+      };
+    }
   }
 
-  private addAmbientVariation(sound: Sound) {
-    if (!this.audioContext || !this.currentOscillator) return;
+  private getFrequencyForSound(soundId: string): number {
+    const frequencies: { [key: string]: number } = {
+      rainfall: 200,
+      lofi: 150,
+      ocean: 180,
+      birds: 800,
+      fireplace: 120,
+      crickets: 400,
+      whitenoise: 440,
+      bowls: 256,
+      cafe: 300,
+      wind: 160,
+      beep: 1000,
+      classic: 800,
+      piano: 523,
+      nature: 600,
+      bell: 440,
+      space: 220,
+      chime: 880,
+      morning: 750
+    };
+    return frequencies[soundId] || 440;
+  }
 
-    // Add subtle frequency modulation for more realistic ambient sounds
-    const lfo = this.audioContext.createOscillator();
-    const lfoGain = this.audioContext.createGain();
-
-    lfo.type = 'sine';
-    lfo.frequency.setValueAtTime(0.5, this.audioContext.currentTime);
-    lfoGain.gain.setValueAtTime(5, this.audioContext.currentTime);
-
-    lfo.connect(lfoGain);
-    lfoGain.connect(this.currentOscillator.frequency);
-    lfo.start();
+  private getWaveTypeForSound(soundId: string): OscillatorType {
+    const waveTypes: { [key: string]: OscillatorType } = {
+      rainfall: 'sawtooth',
+      lofi: 'triangle',
+      ocean: 'sine',
+      birds: 'sine',
+      fireplace: 'sawtooth',
+      crickets: 'square',
+      whitenoise: 'square',
+      bowls: 'sine',
+      cafe: 'triangle',
+      wind: 'sine',
+      beep: 'square',
+      classic: 'sine',
+      piano: 'triangle',
+      nature: 'sine',
+      bell: 'sine',
+      space: 'sawtooth',
+      chime: 'triangle',
+      morning: 'sine'
+    };
+    return waveTypes[soundId] || 'sine';
   }
 
   stopSound() {
@@ -112,10 +148,15 @@ class AudioService {
       this.currentOscillator = null;
     }
     this.isPlaying = false;
+    this.currentSound = null;
   }
 
   getIsPlaying() {
     return this.isPlaying;
+  }
+
+  getCurrentSound() {
+    return this.currentSound;
   }
 
   setVolume(volume: number) {

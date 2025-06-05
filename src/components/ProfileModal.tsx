@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Sun, Moon, Bell, Lock, Settings, LogOut, Camera } from 'lucide-react';
+import { X, Sun, Moon, Bell, Lock, Settings, LogOut, Camera, User, Palette } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ProfileModalProps {
@@ -17,6 +17,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
     alarms: true
   });
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState('');
+  const [isEditingName, setIsEditingName] = useState(false);
 
   const { user, signOut } = useAuth();
 
@@ -52,18 +54,23 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
     return email.split('@')[0].substring(0, 2).toUpperCase();
   };
 
+  const handleNameSave = () => {
+    setIsEditingName(false);
+    // Here you would save to database
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-8">
       <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
       <div className="relative bg-white dark:bg-gray-800 rounded-t-2xl w-full max-w-md mx-4 h-4/5 overflow-hidden animate-slide-in-right transition-colors duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Profile & Settings</h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-500 to-blue-500">
+          <h2 className="text-xl font-semibold text-white">Profile & Settings</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-lg hover:bg-white/20 transition-colors"
           >
-            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <X className="w-5 h-5 text-white" />
           </button>
         </div>
 
@@ -73,7 +80,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden">
                   {profileImage ? (
                     <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -90,99 +97,143 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                   />
                 </label>
               </div>
-              <div>
-                <input
-                  type="text"
-                  defaultValue={user?.user_metadata?.full_name || "User"}
-                  className="text-lg font-semibold bg-transparent border-none outline-none text-gray-800 dark:text-gray-200"
-                />
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {user?.email || 'user@example.com'}
-                </p>
+              <div className="flex-1">
+                {isEditingName ? (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="w-full px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-800 dark:text-white"
+                      placeholder="Display name"
+                    />
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={handleNameSave}
+                        className="px-3 py-1 bg-purple-500 text-white rounded-lg text-sm hover:bg-purple-600"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setIsEditingName(false)}
+                        className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-400 dark:hover:bg-gray-500"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white">
+                        {displayName || user?.user_metadata?.full_name || "User"}
+                      </span>
+                      <button
+                        onClick={() => setIsEditingName(true)}
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                      >
+                        <User className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {user?.email || 'user@example.com'}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Settings */}
-          <div className="p-6 space-y-6">
-            {/* Theme Toggle */}
-            <div className="flex items-center justify-between">
+          {/* Quick Actions */}
+          <div className="p-6 space-y-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-800 dark:text-white mb-4">Quick Actions</h3>
+            
+            <button 
+              onClick={() => setIsEditingName(true)}
+              className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <User className="w-5 h-5 text-purple-500" />
+              <span className="text-gray-800 dark:text-white">Edit Name</span>
+            </button>
+
+            <label className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+              <Camera className="w-5 h-5 text-blue-500" />
+              <span className="text-gray-800 dark:text-white">Upload Profile Photo</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </label>
+
+            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               <div className="flex items-center space-x-3">
-                <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                <span className="text-gray-800 dark:text-gray-200">App Theme</span>
+                <Palette className="w-5 h-5 text-purple-500" />
+                <span className="text-gray-800 dark:text-white">Toggle Theme</span>
               </div>
               <button
                 onClick={toggleTheme}
                 className={`relative w-14 h-7 rounded-full transition-colors ${
-                  isDarkMode ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-gray-300'
+                  isDarkMode ? 'bg-gradient-to-r from-purple-500 to-blue-500' : 'bg-gray-300'
                 }`}
               >
                 <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform flex items-center justify-center ${
                   isDarkMode ? 'translate-x-8' : 'translate-x-1'
                 }`}>
                   {isDarkMode ? (
-                    <Moon className="w-3 h-3 text-blue-500" />
+                    <Moon className="w-3 h-3 text-purple-500" />
                   ) : (
                     <Sun className="w-3 h-3 text-yellow-500" />
                   )}
                 </div>
               </button>
             </div>
+          </div>
 
-            {/* Notifications */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2">
-                <Bell className="w-5 h-5" />
-                <span>Notifications</span>
-              </h3>
-              
-              {Object.entries(notifications).map(([key, value]) => (
-                <div key={key} className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-400 capitalize">
-                    {key === 'todo' ? 'To-Do' : key} Reminders
-                  </span>
-                  <button
-                    onClick={() => setNotifications(prev => ({ ...prev, [key]: !value }))}
-                    className={`relative w-12 h-6 rounded-full transition-colors ${
-                      value ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
-                  >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      value ? 'translate-x-7' : 'translate-x-1'
-                    }`} />
-                  </button>
-                </div>
-              ))}
-            </div>
+          {/* Notifications */}
+          <div className="p-6 space-y-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-800 dark:text-white flex items-center space-x-2">
+              <Bell className="w-5 h-5" />
+              <span>Notifications</span>
+            </h3>
+            
+            {Object.entries(notifications).map(([key, value]) => (
+              <div key={key} className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400 capitalize">
+                  {key === 'todo' ? 'To-Do' : key} Reminders
+                </span>
+                <button
+                  onClick={() => setNotifications(prev => ({ ...prev, [key]: !value }))}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${
+                    value ? 'bg-gradient-to-r from-purple-500 to-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                    value ? 'translate-x-7' : 'translate-x-1'
+                  }`} />
+                </button>
+              </div>
+            ))}
+          </div>
 
-            {/* Security */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2">
-                <Lock className="w-5 h-5" />
-                <span>Security & Privacy</span>
-              </h3>
-              
-              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                <span className="text-gray-800 dark:text-gray-200">Change Password</span>
-              </button>
-              
-              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                <span className="text-gray-800 dark:text-gray-200">Enable Biometric Login</span>
-              </button>
-            </div>
-
-            {/* App Info */}
-            <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                <span className="text-gray-800 dark:text-gray-200">Help & Feedback</span>
-              </button>
-              
-              <button className="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                <span className="text-gray-800 dark:text-gray-200">Privacy Policy</span>
-              </button>
-              
-              <p className="text-sm text-gray-500 dark:text-gray-400 p-3">Version 1.0.0</p>
-            </div>
+          {/* App Settings */}
+          <div className="p-6 space-y-4">
+            <h3 className="font-semibold text-gray-800 dark:text-white flex items-center space-x-2">
+              <Settings className="w-5 h-5" />
+              <span>App Settings</span>
+            </h3>
+            
+            <button className="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <span className="text-gray-800 dark:text-white">Reset All Data</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">This will delete all your data permanently</p>
+            </button>
+            
+            <button className="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <span className="text-gray-800 dark:text-white">Help & Feedback</span>
+            </button>
+            
+            <p className="text-sm text-gray-500 dark:text-gray-400 p-3">Version 1.0.0</p>
 
             {/* Logout */}
             <button 
