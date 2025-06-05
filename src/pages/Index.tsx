@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -61,7 +62,7 @@ const Index = () => {
       case 'ask-ai':
         return <AskAIScreen onBack={() => setActiveScreen('dashboard')} />;
       default:
-        return <div className="min-h-screen transition-colors duration-200 bg-slate-50">
+        return <div className="min-h-screen transition-colors duration-200 bg-slate-50 dark:bg-gray-900">
             <AdPlaceholder />
             <WelcomeSection />
             <FeatureGrid onFeatureClick={setActiveScreen} />
@@ -79,7 +80,7 @@ const Index = () => {
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-gray-900 w-full">
+  return <div className="min-h-screen bg-white dark:bg-gray-900 w-full">
       <Header activeTab={activeTab} onTabChange={handleTabChange} onProfileClick={() => setIsProfileOpen(true)} onAskAI={() => setActiveScreen('ask-ai')} showBackButton={activeScreen !== 'dashboard' && activeScreen !== 'pricing'} onBack={() => {
       setActiveScreen('dashboard');
       setActiveTab('dashboard');

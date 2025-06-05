@@ -6,14 +6,20 @@ interface AskAIScreenProps {
   onBack: () => void;
 }
 
+interface Message {
+  id: number;
+  type: 'user' | 'ai';
+  content: string;
+}
+
 export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [conversation, setConversation] = useState([
+  const [conversation, setConversation] = useState<Message[]>([
     {
       id: 1,
       type: 'ai',
-      content: 'Hello! I\'m Cadolt AI, your productivity assistant. How can I help you today?'
+      content: 'Hello! I\'m Cadolt AI, your productivity assistant powered by Gemini. How can I help you today?'
     }
   ]);
 
@@ -24,10 +30,12 @@ export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
     'Suggest to-dos for today'
   ];
 
+  const GEMINI_API_KEY = 'AIzaSyBnKKxn-B0R_9LMIwqT_5fQRK0bxvcF7QY';
+
   const handleSend = async () => {
     if (!message.trim()) return;
 
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now(),
       type: 'user',
       content: message
@@ -37,21 +45,48 @@ export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
     setMessage('');
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse = {
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `You are Cadolt AI, a helpful productivity assistant. Please respond to this user query in a helpful, concise way: ${userMessage.content}`
+            }]
+          }]
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+        const aiResponse: Message = {
+          id: Date.now() + 1,
+          type: 'ai',
+          content: data.candidates[0].content.parts[0].text
+        };
+        setConversation(prev => [...prev, aiResponse]);
+      } else {
+        throw new Error('No response from Gemini AI');
+      }
+    } catch (error) {
+      console.error('Error calling Gemini AI:', error);
+      const errorResponse: Message = {
         id: Date.now() + 1,
         type: 'ai',
-        content: `I understand you want to: "${userMessage.content}". Let me help you with that! This is a demo response.`
+        content: 'I apologize, but I\'m having trouble connecting to the AI service right now. Please try again later.'
       };
-      setConversation(prev => [...prev, aiResponse]);
+      setConversation(prev => [...prev, errorResponse]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handlePromptClick = (prompt: string) => {
     setMessage(prompt);
-    handleSend();
   };
 
   return (

@@ -80,7 +80,7 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
       title: "Advanced Vault",
       description: "Secure password vault with biometric lock and cloud backup",
       icon: <Shield className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-gradient-to-br from-gray-700 to-gray-800",
+      bgColor: "bg-gradient-to-br from-gray-600 to-gray-700",
       key: "vault"
     },
     {
