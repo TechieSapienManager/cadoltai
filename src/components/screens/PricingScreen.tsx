@@ -1,177 +1,216 @@
 
-import React from 'react';
-import { Check, Crown, Star } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, Sparkles, Shield, Cloud, Zap, Star } from 'lucide-react';
 
 interface PricingScreenProps {
   onBack: () => void;
 }
 
 export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack }) => {
+  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro' | 'premium'>('basic');
+
   const plans = [
     {
-      name: "Free",
-      price: "$0",
-      period: "forever",
-      description: "Perfect for getting started",
+      id: 'basic' as const,
+      name: 'Basic',
+      price: '₹0',
+      period: 'Forever Free',
+      description: 'Perfect for getting started',
       features: [
-        "Basic Calendar",
-        "5 Notes",
-        "Simple To-Do Lists",
-        "Basic Alarms",
-        "Community Support"
+        'Ad-supported experience',
+        '5 Gemini AI queries/day',
+        'Basic calendar & notes',
+        'Local storage only',
+        'Standard alarms & focus',
+        'Password vault (local)'
       ],
-      buttonText: "Get Started",
-      buttonStyle: "bg-gray-600 hover:bg-gray-700",
-      popular: false
+      buttonText: 'Current Plan',
+      popular: false,
+      gradient: 'from-gray-500 to-gray-600'
     },
     {
-      name: "Pro",
-      price: "$9.99",
-      period: "month",
-      description: "Everything you need to stay productive",
+      id: 'pro' as const,
+      name: 'Pro',
+      price: '₹29',
+      period: '/month',
+      description: 'Most popular for productivity',
       features: [
-        "Advanced Calendar with Weather",
-        "Unlimited Smart Notes",
-        "AI-Powered To-Do Lists",
-        "Focus Mode+",
-        "Basic Vault (50 passwords)",
-        "Smart Alarms",
-        "Priority Support",
-        "Productivity Analytics"
+        'Ad-free experience',
+        '25 Gemini AI queries/day',
+        'Advanced calendar features',
+        'Cloud sync & backup',
+        'Premium focus sounds',
+        'Biometric vault security',
+        'Priority customer support'
       ],
-      buttonText: "Start Free Trial",
-      buttonStyle: "bg-blue-600 hover:bg-blue-700",
-      popular: true
+      buttonText: 'Go Pro',
+      popular: true,
+      gradient: 'from-purple-500 to-blue-500'
     },
     {
-      name: "Premium",
-      price: "$19.99",
-      period: "month",
-      description: "For power users and teams",
+      id: 'premium' as const,
+      name: 'Premium',
+      price: '₹99',
+      period: '/month',
+      description: 'Ultimate productivity suite',
       features: [
-        "Everything in Pro",
-        "Unlimited Vault Storage",
-        "Team Collaboration",
-        "Advanced AI Features",
-        "Custom Integrations",
-        "White-label Options",
-        "24/7 Premium Support",
-        "Advanced Analytics",
-        "API Access"
+        'Everything in Pro',
+        'Unlimited AI queries',
+        'Advanced analytics',
+        'Team collaboration',
+        'Custom integrations',
+        'Dedicated account manager',
+        'Early access to features',
+        'Advanced automation'
       ],
-      buttonText: "Go Premium",
-      buttonStyle: "bg-purple-600 hover:bg-purple-700",
-      popular: false
+      buttonText: 'Go Premium',
+      popular: false,
+      gradient: 'from-yellow-500 to-orange-500'
     }
   ];
 
+  const handleSubscribe = (planId: string) => {
+    if (planId === 'basic') return;
+    
+    // Integrate with Razorpay here
+    console.log(`Subscribing to ${planId} plan`);
+    
+    // For demo purposes, show alert
+    alert(`Redirecting to Razorpay for ${planId} plan payment...`);
+  };
+
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
-      <div className="px-4 md:px-6 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+      <div className="p-6">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Choose Your Plan
           </h1>
-          <p className="text-lg md:text-xl text-purple-600 dark:text-purple-300 max-w-2xl mx-auto">
-            Unlock the full potential of your productivity with our feature-rich plans
+          <p className="text-gray-600 dark:text-gray-400">
+            Unlock your productivity potential with Cadolt AI
           </p>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {plans.map((plan, index) => (
+        {/* Plan Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {plans.map((plan) => (
             <div
-              key={plan.name}
-              className={`relative bg-gray-50 dark:bg-gray-800/50 backdrop-blur-sm rounded-3xl shadow-xl p-6 md:p-8 transform hover:scale-105 transition-all duration-300 border ${
-                plan.popular ? 'border-purple-500/50 ring-2 ring-purple-500/20' : 'border-gray-300 dark:border-gray-700/50'
+              key={plan.id}
+              className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 transition-all duration-300 hover:shadow-xl ${
+                plan.popular 
+                  ? 'border-purple-500 scale-105' 
+                  : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
               }`}
             >
+              {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center shadow-lg">
-                    <Star className="w-4 h-4 mr-1" />
-                    Most Popular
+                  <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
+                    <Star className="w-4 h-4" />
+                    <span>Most Popular</span>
                   </div>
                 </div>
               )}
 
-              <div className="text-center mb-8">
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  {plan.name}
-                </h3>
-                <div className="flex items-center justify-center mb-2">
-                  <span className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
-                    {plan.price}
-                  </span>
-                  {plan.price !== "$0" && (
-                    <span className="text-purple-600 dark:text-purple-300 ml-2">
-                      /{plan.period}
+              <div className="p-6">
+                {/* Plan Header */}
+                <div className="text-center mb-6">
+                  <div className={`w-16 h-16 mx-auto mb-4 bg-gradient-to-r ${plan.gradient} rounded-2xl flex items-center justify-center`}>
+                    {plan.id === 'basic' && <Sparkles className="w-8 h-8 text-white" />}
+                    {plan.id === 'pro' && <Zap className="w-8 h-8 text-white" />}
+                    {plan.id === 'premium' && <Shield className="w-8 h-8 text-white" />}
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    {plan.name}
+                  </h3>
+                  
+                  <div className="mb-2">
+                    <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                      {plan.price}
                     </span>
-                  )}
-                </div>
-                <p className="text-purple-600 dark:text-purple-300 text-sm md:text-base">
-                  {plan.description}
-                </p>
-              </div>
-
-              <div className="space-y-3 md:space-y-4 mb-8">
-                {plan.features.map((feature, featureIndex) => (
-                  <div key={featureIndex} className="flex items-center">
-                    <Check className="w-4 md:w-5 h-4 md:h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700 dark:text-purple-200 text-sm md:text-base">
-                      {feature}
+                    <span className="text-gray-600 dark:text-gray-400 ml-1">
+                      {plan.period}
                     </span>
                   </div>
-                ))}
-              </div>
+                  
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {plan.description}
+                  </p>
+                </div>
 
-              <button
-                className={`w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 ${plan.buttonStyle}`}
-              >
-                {plan.buttonText}
-              </button>
+                {/* Features */}
+                <div className="space-y-3 mb-6">
+                  {plan.features.map((feature, index) => (
+                    <div key={index} className="flex items-start space-x-3">
+                      <div className={`w-5 h-5 rounded-full bg-gradient-to-r ${plan.gradient} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-gray-700 dark:text-gray-300 text-sm">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA Button */}
+                <button
+                  onClick={() => handleSubscribe(plan.id)}
+                  disabled={plan.id === 'basic'}
+                  className={`w-full py-3 rounded-xl font-medium transition-all duration-200 ${
+                    plan.id === 'basic'
+                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                      : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-lg hover:scale-105 active:scale-95`
+                  }`}
+                >
+                  {plan.buttonText}
+                </button>
+
+                {/* Payment Note */}
+                {plan.id !== 'basic' && (
+                  <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
+                    Secure payment via Razorpay
+                  </p>
+                )}
+              </div>
             </div>
           ))}
         </div>
 
-        {/* FAQ Section */}
-        <div className="max-w-4xl mx-auto mt-16 md:mt-20">
-          <h2 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-8 md:mb-12">
-            Frequently Asked Questions
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            <div className="bg-gray-50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg border border-gray-300 dark:border-gray-700/50">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                Can I switch plans anytime?
-              </h3>
-              <p className="text-gray-600 dark:text-purple-300 text-sm md:text-base">
-                Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.
-              </p>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg border border-gray-300 dark:border-gray-700/50">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                Is there a free trial?
-              </h3>
-              <p className="text-gray-600 dark:text-purple-300 text-sm md:text-base">
-                Yes, we offer a 14-day free trial for all paid plans. No credit card required.
-              </p>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg border border-gray-300 dark:border-gray-700/50">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                What payment methods do you accept?
-              </h3>
-              <p className="text-gray-600 dark:text-purple-300 text-sm md:text-base">
-                We accept all major credit cards, PayPal, and bank transfers for enterprise plans.
-              </p>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg border border-gray-300 dark:border-gray-700/50">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                Is my data secure?
-              </h3>
-              <p className="text-gray-600 dark:text-purple-300 text-sm md:text-base">
-                Absolutely. We use enterprise-grade encryption and security measures to protect your data.
-              </p>
+        {/* Payment Methods */}
+        <div className="max-w-2xl mx-auto mt-12 text-center">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            Secure Payment Options
+          </h3>
+          <div className="flex justify-center items-center space-x-4 text-gray-600 dark:text-gray-400">
+            <span className="text-sm">Powered by</span>
+            <div className="font-semibold text-blue-600 dark:text-blue-400">Razorpay</div>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            UPI, Net Banking, Cards & More
+          </p>
+        </div>
+
+        {/* FAQ or Additional Info */}
+        <div className="max-w-3xl mx-auto mt-12 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+              Why Choose Cadolt AI Pro?
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center space-x-2">
+                <Cloud className="w-4 h-4 text-blue-500" />
+                <span>Cloud Sync</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Shield className="w-4 h-4 text-green-500" />
+                <span>Enhanced Security</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Zap className="w-4 h-4 text-yellow-500" />
+                <span>AI-Powered</span>
+              </div>
             </div>
           </div>
         </div>

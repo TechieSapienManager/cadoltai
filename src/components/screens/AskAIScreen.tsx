@@ -46,7 +46,7 @@ export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,13 +56,29 @@ export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
             parts: [{
               text: `You are Cadolt AI, a helpful productivity assistant. Please respond to this user query in a helpful, concise way: ${userMessage.content}`
             }]
-          }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 1,
+            topP: 1,
+            maxOutputTokens: 2048,
+          },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+          ]
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
       
-      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+      if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
         const aiResponse: Message = {
           id: Date.now() + 1,
           type: 'ai',
@@ -70,7 +86,7 @@ export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
         };
         setConversation(prev => [...prev, aiResponse]);
       } else {
-        throw new Error('No response from Gemini AI');
+        throw new Error('Invalid response format from Gemini API');
       }
     } catch (error) {
       console.error('Error calling Gemini AI:', error);
