@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { X, Sun, Moon, Bell, Lock, Settings, LogOut } from 'lucide-react';
+import { X, Sun, Moon, Bell, Lock, Settings, LogOut, Camera } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -8,25 +9,53 @@ interface ProfileModalProps {
 }
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
   const [notifications, setNotifications] = useState({
     calendar: true,
     todo: true,
     focus: true,
     alarms: true
   });
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  const { user, signOut } = useAuth();
 
   if (!isOpen) return null;
 
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    onClose();
+  };
+
+  const getInitials = (email: string) => {
+    return email.split('@')[0].substring(0, 2).toUpperCase();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-8">
       <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-800 rounded-t-2xl w-full max-w-md mx-4 h-4/5 overflow-hidden animate-slide-in-right">
+      <div className="relative bg-white dark:bg-gray-800 rounded-t-2xl w-full max-w-md mx-4 h-4/5 overflow-hidden animate-slide-in-right transition-colors duration-200">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Profile & Settings</h2>
@@ -43,16 +72,33 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
           {/* Profile Info */}
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-4">
-              <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-2xl">
-                SA
+              <div className="relative">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    getInitials(user?.email || 'SA')
+                  )}
+                </div>
+                <label className="absolute bottom-0 right-0 w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-700 transition-colors">
+                  <Camera className="w-3 h-3 text-white" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
               </div>
               <div>
                 <input
                   type="text"
-                  defaultValue="Sarah Anderson"
+                  defaultValue={user?.user_metadata?.full_name || "User"}
                   className="text-lg font-semibold bg-transparent border-none outline-none text-gray-800 dark:text-gray-200"
                 />
-                <p className="text-sm text-gray-600 dark:text-gray-400">sarah@example.com</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {user?.email || 'user@example.com'}
+                </p>
               </div>
             </div>
           </div>
@@ -68,16 +114,16 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
               <button
                 onClick={toggleTheme}
                 className={`relative w-14 h-7 rounded-full transition-colors ${
-                  isDarkMode ? 'bg-blue-500' : 'bg-gray-300'
+                  isDarkMode ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-gray-300'
                 }`}
               >
-                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${
+                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform flex items-center justify-center ${
                   isDarkMode ? 'translate-x-8' : 'translate-x-1'
                 }`}>
                   {isDarkMode ? (
-                    <Moon className="w-3 h-3 m-1 text-blue-500" />
+                    <Moon className="w-3 h-3 text-blue-500" />
                   ) : (
-                    <Sun className="w-3 h-3 m-1 text-yellow-500" />
+                    <Sun className="w-3 h-3 text-yellow-500" />
                   )}
                 </div>
               </button>
@@ -98,7 +144,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                   <button
                     onClick={() => setNotifications(prev => ({ ...prev, [key]: !value }))}
                     className={`relative w-12 h-6 rounded-full transition-colors ${
-                      value ? 'bg-blue-500' : 'bg-gray-300'
+                      value ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-gray-300 dark:bg-gray-600'
                     }`}
                   >
                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -139,7 +185,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
             </div>
 
             {/* Logout */}
-            <button className="w-full p-3 rounded-lg bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
+            <button 
+              onClick={handleLogout}
+              className="w-full p-3 rounded-lg bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+            >
               <span className="text-red-600 dark:text-red-400 font-medium flex items-center justify-center space-x-2">
                 <LogOut className="w-4 h-4" />
                 <span>Log Out</span>

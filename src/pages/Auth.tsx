@@ -1,10 +1,10 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Phone, Eye, EyeOff, Brain } from 'lucide-react';
+import { Mail, Phone, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
@@ -135,17 +135,20 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#4169E1] via-[#6A4C93] to-[#8A2BE2] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#4B00D1] to-[#6A1FC9] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
           <div className="inline-block relative mb-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 rounded-3xl flex items-center justify-center shadow-2xl relative">
-              <Brain className="w-10 h-10 text-white" />
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-orange-400 rounded-full"></div>
+            <div className="w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl relative">
+              <img 
+                src="/lovable-uploads/dcde5e95-fc3e-4fcf-b71a-2c7767551ce1.png" 
+                alt="Cadolt AI Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 animate-gradient-pulse">
             Cadolt AI
           </h1>
         </div>
