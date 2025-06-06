@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, Clock, Edit, Trash2, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,7 +48,14 @@ export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTodos(data || []);
+      
+      // Type cast the priority field to ensure it matches our interface
+      const typedTodos = (data || []).map(todo => ({
+        ...todo,
+        priority: (todo.priority as 'low' | 'medium' | 'high') || 'medium'
+      }));
+      
+      setTodos(typedTodos);
     } catch (error) {
       console.error('Error loading todos:', error);
     } finally {
