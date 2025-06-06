@@ -63,6 +63,15 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  // Get user's uploaded profile picture from localStorage
+  const getUserProfileImage = () => {
+    try {
+      return localStorage.getItem('userProfileImage');
+    } catch {
+      return null;
+    }
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
       <div className="px-4 py-3">
@@ -83,12 +92,20 @@ export const Header: React.FC<HeaderProps> = ({
               </>
             ) : (
               <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">C</span>
+                {/* App Main Logo */}
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+                      <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center">
+                        <div className="w-3 h-3 bg-gradient-to-br from-purple-600 to-blue-600 rounded-sm"></div>
+                      </div>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-sm"></div>
+                  </div>
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    Cadolt AI
+                  </h1>
                 </div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  Cadolt AI
-                </h1>
               </div>
             )}
           </div>
@@ -119,22 +136,25 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
 
-          {/* Right side - AI and Profile */}
+          {/* Right side - Premium AI and Profile */}
           <div className="flex items-center space-x-2">
+            {/* Premium AI Assistant Button */}
             <button
               onClick={onAskAI}
-              className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-sm"
+              className="relative p-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 text-white hover:from-purple-700 hover:via-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <Bot className="w-5 h-5" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
             </button>
             
+            {/* User Profile */}
             <button
               onClick={onProfileClick}
               className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <Avatar className="w-8 h-8">
                 <AvatarImage 
-                  src={user?.user_metadata?.avatar_url} 
+                  src={getUserProfileImage() || user?.user_metadata?.avatar_url} 
                   alt={getDisplayName()}
                 />
                 <AvatarFallback className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm">
