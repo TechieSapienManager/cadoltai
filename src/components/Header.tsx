@@ -97,15 +97,14 @@ export const Header: React.FC<HeaderProps> = ({
               </>
             ) : (
               <div className="flex items-center space-x-4">
-                {/* App Main Logo - Consistent with login page */}
+                {/* App Main Logo - Using uploaded brain logo */}
                 <div className="flex items-center space-x-3">
                   <div className="relative">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
-                      <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center">
-                        <div className="w-3 h-3 bg-gradient-to-br from-purple-600 to-blue-600 rounded-sm"></div>
-                      </div>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-sm"></div>
+                    <img 
+                      src="/lovable-uploads/0979893b-0c4d-40b7-a3d1-e69a16dc5c50.png" 
+                      alt="Cadolt AI Logo" 
+                      className="w-10 h-10 rounded-xl shadow-lg"
+                    />
                   </div>
                   <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                     Cadolt AI

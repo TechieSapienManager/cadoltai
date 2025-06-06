@@ -1,16 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Clock, Volume2, Play } from 'lucide-react';
+import { Plus, Clock, Volume2, Play, X, Check } from 'lucide-react';
 import { audioService, alarmSounds } from '@/utils/audioService';
 import { AudioWaveVisualizer } from '@/components/AudioWaveVisualizer';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Alarm {
-  id: number;
+  id: string;
   time: string;
-  label: string;
-  enabled: boolean;
+  title: string;
+  is_active: boolean;
   days: string[];
-  soundId: string;
+  sound_type: string;
+  user_id: string;
 }
 
 interface AlarmsScreenProps {
@@ -18,36 +21,27 @@ interface AlarmsScreenProps {
 }
 
 export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
-  const [alarms, setAlarms] = useState<Alarm[]>([
-    {
-      id: 1,
-      time: '6:30 AM',
-      label: 'Morning Workout',
-      enabled: true,
-      days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-      soundId: 'classic'
-    },
-    {
-      id: 2,
-      time: '8:00 AM',
-      label: 'Work Start',
-      enabled: true,
-      days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-      soundId: 'beep'
-    },
-    {
-      id: 3,
-      time: '10:00 PM',
-      label: 'Sleep Time',
-      enabled: false,
-      days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      soundId: 'morning'
-    }
-  ]);
-
+  const [alarms, setAlarms] = useState<Alarm[]>([]);
+  const [loading, setLoading] = useState(true);
   const [previewSound, setPreviewSound] = useState<string | null>(null);
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
-  const [showSoundSelector, setShowSoundSelector] = useState<number | null>(null);
+  const [showSoundSelector, setShowSoundSelector] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newAlarm, setNewAlarm] = useState({
+    time: '',
+    title: '',
+    days: [] as string[],
+    sound_type: 'default'
+  });
+
+  const { user } = useAuth();
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  useEffect(() => {
+    if (user) {
+      loadAlarms();
+    }
+  }, [user]);
 
   useEffect(() => {
     // Check for alarms every minute
@@ -57,6 +51,23 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
 
     return () => clearInterval(interval);
   }, [alarms]);
+
+  const loadAlarms = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('alarms')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('time', { ascending: true });
+
+      if (error) throw error;
+      setAlarms(data || []);
+    } catch (error) {
+      console.error('Error loading alarms:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const checkAlarms = () => {
     const now = new Date();
@@ -68,37 +79,109 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
     const currentDay = now.toLocaleDateString('en-US', { weekday: 'short' });
 
     alarms.forEach(alarm => {
-      if (alarm.enabled && alarm.time === currentTime && alarm.days.includes(currentDay)) {
+      if (alarm.is_active && alarm.time === currentTime && alarm.days.includes(currentDay)) {
         triggerAlarm(alarm);
       }
     });
   };
 
   const triggerAlarm = async (alarm: Alarm) => {
-    const sound = alarmSounds.find(s => s.id === alarm.soundId);
+    const sound = alarmSounds.find(s => s.id === alarm.sound_type);
     if (sound) {
       await audioService.playSound(sound, false, 30000); // Play for 30 seconds
       // Show alarm notification
       if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification(`Alarm: ${alarm.label}`, {
+        new Notification(`Alarm: ${alarm.title}`, {
           body: `Time: ${alarm.time}`,
-          icon: '/lovable-uploads/dcde5e95-fc3e-4fcf-b71a-2c7767551ce1.png'
+          icon: '/lovable-uploads/0979893b-0c4d-40b7-a3d1-e69a16dc5c50.png'
         });
       }
     }
   };
 
-  const toggleAlarm = (id: number) => {
-    setAlarms(prev => prev.map(alarm => 
-      alarm.id === id ? { ...alarm, enabled: !alarm.enabled } : alarm
-    ));
+  const toggleAlarm = async (id: string) => {
+    try {
+      const alarm = alarms.find(a => a.id === id);
+      if (!alarm) return;
+
+      const { error } = await supabase
+        .from('alarms')
+        .update({ is_active: !alarm.is_active })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      setAlarms(prev => prev.map(alarm => 
+        alarm.id === id ? { ...alarm, is_active: !alarm.is_active } : alarm
+      ));
+    } catch (error) {
+      console.error('Error toggling alarm:', error);
+    }
   };
 
-  const updateAlarmSound = (alarmId: number, soundId: string) => {
-    setAlarms(prev => prev.map(alarm => 
-      alarm.id === alarmId ? { ...alarm, soundId } : alarm
-    ));
-    setShowSoundSelector(null);
+  const updateAlarmSound = async (alarmId: string, soundId: string) => {
+    try {
+      const { error } = await supabase
+        .from('alarms')
+        .update({ sound_type: soundId })
+        .eq('id', alarmId);
+
+      if (error) throw error;
+
+      setAlarms(prev => prev.map(alarm => 
+        alarm.id === alarmId ? { ...alarm, sound_type: soundId } : alarm
+      ));
+      setShowSoundSelector(null);
+    } catch (error) {
+      console.error('Error updating alarm sound:', error);
+    }
+  };
+
+  const addAlarm = async () => {
+    if (!newAlarm.time || !newAlarm.title || newAlarm.days.length === 0) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('alarms')
+        .insert({
+          time: newAlarm.time,
+          title: newAlarm.title,
+          days: newAlarm.days,
+          sound_type: newAlarm.sound_type,
+          user_id: user?.id,
+          is_active: true
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setAlarms(prev => [...prev, data]);
+      setShowAddModal(false);
+      setNewAlarm({
+        time: '',
+        title: '',
+        days: [],
+        sound_type: 'default'
+      });
+    } catch (error) {
+      console.error('Error adding alarm:', error);
+    }
+  };
+
+  const deleteAlarm = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('alarms')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      setAlarms(prev => prev.filter(alarm => alarm.id !== id));
+    } catch (error) {
+      console.error('Error deleting alarm:', error);
+    }
   };
 
   const previewAlarmSound = async (soundId: string) => {
@@ -120,12 +203,31 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
     }
   };
 
+  const toggleDay = (day: string) => {
+    setNewAlarm(prev => ({
+      ...prev,
+      days: prev.days.includes(day)
+        ? prev.days.filter(d => d !== day)
+        : [...prev.days, day]
+    }));
+  };
+
   // Request notification permission
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 pt-16 transition-colors duration-200">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pt-16 transition-colors duration-200">
@@ -142,7 +244,7 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
         ) : (
           <div className="space-y-4">
             {alarms.map((alarm) => {
-              const selectedSound = alarmSounds.find(s => s.id === alarm.soundId);
+              const selectedSound = alarmSounds.find(s => s.id === alarm.sound_type);
               return (
                 <div
                   key={alarm.id}
@@ -156,7 +258,7 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
                             {alarm.time}
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {alarm.label}
+                            {alarm.title}
                           </p>
                           <div className="flex space-x-1 mt-2">
                             {alarm.days.map((day) => (
@@ -189,7 +291,7 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
                                     <button
                                       onClick={() => updateAlarmSound(alarm.id, sound.id)}
                                       className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
-                                        alarm.soundId === sound.id
+                                        alarm.sound_type === sound.id
                                           ? 'bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300'
                                           : 'hover:bg-gray-100 dark:hover:bg-gray-600'
                                       }`}
@@ -215,19 +317,29 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
                       </div>
                     </div>
 
-                    {/* Toggle Switch */}
-                    <button
-                      onClick={() => toggleAlarm(alarm.id)}
-                      className={`relative w-12 h-6 rounded-full transition-colors ${
-                        alarm.enabled ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-gray-300 dark:bg-gray-600'
-                      }`}
-                    >
-                      <div
-                        className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                          alarm.enabled ? 'translate-x-7' : 'translate-x-1'
+                    <div className="flex items-center space-x-2">
+                      {/* Delete Button */}
+                      <button
+                        onClick={() => deleteAlarm(alarm.id)}
+                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+
+                      {/* Toggle Switch */}
+                      <button
+                        onClick={() => toggleAlarm(alarm.id)}
+                        className={`relative w-12 h-6 rounded-full transition-colors ${
+                          alarm.is_active ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-gray-300 dark:bg-gray-600'
                         }`}
-                      />
-                    </button>
+                      >
+                        <div
+                          className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                            alarm.is_active ? 'translate-x-7' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -237,9 +349,115 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
       </div>
 
       {/* Add Alarm FAB */}
-      <button className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg flex items-center justify-center hover:from-blue-600 hover:to-purple-700 transition-all hover:scale-110">
+      <button 
+        onClick={() => setShowAddModal(true)}
+        className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg flex items-center justify-center hover:from-blue-600 hover:to-purple-700 transition-all hover:scale-110"
+      >
         <Plus className="w-6 h-6 text-white" />
       </button>
+
+      {/* Add Alarm Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Add New Alarm</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Time Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Time
+                </label>
+                <input
+                  type="time"
+                  value={newAlarm.time}
+                  onChange={(e) => setNewAlarm(prev => ({ ...prev, time: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                />
+              </div>
+
+              {/* Title Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Label
+                </label>
+                <input
+                  type="text"
+                  value={newAlarm.title}
+                  onChange={(e) => setNewAlarm(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Alarm label"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                />
+              </div>
+
+              {/* Days Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Repeat Days
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {daysOfWeek.map((day) => (
+                    <button
+                      key={day}
+                      onClick={() => toggleDay(day)}
+                      className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                        newAlarm.days.includes(day)
+                          ? 'bg-purple-500 text-white'
+                          : 'bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sound Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Sound
+                </label>
+                <select
+                  value={newAlarm.sound_type}
+                  onChange={(e) => setNewAlarm(prev => ({ ...prev, sound_type: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                >
+                  {alarmSounds.map((sound) => (
+                    <option key={sound.id} value={sound.id}>
+                      {sound.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-4">
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 py-2 px-4 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={addAlarm}
+                  disabled={!newAlarm.time || !newAlarm.title || newAlarm.days.length === 0}
+                  className="flex-1 py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  Add Alarm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

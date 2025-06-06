@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Sun, Moon, Bell, Lock, Settings, LogOut, Camera, User, Palette } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -22,6 +21,20 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
 
   const { user, signOut } = useAuth();
 
+  // Load saved profile data on component mount
+  useEffect(() => {
+    try {
+      const savedProfileData = localStorage.getItem('userProfile');
+      if (savedProfileData) {
+        const parsed = JSON.parse(savedProfileData);
+        setProfileImage(parsed.profileImage || null);
+        setDisplayName(parsed.displayName || '');
+      }
+    } catch (error) {
+      console.error('Error loading profile data:', error);
+    }
+  }, []);
+
   if (!isOpen) return null;
 
   const toggleTheme = () => {
@@ -39,7 +52,16 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
+        const imageUrl = e.target?.result as string;
+        setProfileImage(imageUrl);
+        
+        // Save to localStorage
+        const profileData = {
+          profileImage: imageUrl,
+          displayName: displayName
+        };
+        localStorage.setItem('userProfile', JSON.stringify(profileData));
+        localStorage.setItem('userProfileImage', imageUrl); // For backward compatibility
       };
       reader.readAsDataURL(file);
     }
@@ -56,7 +78,13 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
 
   const handleNameSave = () => {
     setIsEditingName(false);
-    // Here you would save to database
+    
+    // Save to localStorage
+    const profileData = {
+      profileImage: profileImage,
+      displayName: displayName
+    };
+    localStorage.setItem('userProfile', JSON.stringify(profileData));
   };
 
   return (

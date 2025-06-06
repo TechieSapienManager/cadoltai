@@ -28,13 +28,20 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
     
     if (isRunning && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft(timeLeft - 1);
+        setTimeLeft(prev => prev - 1);
       }, 1000);
     } else if (timeLeft === 0 && isRunning) {
       // Session finished
       setIsRunning(false);
       audioService.stopSound();
       setIsAudioPlaying(false);
+      
+      // Show completion notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Focus Session Complete!', {
+          body: 'Great job! Time for a break.',
+        });
+      }
     }
     
     return () => clearInterval(interval);
@@ -49,19 +56,27 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
   const progress = ((sessionTimes[sessionType] - timeLeft) / sessionTimes[sessionType]) * 100;
 
   const toggleTimer = async () => {
-    if (!isRunning) {
-      // Start session
-      const sound = ambientSounds.find(s => s.id === selectedSound);
-      if (sound) {
-        await audioService.playSound(sound, true);
-        setIsAudioPlaying(true);
+    try {
+      if (!isRunning) {
+        // Start session
+        console.log('Starting focus session with sound:', selectedSound);
+        const sound = ambientSounds.find(s => s.id === selectedSound);
+        if (sound) {
+          await audioService.playSound(sound, true);
+          setIsAudioPlaying(true);
+          console.log('Audio started successfully');
+        }
+        setIsRunning(true);
+      } else {
+        // Pause session
+        console.log('Pausing focus session');
+        audioService.stopSound();
+        setIsAudioPlaying(false);
+        setIsRunning(false);
       }
-    } else {
-      // Pause session
-      audioService.stopSound();
-      setIsAudioPlaying(false);
+    } catch (error) {
+      console.error('Error toggling timer:', error);
     }
-    setIsRunning(!isRunning);
   };
 
   const resetTimer = () => {
@@ -72,21 +87,25 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
   };
 
   const previewAudio = async (soundId: string) => {
-    if (previewSound === soundId && isPreviewPlaying) {
-      audioService.stopSound();
-      setIsPreviewPlaying(false);
-      setPreviewSound(null);
-    } else {
-      const sound = ambientSounds.find(s => s.id === soundId);
-      if (sound) {
-        await audioService.playSound(sound, false, 3000); // 3 second preview
-        setIsPreviewPlaying(true);
-        setPreviewSound(soundId);
-        setTimeout(() => {
-          setIsPreviewPlaying(false);
-          setPreviewSound(null);
-        }, 3000);
+    try {
+      if (previewSound === soundId && isPreviewPlaying) {
+        audioService.stopSound();
+        setIsPreviewPlaying(false);
+        setPreviewSound(null);
+      } else {
+        const sound = ambientSounds.find(s => s.id === soundId);
+        if (sound) {
+          await audioService.playSound(sound, false, 3000); // 3 second preview
+          setIsPreviewPlaying(true);
+          setPreviewSound(soundId);
+          setTimeout(() => {
+            setIsPreviewPlaying(false);
+            setPreviewSound(null);
+          }, 3000);
+        }
       }
+    } catch (error) {
+      console.error('Error playing preview:', error);
     }
   };
 
@@ -97,6 +116,13 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
     audioService.stopSound();
     setIsAudioPlaying(false);
   };
+
+  // Request notification permission
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pt-16 transition-colors duration-200">

@@ -6,6 +6,12 @@ interface PricingScreenProps {
   onBack: () => void;
 }
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack }) => {
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro' | 'premium'>('basic');
 
@@ -69,14 +75,79 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack }) => {
     }
   ];
 
-  const handleSubscribe = (planId: string) => {
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleSubscribe = async (planId: string) => {
     if (planId === 'basic') return;
     
-    // Integrate with Razorpay here
-    console.log(`Subscribing to ${planId} plan`);
+    // Load Razorpay script
+    const scriptLoaded = await loadRazorpayScript();
     
-    // For demo purposes, show alert
-    alert(`Redirecting to Razorpay for ${planId} plan payment...`);
+    if (!scriptLoaded) {
+      alert('Razorpay SDK failed to load. Please check your internet connection.');
+      return;
+    }
+
+    const plan = plans.find(p => p.id === planId);
+    if (!plan) return;
+
+    const amount = planId === 'pro' ? 2900 : 9900; // Amount in paise (₹29 = 2900 paise, ₹99 = 9900 paise)
+
+    const options = {
+      key: 'rzp_test_wY7a0YUgJ4Va6A', // Your Razorpay Key ID
+      amount: amount,
+      currency: 'INR',
+      name: 'Cadolt AI',
+      description: `${plan.name} Plan Subscription`,
+      image: '/lovable-uploads/0979893b-0c4d-40b7-a3d1-e69a16dc5c50.png', // Your app logo
+      handler: function (response: any) {
+        // Payment successful
+        console.log('Payment successful:', response);
+        alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
+        
+        // Here you would typically:
+        // 1. Send payment details to your backend
+        // 2. Verify the payment
+        // 3. Upgrade user's subscription
+        // 4. Update UI to reflect new subscription status
+        
+        // For now, just show success message
+        alert(`Welcome to ${plan.name}! Your subscription is now active.`);
+      },
+      prefill: {
+        name: 'User',
+        email: 'user@example.com',
+        contact: '9999999999'
+      },
+      notes: {
+        plan: planId,
+        subscription_type: 'monthly'
+      },
+      theme: {
+        color: '#8B5CF6' // Purple theme matching your app
+      },
+      modal: {
+        ondismiss: function() {
+          console.log('Payment modal closed');
+        }
+      }
+    };
+
+    const razorpay = new window.Razorpay(options);
+    razorpay.open();
+    
+    razorpay.on('payment.failed', function (response: any) {
+      console.error('Payment failed:', response.error);
+      alert(`Payment failed: ${response.error.description}`);
+    });
   };
 
   return (
