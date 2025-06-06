@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowLeft, Bot, User } from 'lucide-react';
+import { ArrowLeft, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -66,6 +66,11 @@ export const Header: React.FC<HeaderProps> = ({
   // Get user's uploaded profile picture from localStorage
   const getUserProfileImage = () => {
     try {
+      const profileData = localStorage.getItem('userProfile');
+      if (profileData) {
+        const parsed = JSON.parse(profileData);
+        return parsed.profileImage || null;
+      }
       return localStorage.getItem('userProfileImage');
     } catch {
       return null;
@@ -92,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
               </>
             ) : (
               <div className="flex items-center space-x-4">
-                {/* App Main Logo */}
+                {/* App Main Logo - Consistent with login page */}
                 <div className="flex items-center space-x-3">
                   <div className="relative">
                     <div className="w-10 h-10 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
@@ -136,15 +141,14 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
 
-          {/* Right side - Premium AI and Profile */}
+          {/* Right side - Ask AI and Profile */}
           <div className="flex items-center space-x-2">
-            {/* Premium AI Assistant Button */}
+            {/* Ask AI Button */}
             <button
               onClick={onAskAI}
-              className="relative p-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 text-white hover:from-purple-700 hover:via-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 text-white hover:from-purple-700 hover:via-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm font-medium"
             >
-              <Bot className="w-5 h-5" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
+              Ask AI
             </button>
             
             {/* User Profile */}
