@@ -48,7 +48,14 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setVaultItems(data || []);
+      
+      // Type-safe mapping to ensure item_type is properly typed
+      const typedData: VaultItem[] = (data || []).map(item => ({
+        ...item,
+        item_type: item.item_type as 'password' | 'note' | 'file'
+      }));
+      
+      setVaultItems(typedData);
     } catch (error) {
       console.error('Error loading vault items:', error);
     } finally {
