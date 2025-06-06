@@ -82,9 +82,15 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
     return events.filter(event => event.event_date === dateStr);
   };
 
-  const getTodaysEvents = () => {
-    const today = new Date().toISOString().split('T')[0];
-    return events.filter(event => event.event_date === today);
+  const getMonthEvents = () => {
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const startOfMonth = new Date(year, month, 1).toISOString().split('T')[0];
+    const endOfMonth = new Date(year, month + 1, 0).toISOString().split('T')[0];
+    
+    return events.filter(event => 
+      event.event_date >= startOfMonth && event.event_date <= endOfMonth
+    );
   };
 
   const handleDayClick = (day: number) => {
@@ -104,7 +110,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   ];
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  const todaysEvents = getTodaysEvents();
+  const monthEvents = getMonthEvents();
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
@@ -186,22 +192,27 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Today's Events */}
+        {/* Month Events */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-          <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">Today's Events</h3>
+          <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">
+            Events in {monthNames[selectedDate.getMonth()]}
+          </h3>
           {loading ? (
             <div className="text-center py-4">
               <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
               <p className="text-gray-500 dark:text-gray-400 mt-2">Loading events...</p>
             </div>
-          ) : todaysEvents.length > 0 ? (
+          ) : monthEvents.length > 0 ? (
             <div className="space-y-3">
-              {todaysEvents.map((event) => (
+              {monthEvents.map((event) => (
                 <div key={event.id} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
                   <div 
                     className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: event.color }}
                   />
+                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400 w-20 flex-shrink-0">
+                    {new Date(event.event_date).toLocaleDateString()}
+                  </div>
                   <div className="text-sm font-medium text-gray-600 dark:text-gray-400 w-20 flex-shrink-0">
                     {event.start_time}
                   </div>
@@ -216,7 +227,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 dark:text-gray-400">No events scheduled for today</p>
+              <p className="text-gray-500 dark:text-gray-400">No events scheduled for this month</p>
               <button
                 onClick={() => {
                   setClickedDate(new Date());

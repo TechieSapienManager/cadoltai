@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, MoreVertical, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 

@@ -75,3 +75,26 @@ export const ambientSounds = [
     url: 'https://www.soundjay.com/misc/sounds/wind-1.wav'
   }
 ];
+
+export const alarmSounds = [
+  {
+    id: 'default',
+    name: 'Default Alarm',
+    url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav'
+  },
+  {
+    id: 'gentle',
+    name: 'Gentle Wake',
+    url: 'https://www.soundjay.com/misc/sounds/wind-chimes-1.wav'
+  },
+  {
+    id: 'nature',
+    name: 'Nature Sounds',
+    url: 'https://www.soundjay.com/misc/sounds/birds-1.wav'
+  },
+  {
+    id: 'classic',
+    name: 'Classic Alarm',
+    url: 'https://www.soundjay.com/misc/sounds/clock-ticking-1.wav'
+  }
+];
