@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +10,8 @@ import { Loader2, Eye, EyeOff, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const Auth = () => {
-  const { signIn, signUp, loading } = useAuth();
+  const { signIn, signUp, user, loading } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -19,25 +22,37 @@ const Auth = () => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !loading) {
+      console.log('User is logged in, redirecting to dashboard');
+      navigate('/');
+    }
+  }, [user, loading, navigate]);
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
     
+    console.log('Starting sign in process...');
     setError('');
     setIsSubmitting(true);
     
     try {
       console.log('Attempting sign in with email:', email);
-      const { error } = await signIn(email, password);
-      if (error) {
-        console.error('Sign in error:', error);
-        setError(error.message);
+      const result = await signIn(email, password);
+      console.log('Sign in result:', result);
+      
+      if (result.error) {
+        console.error('Sign in error:', result.error);
+        setError(result.error.message || 'Failed to sign in');
       } else {
-        console.log('Sign in successful');
+        console.log('Sign in successful, should redirect automatically');
+        // Don't manually navigate here, let the useEffect handle it
       }
     } catch (err) {
       console.error('Sign in exception:', err);
-      setError('An unexpected error occurred');
+      setError('An unexpected error occurred during sign in');
     } finally {
       setIsSubmitting(false);
     }
@@ -47,6 +62,7 @@ const Auth = () => {
     e.preventDefault();
     if (isSubmitting) return;
     
+    console.log('Starting sign up process...');
     setError('');
     
     if (password !== confirmPassword) {
@@ -63,16 +79,19 @@ const Auth = () => {
     
     try {
       console.log('Attempting sign up with email:', email);
-      const { error } = await signUp(email, password);
-      if (error) {
-        console.error('Sign up error:', error);
-        setError(error.message);
+      const result = await signUp(email, password);
+      console.log('Sign up result:', result);
+      
+      if (result.error) {
+        console.error('Sign up error:', result.error);
+        setError(result.error.message || 'Failed to create account');
       } else {
-        console.log('Sign up successful');
+        console.log('Sign up successful, should redirect automatically');
+        // Don't manually navigate here, let the useEffect handle it
       }
     } catch (err) {
       console.error('Sign up exception:', err);
-      setError('An unexpected error occurred');
+      setError('An unexpected error occurred during sign up');
     } finally {
       setIsSubmitting(false);
     }
@@ -138,7 +157,7 @@ If you have any questions, email us at techiesapienmanager@gmail.com
 By using Cadolt AI, you consent to this Privacy Policy.`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
@@ -146,9 +165,9 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
             <img 
               src="/lovable-uploads/0979893b-0c4d-40b7-a3d1-e69a16dc5c50.png" 
               alt="Cadolt AI Logo" 
-              className="w-8 h-8 rounded-lg shadow-md"
+              className="w-6 h-6 rounded-lg shadow-md"
             />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Cadolt AI
             </h1>
           </div>
@@ -157,9 +176,9 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
           </p>
         </div>
 
-        <Card className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-xl">
+        <Card className="bg-white dark:bg-gray-800 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-xl">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center text-gray-900 dark:text-gray-100">
+            <CardTitle className="text-2xl text-center text-gray-900 dark:text-white">
               Welcome Back
             </CardTitle>
             <CardDescription className="text-center text-gray-600 dark:text-gray-400">
@@ -177,13 +196,13 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
               <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-700">
                 <TabsTrigger 
                   value="signin"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-gray-900 dark:data-[state=active]:text-gray-100"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white"
                 >
                   Sign In
                 </TabsTrigger>
                 <TabsTrigger 
                   value="signup"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-gray-900 dark:data-[state=active]:text-gray-100"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white"
                 >
                   Sign Up
                 </TabsTrigger>
@@ -202,7 +221,7 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isSubmitting}
-                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -217,7 +236,7 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         disabled={isSubmitting}
-                        className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 pr-10"
+                        className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10"
                       />
                       <button
                         type="button"
@@ -231,10 +250,10 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                   </div>
                   <Button 
                     type="submit" 
-                    disabled={loading || isSubmitting}
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
+                    disabled={isSubmitting}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg"
                   >
-                    {loading || isSubmitting ? (
+                    {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Signing in...
@@ -259,7 +278,7 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isSubmitting}
-                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -274,7 +293,7 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         disabled={isSubmitting}
-                        className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 pr-10"
+                        className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10"
                       />
                       <button
                         type="button"
@@ -298,7 +317,7 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                         disabled={isSubmitting}
-                        className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 pr-10"
+                        className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10"
                       />
                       <button
                         type="button"
@@ -312,10 +331,10 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                   </div>
                   <Button 
                     type="submit" 
-                    disabled={loading || isSubmitting}
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
+                    disabled={isSubmitting}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg"
                   >
-                    {loading || isSubmitting ? (
+                    {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Creating account...
