@@ -62,6 +62,17 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
         console.log('Starting focus session with sound:', selectedSound);
         const sound = ambientSounds.find(s => s.id === selectedSound);
         if (sound) {
+          console.log('Found sound, attempting to play:', sound);
+          // Request audio permissions if needed
+          try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            if (audioContext.state === 'suspended') {
+              await audioContext.resume();
+            }
+          } catch (e) {
+            console.log('AudioContext setup:', e);
+          }
+          
           await audioService.playSound(sound, true);
           setIsAudioPlaying(true);
           console.log('Audio started successfully');
@@ -76,6 +87,8 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
       }
     } catch (error) {
       console.error('Error toggling timer:', error);
+      // Show error to user but still start timer
+      setIsRunning(!isRunning);
     }
   };
 
@@ -95,6 +108,7 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
       } else {
         const sound = ambientSounds.find(s => s.id === soundId);
         if (sound) {
+          console.log('Playing preview for:', sound.name);
           await audioService.playSound(sound, false, 3000); // 3 second preview
           setIsPreviewPlaying(true);
           setPreviewSound(soundId);
@@ -205,12 +219,19 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
           </button>
         </div>
 
+        {/* Audio Status */}
+        {isAudioPlaying && (
+          <div className="mb-4 flex items-center space-x-2 text-green-600 dark:text-green-400">
+            <AudioWaveVisualizer isPlaying={true} />
+            <span className="text-sm font-medium">Audio Playing</span>
+          </div>
+        )}
+
         {/* Ambient Sounds */}
         <div className="w-full max-w-lg">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center flex items-center justify-center space-x-2">
             <Volume2 className="w-5 h-5" />
             <span>Ambient Sounds</span>
-            {isAudioPlaying && <AudioWaveVisualizer isPlaying={isAudioPlaying} />}
           </h3>
           
           <div className="grid grid-cols-1 gap-3">
