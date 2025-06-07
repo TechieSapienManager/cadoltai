@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -18,19 +17,36 @@ const Auth = () => {
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    if (isSubmitting) return;
     
-    const { error } = await signIn(email, password);
-    if (error) {
-      setError(error.message);
+    setError('');
+    setIsSubmitting(true);
+    
+    try {
+      console.log('Attempting sign in with email:', email);
+      const { error } = await signIn(email, password);
+      if (error) {
+        console.error('Sign in error:', error);
+        setError(error.message);
+      } else {
+        console.log('Sign in successful');
+      }
+    } catch (err) {
+      console.error('Sign in exception:', err);
+      setError('An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    
     setError('');
     
     if (password !== confirmPassword) {
@@ -38,9 +54,27 @@ const Auth = () => {
       return;
     }
     
-    const { error } = await signUp(email, password);
-    if (error) {
-      setError(error.message);
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      console.log('Attempting sign up with email:', email);
+      const { error } = await signUp(email, password);
+      if (error) {
+        console.error('Sign up error:', error);
+        setError(error.message);
+      } else {
+        console.log('Sign up successful');
+      }
+    } catch (err) {
+      console.error('Sign up exception:', err);
+      setError('An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -112,7 +146,7 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
             <img 
               src="/lovable-uploads/0979893b-0c4d-40b7-a3d1-e69a16dc5c50.png" 
               alt="Cadolt AI Logo" 
-              className="w-10 h-10 rounded-xl shadow-lg"
+              className="w-8 h-8 rounded-lg shadow-md"
             />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               Cadolt AI
@@ -167,6 +201,7 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      disabled={isSubmitting}
                       className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
                     />
                   </div>
@@ -181,11 +216,13 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        disabled={isSubmitting}
                         className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 pr-10"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
+                        disabled={isSubmitting}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -194,10 +231,10 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                   </div>
                   <Button 
                     type="submit" 
-                    disabled={loading}
+                    disabled={loading || isSubmitting}
                     className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
                   >
-                    {loading ? (
+                    {loading || isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Signing in...
@@ -221,6 +258,7 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      disabled={isSubmitting}
                       className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
                     />
                   </div>
@@ -235,11 +273,13 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        disabled={isSubmitting}
                         className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 pr-10"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
+                        disabled={isSubmitting}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -257,11 +297,13 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
+                        disabled={isSubmitting}
                         className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 pr-10"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        disabled={isSubmitting}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                       >
                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -270,10 +312,10 @@ By using Cadolt AI, you consent to this Privacy Policy.`;
                   </div>
                   <Button 
                     type="submit" 
-                    disabled={loading}
+                    disabled={loading || isSubmitting}
                     className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
                   >
-                    {loading ? (
+                    {loading || isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Creating account...
