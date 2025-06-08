@@ -35,7 +35,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   const loadEvents = async () => {
-    if (!user) return;
+    if (!user || !selectedDate) return;
 
     setLoading(true);
     try {
@@ -93,11 +93,19 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   };
 
   const getEventsForDate = (date: Date) => {
+    if (!date) return [];
     return events.filter(event => event.event_date === date.toISOString().split('T')[0]);
   };
 
   const getDaysWithEvents = () => {
     return events.map(event => new Date(event.event_date));
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    // Ensure we always have a valid Date object
+    if (date) {
+      setSelectedDate(date);
+    }
   };
 
   const modifiers = {
@@ -111,6 +119,9 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
     },
   };
 
+  // Ensure selectedDate is never null/undefined for display
+  const displayDate = selectedDate || new Date();
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
       <div className="container mx-auto px-4">
@@ -119,7 +130,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
           <DayPicker
             mode="single"
             selected={selectedDate}
-            onSelect={setSelectedDate}
+            onSelect={handleDateSelect}
             className="w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
             classNames={{
               head_cell: "text-center text-gray-500 dark:text-gray-400 font-medium py-2",
@@ -142,15 +153,15 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
         {/* Events for Selected Date */}
         <div>
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Events for {selectedDate.toLocaleDateString()}
+            Events for {displayDate.toLocaleDateString()}
           </h2>
           {loading ? (
             <div className="text-center py-4 text-gray-500 dark:text-gray-400">Loading events...</div>
           ) : (
             <div>
-              {getEventsForDate(selectedDate).length > 0 ? (
+              {getEventsForDate(displayDate).length > 0 ? (
                 <ul className="space-y-4">
-                  {getEventsForDate(selectedDate).map(event => (
+                  {getEventsForDate(displayDate).map(event => (
                     <li
                       key={event.id}
                       className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between"
@@ -219,7 +230,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
             setShowEventModal(false);
             setEditingEvent(null);
           }}
-          selectedDate={selectedDate}
+          selectedDate={displayDate}
           onEventCreated={handleEventCreated}
         />
       </div>
