@@ -1,4 +1,3 @@
-
 export interface AmbientSound {
   id: string;
   name: string;
@@ -11,6 +10,14 @@ export const ambientSounds: AmbientSound[] = [
   { id: 'forest', name: '🌲 Forest', url: 'https://www.soundjay.com/misc/sounds/forest-1.wav' },
   { id: 'cafe', name: '☕ Coffee Shop', url: 'https://www.soundjay.com/misc/sounds/coffee-shop-1.wav' },
   { id: 'white-noise', name: '📻 White Noise', url: 'https://www.soundjay.com/misc/sounds/white-noise-1.wav' }
+];
+
+export const alarmSounds = [
+  { id: 'default', name: 'Default Alarm', frequency: 800 },
+  { id: 'gentle', name: 'Gentle Wake', frequency: 400 },
+  { id: 'nature', name: 'Nature Sounds', frequency: 600 },
+  { id: 'electronic', name: 'Electronic', frequency: 1000 },
+  { id: 'classic', name: 'Classic Bell', frequency: 500 }
 ];
 
 class AudioService {
