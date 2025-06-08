@@ -4,6 +4,12 @@ export interface AmbientSound {
   url: string;
 }
 
+export interface AlarmSound {
+  id: string;
+  name: string;
+  frequency: number;
+}
+
 export const ambientSounds: AmbientSound[] = [
   { id: 'ocean', name: '🌊 Ocean Waves', url: 'https://www.soundjay.com/misc/sounds/ocean-wave-1.wav' },
   { id: 'rain', name: '🌧️ Rain', url: 'https://www.soundjay.com/misc/sounds/rain-01.wav' },
@@ -12,7 +18,7 @@ export const ambientSounds: AmbientSound[] = [
   { id: 'white-noise', name: '📻 White Noise', url: 'https://www.soundjay.com/misc/sounds/white-noise-1.wav' }
 ];
 
-export const alarmSounds = [
+export const alarmSounds: AlarmSound[] = [
   { id: 'default', name: 'Default Alarm', frequency: 800 },
   { id: 'gentle', name: 'Gentle Wake', frequency: 400 },
   { id: 'nature', name: 'Nature Sounds', frequency: 600 },
@@ -58,6 +64,56 @@ class AudioService {
       console.error('Error playing sound:', error);
       throw error;
     }
+  }
+
+  async playAlarmSound(sound: AlarmSound, duration?: number) {
+    try {
+      // Stop any currently playing audio
+      this.stopSound();
+
+      // Create audio context if needed
+      if (!this.audioContext) {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+
+      // Resume audio context if suspended
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      this.generateAlarmAudio(sound.frequency, duration);
+
+    } catch (error) {
+      console.error('Error playing alarm sound:', error);
+      throw error;
+    }
+  }
+
+  private generateAlarmAudio(frequency: number, duration?: number) {
+    if (!this.audioContext) return;
+
+    const ctx = this.audioContext;
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.value = frequency;
+    
+    gainNode.gain.value = 0.3;
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start();
+    
+    if (duration) {
+      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + duration / 1000 - 0.1);
+      oscillator.stop(ctx.currentTime + duration / 1000);
+    }
+
+    this.currentAudio = oscillator as any;
   }
 
   private generateAmbientAudio(soundType: string, duration?: number) {
@@ -267,7 +323,7 @@ class AudioService {
   stopSound() {
     if (this.currentAudio) {
       try {
-        if (this.currentAudio instanceof AudioBufferSourceNode) {
+        if (this.currentAudio instanceof AudioBufferSourceNode || this.currentAudio instanceof OscillatorNode) {
           this.currentAudio.stop();
         } else if (this.currentAudio.pause) {
           this.currentAudio.pause();
