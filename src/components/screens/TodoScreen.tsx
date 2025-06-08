@@ -19,6 +19,19 @@ interface Todo {
   created_at: string;
 }
 
+interface TodoData {
+  completed: boolean;
+  created_at: string;
+  description: string | null;
+  due_date: string | null;
+  due_time: string | null;
+  id: string;
+  priority: string;
+  title: string;
+  updated_at: string;
+  user_id: string;
+}
+
 export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -44,7 +57,19 @@ export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTodos(data || []);
+      
+      // Transform the data to ensure priority is correctly typed
+      const transformedTodos: Todo[] = (data || []).map((todo: TodoData) => ({
+        ...todo,
+        priority: ['low', 'medium', 'high'].includes(todo.priority) 
+          ? todo.priority as 'low' | 'medium' | 'high'
+          : 'medium',
+        description: todo.description || undefined,
+        due_date: todo.due_date || undefined,
+        due_time: todo.due_time || undefined
+      }));
+      
+      setTodos(transformedTodos);
     } catch (error) {
       console.error('Error loading todos:', error);
     } finally {

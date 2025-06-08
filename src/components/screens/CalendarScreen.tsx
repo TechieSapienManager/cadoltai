@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Calendar, dateFns } from 'react-day-picker';
+import { DayPicker } from 'react-day-picker';
 import { ChevronLeft, ChevronRight, Plus, Clock, MapPin, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -65,61 +66,10 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
     loadEvents();
   }, [selectedDate, user]);
 
-  const handleSaveEvent = async (eventData: any) => {
-    if (!user) return;
-
-    setLoading(true);
-    try {
-      let result;
-      
-      if (editingEvent) {
-        // Update existing event
-        result = await supabase
-          .from('events')
-          .update({
-            title: eventData.title,
-            description: eventData.description,
-            event_date: eventData.event_date,
-            start_time: eventData.start_time,
-            duration_minutes: eventData.duration_minutes,
-            location: eventData.location,
-            color: eventData.color,
-            reminder_minutes: eventData.reminder_minutes,
-            repeat_type: eventData.repeat_type
-          })
-          .eq('id', editingEvent.id)
-          .select()
-          .single();
-      } else {
-        // Create new event
-        result = await supabase
-          .from('events')
-          .insert({
-            user_id: user.id,
-            ...eventData
-          })
-          .select()
-          .single();
-      }
-
-      const { data, error } = result;
-      if (error) throw error;
-
-      // Schedule notification for the event
-      if (data) {
-        const eventDateTime = new Date(`${data.event_date}T${data.start_time}`);
-        notificationService.scheduleEventNotification(data.id, data.title, eventDateTime);
-      }
-
-      setShowEventModal(false);
-      setEditingEvent(null);
-      loadEvents();
-    } catch (error) {
-      console.error('Error saving event:', error);
-      alert('Failed to save event. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const handleEventCreated = async () => {
+    setShowEventModal(false);
+    setEditingEvent(null);
+    loadEvents();
   };
 
   const handleDeleteEvent = async (eventId: string) => {
@@ -166,7 +116,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
       <div className="container mx-auto px-4">
         {/* Calendar */}
         <div className="mb-8">
-          <Calendar
+          <DayPicker
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
@@ -269,8 +219,8 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
             setShowEventModal(false);
             setEditingEvent(null);
           }}
-          onSave={handleSaveEvent}
-          editingEvent={editingEvent}
+          selectedDate={selectedDate}
+          onEventCreated={handleEventCreated}
         />
       </div>
     </div>
