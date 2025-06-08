@@ -97,20 +97,33 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
 
     setLoading(true);
     try {
-      // Upload file to Supabase Storage
+      // Upload file to Supabase Storage with proper path structure
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+      
+      console.log('Uploading file to path:', filePath);
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('vault-files')
-        .upload(fileName, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('Upload successful:', uploadData);
 
       // Get public URL
       const { data: urlData } = supabase.storage
         .from('vault-files')
-        .getPublicUrl(fileName);
+        .getPublicUrl(filePath);
+
+      console.log('Public URL:', urlData.publicUrl);
 
       // Save file info to database
       const { error: dbError } = await supabase
@@ -126,7 +139,10 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
           category: 'files'
         });
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database error:', dbError);
+        throw dbError;
+      }
 
       loadVaultItems();
       alert('File uploaded successfully!');

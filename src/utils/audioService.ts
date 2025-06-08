@@ -1,183 +1,278 @@
 
+export interface AmbientSound {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export const ambientSounds: AmbientSound[] = [
+  { id: 'ocean', name: '🌊 Ocean Waves', url: 'https://www.soundjay.com/misc/sounds/ocean-wave-1.wav' },
+  { id: 'rain', name: '🌧️ Rain', url: 'https://www.soundjay.com/misc/sounds/rain-01.wav' },
+  { id: 'forest', name: '🌲 Forest', url: 'https://www.soundjay.com/misc/sounds/forest-1.wav' },
+  { id: 'cafe', name: '☕ Coffee Shop', url: 'https://www.soundjay.com/misc/sounds/coffee-shop-1.wav' },
+  { id: 'white-noise', name: '📻 White Noise', url: 'https://www.soundjay.com/misc/sounds/white-noise-1.wav' }
+];
+
 class AudioService {
   private currentAudio: HTMLAudioElement | null = null;
-  private isPlaying = false;
+  private audioContext: AudioContext | null = null;
+  private isLooping = false;
 
-  async playSound(sound: { id: string; name: string; url: string }, loop = false, duration?: number) {
+  async playSound(sound: AmbientSound, loop = false, duration?: number) {
     try {
-      console.log('AudioService: Attempting to play sound', sound.name, sound.url);
-      
       // Stop any currently playing audio
       this.stopSound();
 
-      // Create new audio instance
-      this.currentAudio = new Audio();
-      this.currentAudio.loop = loop;
-      this.currentAudio.volume = 0.5;
-      this.currentAudio.crossOrigin = "anonymous";
-      
-      // Set up event listeners before setting src
-      this.currentAudio.addEventListener('loadstart', () => {
-        console.log('AudioService: Loading started');
-      });
-      
-      this.currentAudio.addEventListener('canplay', () => {
-        console.log('AudioService: Can start playing');
-      });
-      
-      this.currentAudio.addEventListener('error', (e) => {
-        console.error('AudioService: Audio error', e);
-        this.handleAudioError(sound);
-      });
-
-      this.currentAudio.addEventListener('ended', () => {
-        console.log('AudioService: Audio ended');
-        this.isPlaying = false;
-      });
-
-      // Set the source
-      this.currentAudio.src = sound.url;
-      
-      // Load and play
-      this.currentAudio.load();
-      await this.currentAudio.play();
-      this.isPlaying = true;
-      console.log('AudioService: Successfully started playing');
-
-      // If duration is specified, stop after that time
-      if (duration) {
-        setTimeout(() => {
-          this.stopSound();
-        }, duration);
+      // Create audio context if needed
+      if (!this.audioContext) {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
+
+      // Resume audio context if suspended
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      // For focus mode, we'll generate audio instead of using external URLs
+      // This ensures consistent playback without network dependencies
+      if (loop) {
+        this.generateAmbientAudio(sound.id);
+        this.isLooping = true;
+        return;
+      }
+
+      // For preview (short duration)
+      if (duration) {
+        this.generateAmbientAudio(sound.id, duration);
+        return;
+      }
+
     } catch (error) {
-      console.error('AudioService: Error playing sound:', error);
-      // Try fallback URL if the original fails
-      this.handleAudioError(sound);
+      console.error('Error playing sound:', error);
+      throw error;
     }
   }
 
-  private async handleAudioError(sound: { id: string; name: string; url: string }) {
-    console.log('AudioService: Handling audio error, trying fallback');
-    try {
-      // Create a simple tone as fallback
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      // Set frequency based on sound type
-      const frequencies: { [key: string]: number } = {
-        'ocean': 200,
-        'rainfall': 150,
-        'forest': 300,
-        'white-noise': 400,
-        'birds': 800,
-        'wind': 100,
-        'default': 440,
-        'gentle': 523,
-        'nature': 659,
-        'classic': 880
-      };
-      
-      oscillator.frequency.setValueAtTime(frequencies[sound.id] || 440, audioContext.currentTime);
-      oscillator.type = 'sine';
-      
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      
-      oscillator.start();
-      
-      // Stop after 5 seconds for fallback
-      setTimeout(() => {
-        oscillator.stop();
-        audioContext.close();
-      }, 5000);
-      
-      this.isPlaying = true;
-      console.log('AudioService: Fallback tone playing');
-    } catch (fallbackError) {
-      console.error('AudioService: Fallback also failed:', fallbackError);
+  private generateAmbientAudio(soundType: string, duration?: number) {
+    if (!this.audioContext) return;
+
+    const ctx = this.audioContext;
+    
+    // Create different ambient sounds using Web Audio API
+    switch (soundType) {
+      case 'ocean':
+        this.createOceanSound(ctx, duration);
+        break;
+      case 'rain':
+        this.createRainSound(ctx, duration);
+        break;
+      case 'forest':
+        this.createForestSound(ctx, duration);
+        break;
+      case 'cafe':
+        this.createCafeSound(ctx, duration);
+        break;
+      case 'white-noise':
+        this.createWhiteNoiseSound(ctx, duration);
+        break;
+      default:
+        this.createWhiteNoiseSound(ctx, duration);
     }
+  }
+
+  private createOceanSound(ctx: AudioContext, duration?: number) {
+    const bufferSize = ctx.sampleRate * (duration ? duration / 1000 : 2);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    // Generate ocean-like sound using filtered noise
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.1 * Math.sin(i * 0.001);
+    }
+
+    const source = ctx.createBufferSource();
+    const filter = ctx.createBiquadFilter();
+    const gainNode = ctx.createGain();
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+    gainNode.gain.value = 0.3;
+
+    source.buffer = buffer;
+    source.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    if (this.isLooping && !duration) {
+      source.loop = true;
+    }
+
+    source.start();
+    
+    if (duration) {
+      source.stop(ctx.currentTime + duration / 1000);
+    }
+
+    // Store reference to stop later
+    this.currentAudio = source as any;
+  }
+
+  private createRainSound(ctx: AudioContext, duration?: number) {
+    const bufferSize = ctx.sampleRate * (duration ? duration / 1000 : 2);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    // Generate rain-like sound using filtered noise
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.15;
+    }
+
+    const source = ctx.createBufferSource();
+    const filter = ctx.createBiquadFilter();
+    const gainNode = ctx.createGain();
+
+    filter.type = 'highpass';
+    filter.frequency.value = 1000;
+    gainNode.gain.value = 0.2;
+
+    source.buffer = buffer;
+    source.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    if (this.isLooping && !duration) {
+      source.loop = true;
+    }
+
+    source.start();
+    
+    if (duration) {
+      source.stop(ctx.currentTime + duration / 1000);
+    }
+
+    this.currentAudio = source as any;
+  }
+
+  private createForestSound(ctx: AudioContext, duration?: number) {
+    const bufferSize = ctx.sampleRate * (duration ? duration / 1000 : 2);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    // Generate forest-like sound with chirping
+    for (let i = 0; i < bufferSize; i++) {
+      const noise = (Math.random() * 2 - 1) * 0.05;
+      const chirp = Math.sin(i * 0.01) * 0.1 * (Math.random() > 0.999 ? 1 : 0);
+      data[i] = noise + chirp;
+    }
+
+    const source = ctx.createBufferSource();
+    const gainNode = ctx.createGain();
+
+    gainNode.gain.value = 0.3;
+
+    source.buffer = buffer;
+    source.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    if (this.isLooping && !duration) {
+      source.loop = true;
+    }
+
+    source.start();
+    
+    if (duration) {
+      source.stop(ctx.currentTime + duration / 1000);
+    }
+
+    this.currentAudio = source as any;
+  }
+
+  private createCafeSound(ctx: AudioContext, duration?: number) {
+    const bufferSize = ctx.sampleRate * (duration ? duration / 1000 : 2);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    // Generate cafe ambience
+    for (let i = 0; i < bufferSize; i++) {
+      const chatter = (Math.random() * 2 - 1) * 0.1 * Math.sin(i * 0.0001);
+      const clinking = Math.random() > 0.9999 ? (Math.random() * 2 - 1) * 0.2 : 0;
+      data[i] = chatter + clinking;
+    }
+
+    const source = ctx.createBufferSource();
+    const filter = ctx.createBiquadFilter();
+    const gainNode = ctx.createGain();
+
+    filter.type = 'bandpass';
+    filter.frequency.value = 1500;
+    gainNode.gain.value = 0.25;
+
+    source.buffer = buffer;
+    source.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    if (this.isLooping && !duration) {
+      source.loop = true;
+    }
+
+    source.start();
+    
+    if (duration) {
+      source.stop(ctx.currentTime + duration / 1000);
+    }
+
+    this.currentAudio = source as any;
+  }
+
+  private createWhiteNoiseSound(ctx: AudioContext, duration?: number) {
+    const bufferSize = ctx.sampleRate * (duration ? duration / 1000 : 2);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    // Generate white noise
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.1;
+    }
+
+    const source = ctx.createBufferSource();
+    const gainNode = ctx.createGain();
+
+    gainNode.gain.value = 0.2;
+
+    source.buffer = buffer;
+    source.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    if (this.isLooping && !duration) {
+      source.loop = true;
+    }
+
+    source.start();
+    
+    if (duration) {
+      source.stop(ctx.currentTime + duration / 1000);
+    }
+
+    this.currentAudio = source as any;
   }
 
   stopSound() {
     if (this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio.currentTime = 0;
+      try {
+        if (this.currentAudio instanceof AudioBufferSourceNode) {
+          this.currentAudio.stop();
+        } else if (this.currentAudio.pause) {
+          this.currentAudio.pause();
+          this.currentAudio.currentTime = 0;
+        }
+      } catch (error) {
+        console.log('Audio already stopped');
+      }
       this.currentAudio = null;
     }
-    this.isPlaying = false;
-    console.log('AudioService: Sound stopped');
-  }
-
-  getIsPlaying() {
-    return this.isPlaying;
-  }
-
-  setVolume(volume: number) {
-    if (this.currentAudio) {
-      this.currentAudio.volume = Math.max(0, Math.min(1, volume));
-    }
+    this.isLooping = false;
   }
 }
 
 export const audioService = new AudioService();
-
-// Updated sound URLs with working alternatives
-export const ambientSounds = [
-  {
-    id: 'ocean',
-    name: 'Ocean Waves',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  },
-  {
-    id: 'rainfall',
-    name: 'Gentle Rainfall',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  },
-  {
-    id: 'forest',
-    name: 'Forest Sounds',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  },
-  {
-    id: 'white-noise',
-    name: 'White Noise',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  },
-  {
-    id: 'birds',
-    name: 'Bird Songs',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  },
-  {
-    id: 'wind',
-    name: 'Gentle Wind',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  }
-];
-
-export const alarmSounds = [
-  {
-    id: 'default',
-    name: 'Default Alarm',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  },
-  {
-    id: 'gentle',
-    name: 'Gentle Wake',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  },
-  {
-    id: 'nature',
-    name: 'Nature Sounds',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  },
-  {
-    id: 'classic',
-    name: 'Classic Alarm',
-    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
-  }
-];
