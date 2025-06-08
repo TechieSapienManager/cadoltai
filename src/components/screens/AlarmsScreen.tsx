@@ -185,7 +185,7 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
         const sound = alarmSounds.find(s => s.id === soundType);
         if (sound) {
           console.log('Playing alarm sound preview:', sound.name);
-          await audioService.playSound(sound, false, 2000); // 2 second preview
+          await audioService.playAlarmSound(sound, 2000); // 2 second preview
           setPlayingSound(soundType);
           setTimeout(() => {
             setPlayingSound(null);
