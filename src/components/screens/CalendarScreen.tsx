@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { DayPicker } from 'react-day-picker';
+import { Calendar, dateFns } from 'react-day-picker';
 import { ChevronLeft, ChevronRight, Plus, Clock, MapPin, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,7 +34,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   const loadEvents = async () => {
-    if (!user || !selectedDate) return;
+    if (!user) return;
 
     setLoading(true);
     try {
@@ -66,10 +65,61 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
     loadEvents();
   }, [selectedDate, user]);
 
-  const handleEventCreated = async () => {
-    setShowEventModal(false);
-    setEditingEvent(null);
-    loadEvents();
+  const handleSaveEvent = async (eventData: any) => {
+    if (!user) return;
+
+    setLoading(true);
+    try {
+      let result;
+      
+      if (editingEvent) {
+        // Update existing event
+        result = await supabase
+          .from('events')
+          .update({
+            title: eventData.title,
+            description: eventData.description,
+            event_date: eventData.event_date,
+            start_time: eventData.start_time,
+            duration_minutes: eventData.duration_minutes,
+            location: eventData.location,
+            color: eventData.color,
+            reminder_minutes: eventData.reminder_minutes,
+            repeat_type: eventData.repeat_type
+          })
+          .eq('id', editingEvent.id)
+          .select()
+          .single();
+      } else {
+        // Create new event
+        result = await supabase
+          .from('events')
+          .insert({
+            user_id: user.id,
+            ...eventData
+          })
+          .select()
+          .single();
+      }
+
+      const { data, error } = result;
+      if (error) throw error;
+
+      // Schedule notification for the event
+      if (data) {
+        const eventDateTime = new Date(`${data.event_date}T${data.start_time}`);
+        notificationService.scheduleEventNotification(data.id, data.title, eventDateTime);
+      }
+
+      setShowEventModal(false);
+      setEditingEvent(null);
+      loadEvents();
+    } catch (error) {
+      console.error('Error saving event:', error);
+      alert('Failed to save event. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteEvent = async (eventId: string) => {
@@ -93,19 +143,11 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   };
 
   const getEventsForDate = (date: Date) => {
-    if (!date) return [];
     return events.filter(event => event.event_date === date.toISOString().split('T')[0]);
   };
 
   const getDaysWithEvents = () => {
     return events.map(event => new Date(event.event_date));
-  };
-
-  const handleDateSelect = (date: Date | undefined) => {
-    // Ensure we always have a valid Date object
-    if (date) {
-      setSelectedDate(date);
-    }
   };
 
   const modifiers = {
@@ -119,18 +161,15 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
     },
   };
 
-  // Ensure selectedDate is never null/undefined for display
-  const displayDate = selectedDate || new Date();
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
       <div className="container mx-auto px-4">
         {/* Calendar */}
         <div className="mb-8">
-          <DayPicker
+          <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={handleDateSelect}
+            onSelect={setSelectedDate}
             className="w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
             classNames={{
               head_cell: "text-center text-gray-500 dark:text-gray-400 font-medium py-2",
@@ -153,15 +192,15 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
         {/* Events for Selected Date */}
         <div>
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Events for {displayDate.toLocaleDateString()}
+            Events for {selectedDate.toLocaleDateString()}
           </h2>
           {loading ? (
             <div className="text-center py-4 text-gray-500 dark:text-gray-400">Loading events...</div>
           ) : (
             <div>
-              {getEventsForDate(displayDate).length > 0 ? (
+              {getEventsForDate(selectedDate).length > 0 ? (
                 <ul className="space-y-4">
-                  {getEventsForDate(displayDate).map(event => (
+                  {getEventsForDate(selectedDate).map(event => (
                     <li
                       key={event.id}
                       className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between"
@@ -230,8 +269,8 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
             setShowEventModal(false);
             setEditingEvent(null);
           }}
-          selectedDate={displayDate}
-          onEventCreated={handleEventCreated}
+          onSave={handleSaveEvent}
+          editingEvent={editingEvent}
         />
       </div>
     </div>
