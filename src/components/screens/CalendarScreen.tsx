@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { DayPicker } from 'react-day-picker';
 import { ChevronLeft, ChevronRight, Plus, Clock, MapPin, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { EventModal } from '@/components/EventModal';
 import { notificationService } from '@/utils/notificationService';
-import 'react-day-picker/dist/style.css';
+import { Calendar } from '@/components/ui/calendar';
 
 interface CalendarScreenProps {
   onBack: () => void;
@@ -35,7 +34,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   const loadEvents = async () => {
-    if (!user || !selectedDate) return;
+    if (!user) return;
 
     setLoading(true);
     try {
@@ -66,7 +65,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
     loadEvents();
   }, [selectedDate, user]);
 
-  const handleEventCreated = async () => {
+  const handleEventCreated = () => {
     setShowEventModal(false);
     setEditingEvent(null);
     loadEvents();
@@ -93,7 +92,6 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   };
 
   const getEventsForDate = (date: Date) => {
-    if (!date) return [];
     return events.filter(event => event.event_date === date.toISOString().split('T')[0]);
   };
 
@@ -101,36 +99,15 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
     return events.map(event => new Date(event.event_date));
   };
 
-  const handleDateSelect = (date: Date | undefined) => {
-    // Ensure we always have a valid Date object
-    if (date) {
-      setSelectedDate(date);
-    }
-  };
-
-  const modifiers = {
-    highlighted: getDaysWithEvents(),
-  };
-
-  const modifiersStyles = {
-    highlighted: {
-      backgroundColor: 'rgba(168, 85, 247, 0.2)',
-      color: '#8B5CF6',
-    },
-  };
-
-  // Ensure selectedDate is never null/undefined for display
-  const displayDate = selectedDate || new Date();
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
       <div className="container mx-auto px-4">
         {/* Calendar */}
         <div className="mb-8">
-          <DayPicker
+          <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={handleDateSelect}
+            onSelect={setSelectedDate}
             className="w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
             classNames={{
               head_cell: "text-center text-gray-500 dark:text-gray-400 font-medium py-2",
@@ -145,23 +122,21 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
               IconLeft: ({ ...props }) => <ChevronLeft className="h-5 w-5" />,
               IconRight: ({ ...props }) => <ChevronRight className="h-5 w-5" />,
             }}
-            modifiers={modifiers}
-            modifiersStyles={modifiersStyles}
           />
         </div>
 
         {/* Events for Selected Date */}
         <div>
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Events for {displayDate.toLocaleDateString()}
+            Events for {selectedDate.toLocaleDateString()}
           </h2>
           {loading ? (
             <div className="text-center py-4 text-gray-500 dark:text-gray-400">Loading events...</div>
           ) : (
             <div>
-              {getEventsForDate(displayDate).length > 0 ? (
+              {getEventsForDate(selectedDate).length > 0 ? (
                 <ul className="space-y-4">
-                  {getEventsForDate(displayDate).map(event => (
+                  {getEventsForDate(selectedDate).map(event => (
                     <li
                       key={event.id}
                       className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between"
@@ -230,7 +205,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
             setShowEventModal(false);
             setEditingEvent(null);
           }}
-          selectedDate={displayDate}
+          selectedDate={selectedDate}
           onEventCreated={handleEventCreated}
         />
       </div>
