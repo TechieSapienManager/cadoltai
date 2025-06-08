@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
-import { Check, Sparkles, Shield, Cloud, Zap, Star } from 'lucide-react';
+import { Check, Crown, Zap, Star } from 'lucide-react';
+import { useSubscription } from '@/hooks/useSubscription';
+import { TermsModal } from '@/components/TermsModal';
 
 interface PricingScreenProps {
   onBack: () => void;
@@ -13,279 +15,283 @@ declare global {
 }
 
 export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack }) => {
-  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro' | 'premium'>('basic');
+  const { subscriptionPlan, updateSubscription } = useSubscription();
+  const [loading, setLoading] = useState<string | null>(null);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   const plans = [
     {
-      id: 'basic' as const,
+      id: 'basic',
       name: 'Basic',
-      price: '₹0',
-      period: 'Forever Free',
+      price: 0,
+      period: 'Free Forever',
       description: 'Perfect for getting started',
+      icon: Star,
       features: [
-        'Ad-supported experience',
-        '5 Gemini AI queries/day',
-        'Basic calendar & notes',
-        'Local storage only',
-        'Standard alarms & focus',
-        'Password vault (local)'
+        'Basic Calendar',
+        'Simple Todo Lists', 
+        'Basic Notes',
+        'Standard Alarms',
+        'Basic AI Assistant'
       ],
-      buttonText: 'Current Plan',
-      popular: false,
-      gradient: 'from-gray-500 to-gray-600'
+      limitations: [
+        'Limited to 50 events per month',
+        'Basic reminder notifications',
+        'No file storage',
+        'No focus mode',
+        'Standard support'
+      ]
     },
     {
-      id: 'pro' as const,
+      id: 'pro',
       name: 'Pro',
-      price: '₹29',
-      period: '/month',
-      description: 'Most popular for productivity',
-      features: [
-        'Ad-free experience',
-        '25 Gemini AI queries/day',
-        'Advanced calendar features',
-        'Cloud sync & backup',
-        'Premium focus sounds',
-        'Biometric vault security',
-        'Priority customer support'
-      ],
-      buttonText: 'Go Pro',
+      price: 299,
+      period: 'per month',
+      description: 'Unlock advanced productivity features',
+      icon: Zap,
       popular: true,
-      gradient: 'from-purple-500 to-blue-500'
+      features: [
+        'Advanced Calendar with recurring events',
+        'Unlimited Todo Lists with priorities',
+        'Rich Text Notes with formatting',
+        'Custom Alarm sounds',
+        'Enhanced AI Assistant',
+        'Secure Vault (Password & File Storage)',
+        'Focus Mode with background music',
+        'Event notifications (30 min before)',
+        'Data export capabilities'
+      ],
+      limitations: [
+        'Up to 500 events per month',
+        'Up to 100MB file storage',
+        'Email support'
+      ]
     },
     {
-      id: 'premium' as const,
+      id: 'premium',
       name: 'Premium',
-      price: '₹99',
-      period: '/month',
-      description: 'Ultimate productivity suite',
+      price: 499,
+      period: 'per month', 
+      description: 'Complete productivity suite',
+      icon: Crown,
       features: [
         'Everything in Pro',
-        'Unlimited AI queries',
-        'Advanced analytics',
-        'Team collaboration',
-        'Custom integrations',
-        'Dedicated account manager',
-        'Early access to features',
-        'Advanced automation'
+        'Unlimited events and storage',
+        'Advanced analytics and insights',
+        'Team collaboration features',
+        'Custom themes and layouts',
+        'Advanced AI with custom prompts',
+        'Priority support',
+        'Early access to new features',
+        'Advanced automation rules',
+        'Multi-device sync',
+        'Backup and restore'
       ],
-      buttonText: 'Go Premium',
-      popular: false,
-      gradient: 'from-yellow-500 to-orange-500'
+      limitations: []
     }
   ];
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
-
-  const handleSubscribe = async (planId: string) => {
-    if (planId === 'basic') return;
-    
-    // Load Razorpay script
-    const scriptLoaded = await loadRazorpayScript();
-    
-    if (!scriptLoaded) {
-      alert('Razorpay SDK failed to load. Please check your internet connection.');
+  const handleSubscribe = async (planId: string, price: number) => {
+    if (planId === 'basic') {
+      const success = await updateSubscription('basic');
+      if (success) {
+        alert('Successfully switched to Basic plan!');
+      }
       return;
     }
 
-    const plan = plans.find(p => p.id === planId);
-    if (!plan) return;
-
-    const amount = planId === 'pro' ? 2900 : 9900; // Amount in paise (₹29 = 2900 paise, ₹99 = 9900 paise)
+    setLoading(planId);
 
     const options = {
-      key: 'rzp_test_wY7a0YUgJ4Va6A', // Your Razorpay Key ID
-      amount: amount,
+      key: 'rzp_live_CouMrcHdbVNAvD', // Live API key
+      amount: price * 100, // Amount in paise
       currency: 'INR',
-      name: 'Cadolt AI',
-      description: `${plan.name} Plan Subscription`,
-      image: '/lovable-uploads/0979893b-0c4d-40b7-a3d1-e69a16dc5c50.png', // Your app logo
-      handler: function (response: any) {
-        // Payment successful
+      name: 'SmartAssist',
+      description: `${plans.find(p => p.id === planId)?.name} Plan Subscription`,
+      handler: async function (response: any) {
         console.log('Payment successful:', response);
-        alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
         
-        // Here you would typically:
-        // 1. Send payment details to your backend
-        // 2. Verify the payment
-        // 3. Upgrade user's subscription
-        // 4. Update UI to reflect new subscription status
-        
-        // For now, just show success message
-        alert(`Welcome to ${plan.name}! Your subscription is now active.`);
+        // Update subscription in database
+        const success = await updateSubscription(planId);
+        if (success) {
+          alert(`Successfully subscribed to ${planId} plan!`);
+        } else {
+          alert('Payment successful but failed to update subscription. Please contact support.');
+        }
+        setLoading(null);
       },
       prefill: {
-        name: 'User',
-        email: 'user@example.com',
+        name: 'Customer Name',
+        email: 'customer@example.com',
         contact: '9999999999'
       },
-      notes: {
-        plan: planId,
-        subscription_type: 'monthly'
-      },
       theme: {
-        color: '#8B5CF6' // Purple theme matching your app
+        color: '#3B82F6'
       },
       modal: {
         ondismiss: function() {
-          console.log('Payment modal closed');
+          setLoading(null);
         }
       }
     };
 
-    const razorpay = new window.Razorpay(options);
-    razorpay.open();
-    
-    razorpay.on('payment.failed', function (response: any) {
-      console.error('Payment failed:', response.error);
-      alert(`Payment failed: ${response.error.description}`);
-    });
+    try {
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error('Razorpay error:', error);
+      alert('Payment initialization failed. Please try again.');
+      setLoading(null);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-16">
       <div className="p-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Choose Your Plan
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Unlock your productivity potential with Cadolt AI
-          </p>
-        </div>
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Choose Your Plan
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Unlock your productivity potential with features designed for every need
+            </p>
+          </div>
 
-        {/* Plan Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {plans.map((plan) => (
-            <div
-              key={plan.id}
-              className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 transition-all duration-300 hover:shadow-xl ${
-                plan.popular 
-                  ? 'border-purple-500 scale-105' 
-                  : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
-              }`}
-            >
-              {/* Popular Badge */}
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
-                    <Star className="w-4 h-4" />
-                    <span>Most Popular</span>
-                  </div>
-                </div>
-              )}
-
-              <div className="p-6">
-                {/* Plan Header */}
-                <div className="text-center mb-6">
-                  <div className={`w-16 h-16 mx-auto mb-4 bg-gradient-to-r ${plan.gradient} rounded-2xl flex items-center justify-center`}>
-                    {plan.id === 'basic' && <Sparkles className="w-8 h-8 text-white" />}
-                    {plan.id === 'pro' && <Zap className="w-8 h-8 text-white" />}
-                    {plan.id === 'premium' && <Shield className="w-8 h-8 text-white" />}
-                  </div>
-                  
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    {plan.name}
-                  </h3>
-                  
-                  <div className="mb-2">
-                    <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
-                      {plan.price}
-                    </span>
-                    <span className="text-gray-600 dark:text-gray-400 ml-1">
-                      {plan.period}
-                    </span>
-                  </div>
-                  
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {plan.description}
-                  </p>
-                </div>
-
-                {/* Features */}
-                <div className="space-y-3 mb-6">
-                  {plan.features.map((feature, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div className={`w-5 h-5 rounded-full bg-gradient-to-r ${plan.gradient} flex items-center justify-center flex-shrink-0 mt-0.5`}>
-                        <Check className="w-3 h-3 text-white" />
-                      </div>
-                      <span className="text-gray-700 dark:text-gray-300 text-sm">
-                        {feature}
+          {/* Pricing Cards */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {plans.map((plan) => {
+              const Icon = plan.icon;
+              const isCurrentPlan = subscriptionPlan === plan.id;
+              
+              return (
+                <div
+                  key={plan.id}
+                  className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 ${
+                    plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
+                  } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
+                >
+                  {plan.popular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+                        Most Popular
                       </span>
                     </div>
-                  ))}
+                  )}
+
+                  {isCurrentPlan && (
+                    <div className="absolute -top-4 right-4">
+                      <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Current Plan
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="text-center mb-8">
+                    <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+                      plan.id === 'basic' ? 'bg-gray-100 dark:bg-gray-700' :
+                      plan.id === 'pro' ? 'bg-blue-100 dark:bg-blue-900' :
+                      'bg-purple-100 dark:bg-purple-900'
+                    }`}>
+                      <Icon className={`w-8 h-8 ${
+                        plan.id === 'basic' ? 'text-gray-600 dark:text-gray-400' :
+                        plan.id === 'pro' ? 'text-blue-600 dark:text-blue-400' :
+                        'text-purple-600 dark:text-purple-400'
+                      }`} />
+                    </div>
+                    
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                      {plan.name}
+                    </h3>
+                    
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      {plan.description}
+                    </p>
+                    
+                    <div className="mb-6">
+                      <span className="text-4xl font-bold text-gray-900 dark:text-white">
+                        ₹{plan.price}
+                      </span>
+                      <span className="text-gray-600 dark:text-gray-400 ml-2">
+                        {plan.period}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 mb-8">
+                    {plan.features.map((feature, index) => (
+                      <div key={index} className="flex items-center space-x-3">
+                        <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                        <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                      </div>
+                    ))}
+                    
+                    {plan.limitations.map((limitation, index) => (
+                      <div key={index} className="flex items-center space-x-3 opacity-60">
+                        <div className="w-5 h-5 flex-shrink-0" />
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">{limitation}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => handleSubscribe(plan.id, plan.price)}
+                    disabled={loading === plan.id || isCurrentPlan}
+                    className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
+                      isCurrentPlan
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 cursor-not-allowed'
+                        : plan.id === 'basic'
+                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700'
+                    }`}
+                  >
+                    {loading === plan.id ? 'Processing...' : 
+                     isCurrentPlan ? 'Current Plan' :
+                     plan.id === 'basic' ? 'Continue with Basic' : 
+                     `Subscribe to ${plan.name}`}
+                  </button>
                 </div>
-
-                {/* CTA Button */}
-                <button
-                  onClick={() => handleSubscribe(plan.id)}
-                  disabled={plan.id === 'basic'}
-                  className={`w-full py-3 rounded-xl font-medium transition-all duration-200 ${
-                    plan.id === 'basic'
-                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                      : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-lg hover:scale-105 active:scale-95`
-                  }`}
-                >
-                  {plan.buttonText}
-                </button>
-
-                {/* Payment Note */}
-                {plan.id !== 'basic' && (
-                  <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
-                    Secure payment via Razorpay
-                  </p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Payment Methods */}
-        <div className="max-w-2xl mx-auto mt-12 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Secure Payment Options
-          </h3>
-          <div className="flex justify-center items-center space-x-4 text-gray-600 dark:text-gray-400">
-            <span className="text-sm">Powered by</span>
-            <div className="font-semibold text-blue-600 dark:text-blue-400">Razorpay</div>
+              );
+            })}
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            UPI, Net Banking, Cards & More
-          </p>
-        </div>
 
-        {/* FAQ or Additional Info */}
-        <div className="max-w-3xl mx-auto mt-12 text-center">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-              Why Choose Cadolt AI Pro?
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
-              <div className="flex items-center space-x-2">
-                <Cloud className="w-4 h-4 text-blue-500" />
-                <span>Cloud Sync</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Shield className="w-4 h-4 text-green-500" />
-                <span>Enhanced Security</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Zap className="w-4 h-4 text-yellow-500" />
-                <span>AI-Powered</span>
-              </div>
+          {/* Footer */}
+          <div className="text-center text-gray-600 dark:text-gray-400 space-y-2">
+            <p>All plans include a 30-day money-back guarantee</p>
+            <div className="flex justify-center space-x-6 text-sm">
+              <button 
+                onClick={() => setShowTerms(true)}
+                className="hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                Terms of Service
+              </button>
+              <button 
+                onClick={() => setShowPrivacy(true)}
+                className="hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                Privacy Policy
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Load Razorpay script */}
+      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+      <TermsModal 
+        isOpen={showTerms} 
+        onClose={() => setShowTerms(false)} 
+        type="terms" 
+      />
+      
+      <TermsModal 
+        isOpen={showPrivacy} 
+        onClose={() => setShowPrivacy(false)} 
+        type="privacy" 
+      />
     </div>
   );
 };

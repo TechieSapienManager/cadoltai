@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { EventModal } from '@/components/EventModal';
+import { EventDeleteModal } from '@/components/EventDeleteModal';
 import { Calendar } from '@/components/ui/calendar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface CalendarScreenProps {
   onBack: () => void;
@@ -25,11 +26,15 @@ interface Event {
 
 export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
+  const { requestNotificationPermission } = useNotifications();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [clickedDate, setClickedDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -75,6 +80,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
 
   useEffect(() => {
     loadEvents();
+    requestNotificationPermission();
   }, [user]);
 
   const getEventsForDate = (day: number) => {
@@ -102,6 +108,35 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
 
   const handleEventCreated = () => {
     loadEvents();
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!selectedEvent) return;
+
+    setDeleteLoading(true);
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', selectedEvent.id)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      setShowDeleteModal(false);
+      setSelectedEvent(null);
+      loadEvents();
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      alert('Failed to delete event. Please try again.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setShowDeleteModal(true);
   };
 
   const days = getDaysInMonth(selectedDate);
@@ -193,7 +228,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Month Events */}
+        {/* Month Events with delete functionality */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">
             Events in {monthNames[selectedDate.getMonth()]}
@@ -206,7 +241,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
           ) : monthEvents.length > 0 ? (
             <div className="space-y-3">
               {monthEvents.map((event) => (
-                <div key={event.id} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+                <div key={event.id} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
                   <div 
                     className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: event.color }}
@@ -223,6 +258,12 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
                       <div className="text-sm text-gray-600 dark:text-gray-400 truncate">{event.location}</div>
                     )}
                   </div>
+                  <button
+                    onClick={() => handleEventClick(event)}
+                    className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition-all"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                  </button>
                 </div>
               ))}
             </div>
@@ -263,6 +304,18 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
         }}
         selectedDate={clickedDate}
         onEventCreated={handleEventCreated}
+      />
+
+      {/* Event Delete Modal */}
+      <EventDeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setSelectedEvent(null);
+        }}
+        onConfirm={handleDeleteEvent}
+        eventTitle={selectedEvent?.title || ''}
+        loading={deleteLoading}
       />
     </div>
   );

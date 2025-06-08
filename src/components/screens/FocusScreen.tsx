@@ -1,277 +1,216 @@
 
-import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw, Volume2 } from 'lucide-react';
-import { audioService, ambientSounds } from '@/utils/audioService';
-import { AudioWaveVisualizer } from '@/components/AudioWaveVisualizer';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { SubscriptionGate } from '@/components/SubscriptionGate';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface FocusScreenProps {
   onBack: () => void;
 }
 
 export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
+  const { subscriptionPlan } = useSubscription();
   const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes in seconds
   const [isRunning, setIsRunning] = useState(false);
-  const [selectedSound, setSelectedSound] = useState('ocean');
-  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
-  const [previewSound, setPreviewSound] = useState<string | null>(null);
-  const [sessionType, setSessionType] = useState<'focus' | 'short' | 'long'>('focus');
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-
-  const sessionTimes = {
-    focus: 25 * 60,
-    short: 5 * 60,
-    long: 15 * 60
-  };
+  const [selectedTime, setSelectedTime] = useState(25);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
     if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && isRunning) {
-      // Session finished
-      setIsRunning(false);
-      audioService.stopSound();
-      setIsAudioPlaying(false);
-      
-      // Show completion notification
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('Focus Session Complete!', {
-          body: 'Great job! Time for a break.',
+      intervalRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            setIsRunning(false);
+            setIsMusicPlaying(false);
+            if (audioRef.current) {
+              audioRef.current.pause();
+            }
+            return 0;
+          }
+          return prev - 1;
         });
-      }
+      }, 1000);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
     }
-    
-    return () => clearInterval(interval);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [isRunning, timeLeft]);
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0.5;
+    }
+  }, []);
+
+  const toggleTimer = () => {
+    setIsRunning(!isRunning);
+    
+    // Start music when timer starts
+    if (!isRunning && !isMusicPlaying && audioRef.current) {
+      audioRef.current.play()
+        .then(() => setIsMusicPlaying(true))
+        .catch(error => console.error('Error playing audio:', error));
+    }
+    
+    // Pause music when timer pauses
+    if (isRunning && isMusicPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsMusicPlaying(false);
+    }
   };
 
-  const progress = ((sessionTimes[sessionType] - timeLeft) / sessionTimes[sessionType]) * 100;
-
-  const toggleTimer = async () => {
-    try {
-      if (!isRunning) {
-        // Start session
-        console.log('Starting focus session with sound:', selectedSound);
-        const sound = ambientSounds.find(s => s.id === selectedSound);
-        if (sound) {
-          console.log('Found sound, attempting to play:', sound);
-          // Request audio permissions if needed
-          try {
-            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-            if (audioContext.state === 'suspended') {
-              await audioContext.resume();
-            }
-          } catch (e) {
-            console.log('AudioContext setup:', e);
-          }
-          
-          await audioService.playSound(sound, true);
-          setIsAudioPlaying(true);
-          console.log('Audio started successfully');
-        }
-        setIsRunning(true);
+  const toggleMusic = () => {
+    if (audioRef.current) {
+      if (isMusicPlaying) {
+        audioRef.current.pause();
+        setIsMusicPlaying(false);
       } else {
-        // Pause session
-        console.log('Pausing focus session');
-        audioService.stopSound();
-        setIsAudioPlaying(false);
-        setIsRunning(false);
+        audioRef.current.play()
+          .then(() => setIsMusicPlaying(true))
+          .catch(error => console.error('Error playing audio:', error));
       }
-    } catch (error) {
-      console.error('Error toggling timer:', error);
-      // Show error to user but still start timer
-      setIsRunning(!isRunning);
     }
   };
 
   const resetTimer = () => {
     setIsRunning(false);
-    setTimeLeft(sessionTimes[sessionType]);
-    audioService.stopSound();
-    setIsAudioPlaying(false);
-  };
-
-  const previewAudio = async (soundId: string) => {
-    try {
-      if (previewSound === soundId && isPreviewPlaying) {
-        audioService.stopSound();
-        setIsPreviewPlaying(false);
-        setPreviewSound(null);
-      } else {
-        const sound = ambientSounds.find(s => s.id === soundId);
-        if (sound) {
-          console.log('Playing preview for:', sound.name);
-          await audioService.playSound(sound, false, 3000); // 3 second preview
-          setIsPreviewPlaying(true);
-          setPreviewSound(soundId);
-          setTimeout(() => {
-            setIsPreviewPlaying(false);
-            setPreviewSound(null);
-          }, 3000);
-        }
-      }
-    } catch (error) {
-      console.error('Error playing preview:', error);
+    setTimeLeft(selectedTime * 60);
+    setIsMusicPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
   };
 
-  const changeSessionType = (type: 'focus' | 'short' | 'long') => {
-    setSessionType(type);
-    setTimeLeft(sessionTimes[type]);
+  const handleTimeSelect = (minutes: number) => {
+    setSelectedTime(minutes);
+    setTimeLeft(minutes * 60);
     setIsRunning(false);
-    audioService.stopSound();
-    setIsAudioPlaying(false);
+    setIsMusicPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
   };
 
-  // Request notification permission
-  useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, []);
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const progress = ((selectedTime * 60 - timeLeft) / (selectedTime * 60)) * 100;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16 transition-colors duration-200">
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-4">
-        
-        {/* Session Type Selector */}
-        <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 mb-6">
-          {[
-            { key: 'focus', label: 'Focus', time: '25m' },
-            { key: 'short', label: 'Short Break', time: '5m' },
-            { key: 'long', label: 'Long Break', time: '15m' }
-          ].map((session) => (
-            <button
-              key={session.key}
-              onClick={() => changeSessionType(session.key as any)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                sessionType === session.key
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white'
-              }`}
-            >
-              <div>{session.label}</div>
-              <div className="text-xs opacity-75">{session.time}</div>
-            </button>
-          ))}
-        </div>
+    <SubscriptionGate feature="Focus Mode" requiredPlan="pro" userPlan={subscriptionPlan}>
+      <div className="min-h-screen bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 pt-16">
+        <div className="p-6">
+          <div className="max-w-md mx-auto">
+            {/* Timer Display */}
+            <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-8 text-center mb-8">
+              <div className="relative w-64 h-64 mx-auto mb-6">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="rgba(255,255,255,0.3)"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="white"
+                    strokeWidth="4"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 45}`}
+                    strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
+                    className="transition-all duration-1000 ease-linear"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-6xl font-bold text-white">
+                    {formatTime(timeLeft)}
+                  </div>
+                </div>
+              </div>
 
-        {/* Timer Circle */}
-        <div className="relative mb-8">
-          <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              stroke="currentColor"
-              strokeWidth="2"
-              fill="transparent"
-              className="text-gray-200 dark:text-gray-700"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="transparent"
-              strokeDasharray={`${2 * Math.PI * 45}`}
-              strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
-              className="text-blue-500 transition-all duration-1000"
-              strokeLinecap="round"
-            />
-          </svg>
-          
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-4xl font-bold text-gray-800 dark:text-gray-200">
-              {formatTime(timeLeft)}
-            </span>
-          </div>
-        </div>
-
-        {/* Timer Controls */}
-        <div className="flex items-center space-x-4 mb-8">
-          <button
-            onClick={toggleTimer}
-            className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white hover:from-blue-600 hover:to-purple-700 transition-all hover:scale-105 shadow-lg"
-          >
-            {isRunning ? (
-              <Pause className="w-6 h-6" />
-            ) : (
-              <Play className="w-6 h-6 ml-1" />
-            )}
-          </button>
-          
-          <button
-            onClick={resetTimer}
-            className="flex items-center space-x-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Reset</span>
-          </button>
-        </div>
-
-        {/* Audio Status */}
-        {isAudioPlaying && (
-          <div className="mb-4 flex items-center space-x-2 text-green-600 dark:text-green-400">
-            <AudioWaveVisualizer isPlaying={true} />
-            <span className="text-sm font-medium">Audio Playing</span>
-          </div>
-        )}
-
-        {/* Ambient Sounds */}
-        <div className="w-full max-w-lg">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center flex items-center justify-center space-x-2">
-            <Volume2 className="w-5 h-5" />
-            <span>Ambient Sounds</span>
-          </h3>
-          
-          <div className="grid grid-cols-1 gap-3">
-            {ambientSounds.map((sound) => (
-              <div
-                key={sound.id}
-                className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all cursor-pointer ${
-                  selectedSound === sound.id
-                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-purple-300 dark:hover:border-purple-400'
-                }`}
-                onClick={() => setSelectedSound(sound.id)}
-              >
-                <span className="font-medium text-gray-800 dark:text-gray-200">
-                  {sound.name}
-                </span>
+              {/* Controls */}
+              <div className="flex justify-center space-x-4 mb-6">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    previewAudio(sound.id);
-                  }}
-                  className="flex items-center space-x-2 px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+                  onClick={toggleTimer}
+                  className="w-16 h-16 bg-white text-purple-600 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors shadow-lg"
                 >
-                  {previewSound === sound.id && isPreviewPlaying ? (
-                    <>
-                      <AudioWaveVisualizer isPlaying={true} className="scale-75" />
-                      <span className="text-xs">Playing</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-3 h-3" />
-                      <span className="text-xs">Preview</span>
-                    </>
-                  )}
+                  {isRunning ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
+                </button>
+                
+                <button
+                  onClick={resetTimer}
+                  className="w-16 h-16 bg-white/30 text-white rounded-full flex items-center justify-center hover:bg-white/40 transition-colors"
+                >
+                  <RotateCcw className="w-6 h-6" />
+                </button>
+
+                <button
+                  onClick={toggleMusic}
+                  className="w-16 h-16 bg-white/30 text-white rounded-full flex items-center justify-center hover:bg-white/40 transition-colors"
+                >
+                  {isMusicPlaying ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
                 </button>
               </div>
-            ))}
+
+              {/* Time Selection */}
+              <div className="grid grid-cols-3 gap-3">
+                {[5, 15, 25].map((minutes) => (
+                  <button
+                    key={minutes}
+                    onClick={() => handleTimeSelect(minutes)}
+                    className={`py-3 px-4 rounded-lg font-medium transition-colors ${
+                      selectedTime === minutes
+                        ? 'bg-white text-purple-600'
+                        : 'bg-white/20 text-white hover:bg-white/30'
+                    }`}
+                  >
+                    {minutes}m
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Status */}
+            <div className="text-center text-white/80">
+              <p className="text-lg">
+                {isRunning ? 'Focus time in progress...' : 'Ready to start focusing?'}
+              </p>
+              {isMusicPlaying && (
+                <p className="text-sm mt-2">🎵 Background music playing</p>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Hidden audio element */}
+        <audio
+          ref={audioRef}
+          preload="auto"
+          onEnded={() => setIsMusicPlaying(false)}
+        >
+          <source src="https://www.soundjay.com/misc/sounds/rain-01.mp3" type="audio/mpeg" />
+          <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Podington_Bear/Solo_Piano/Podington_Bear_-_Lament.mp3" type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
       </div>
-    </div>
+    </SubscriptionGate>
   );
 };
