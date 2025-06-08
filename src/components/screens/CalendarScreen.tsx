@@ -1,11 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
-import { Calendar, dateFns } from 'react-day-picker';
-import { ChevronLeft, ChevronRight, Plus, Clock, MapPin, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { EventModal } from '@/components/EventModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { EventModal } from '@/components/EventModal';
-import { notificationService } from '@/utils/notificationService';
-import 'react-day-picker/dist/style.css';
 
 interface CalendarScreenProps {
   onBack: () => void;
@@ -17,40 +15,53 @@ interface Event {
   description?: string;
   event_date: string;
   start_time: string;
-  duration_minutes?: number;
+  duration_minutes: number;
+  color: string;
   location?: string;
-  color?: string;
-  reminder_minutes?: number;
-  repeat_type?: string;
-  created_at: string;
+  reminder_minutes: number;
+  repeat_type: string;
 }
 
 export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [clickedDate, setClickedDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+    
+    // Add all days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day);
+    }
+    
+    return days;
+  };
 
   const loadEvents = async () => {
     if (!user) return;
 
-    setLoading(true);
     try {
-      const startDate = new Date(selectedDate);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(selectedDate);
-      endDate.setDate(selectedDate.getDate() + 1);
-      endDate.setHours(0, 0, 0, 0);
-
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .eq('user_id', user.id)
-        .gte('event_date', startDate.toISOString().split('T')[0])
-        .lt('event_date', endDate.toISOString().split('T')[0])
-        .order('start_time', { ascending: true });
+        .order('event_date', { ascending: true });
 
       if (error) throw error;
       setEvents(data || []);
@@ -63,216 +74,195 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
 
   useEffect(() => {
     loadEvents();
-  }, [selectedDate, user]);
+  }, [user]);
 
-  const handleSaveEvent = async (eventData: any) => {
-    if (!user) return;
-
-    setLoading(true);
-    try {
-      let result;
-      
-      if (editingEvent) {
-        // Update existing event
-        result = await supabase
-          .from('events')
-          .update({
-            title: eventData.title,
-            description: eventData.description,
-            event_date: eventData.event_date,
-            start_time: eventData.start_time,
-            duration_minutes: eventData.duration_minutes,
-            location: eventData.location,
-            color: eventData.color,
-            reminder_minutes: eventData.reminder_minutes,
-            repeat_type: eventData.repeat_type
-          })
-          .eq('id', editingEvent.id)
-          .select()
-          .single();
-      } else {
-        // Create new event
-        result = await supabase
-          .from('events')
-          .insert({
-            user_id: user.id,
-            ...eventData
-          })
-          .select()
-          .single();
-      }
-
-      const { data, error } = result;
-      if (error) throw error;
-
-      // Schedule notification for the event
-      if (data) {
-        const eventDateTime = new Date(`${data.event_date}T${data.start_time}`);
-        notificationService.scheduleEventNotification(data.id, data.title, eventDateTime);
-      }
-
-      setShowEventModal(false);
-      setEditingEvent(null);
-      loadEvents();
-    } catch (error) {
-      console.error('Error saving event:', error);
-      alert('Failed to save event. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const getEventsForDate = (day: number) => {
+    const dateStr = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day)
+      .toISOString().split('T')[0];
+    return events.filter(event => event.event_date === dateStr);
   };
 
-  const handleDeleteEvent = async (eventId: string) => {
-    if (!confirm('Are you sure you want to delete this event?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('id', eventId);
-
-      if (error) throw error;
-
-      // Clear any scheduled notification
-      notificationService.clearNotification(eventId);
-      
-      loadEvents();
-    } catch (error) {
-      console.error('Error deleting event:', error);
-    }
+  const getMonthEvents = () => {
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const startOfMonth = new Date(year, month, 1).toISOString().split('T')[0];
+    const endOfMonth = new Date(year, month + 1, 0).toISOString().split('T')[0];
+    
+    return events.filter(event => 
+      event.event_date >= startOfMonth && event.event_date <= endOfMonth
+    );
   };
 
-  const getEventsForDate = (date: Date) => {
-    return events.filter(event => event.event_date === date.toISOString().split('T')[0]);
+  const handleDayClick = (day: number) => {
+    const clickedDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day);
+    setClickedDate(clickedDate);
+    setShowCreateModal(true);
   };
 
-  const getDaysWithEvents = () => {
-    return events.map(event => new Date(event.event_date));
+  const handleEventCreated = () => {
+    loadEvents();
   };
 
-  const modifiers = {
-    highlighted: getDaysWithEvents(),
-  };
+  const days = getDaysInMonth(selectedDate);
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  const modifiersStyles = {
-    highlighted: {
-      backgroundColor: 'rgba(168, 85, 247, 0.2)',
-      color: '#8B5CF6',
-    },
-  };
+  const monthEvents = getMonthEvents();
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
-      <div className="container mx-auto px-4">
-        {/* Calendar */}
-        <div className="mb-8">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            className="w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
-            classNames={{
-              head_cell: "text-center text-gray-500 dark:text-gray-400 font-medium py-2",
-              day: "py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
-              day_selected: "bg-purple-600 text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50",
-              day_today: "font-semibold",
-              nav_button: "hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors",
-              nav_button_previous: "absolute top-1/2 left-2 transform -translate-y-1/2 p-1 rounded-full",
-              nav_button_next: "absolute top-1/2 right-2 transform -translate-y-1/2 p-1 rounded-full",
-            }}
-            components={{
-              IconLeft: ({ ...props }) => <ChevronLeft className="h-5 w-5" />,
-              IconRight: ({ ...props }) => <ChevronRight className="h-5 w-5" />,
-            }}
-            modifiers={modifiers}
-            modifiersStyles={modifiersStyles}
-          />
+      <div className="p-4">
+        {/* Month Navigation */}
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1))}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </button>
+          
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+            {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+          </h2>
+          
+          <button
+            onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1))}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </button>
         </div>
 
-        {/* Events for Selected Date */}
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Events for {selectedDate.toLocaleDateString()}
-          </h2>
-          {loading ? (
-            <div className="text-center py-4 text-gray-500 dark:text-gray-400">Loading events...</div>
-          ) : (
-            <div>
-              {getEventsForDate(selectedDate).length > 0 ? (
-                <ul className="space-y-4">
-                  {getEventsForDate(selectedDate).map(event => (
-                    <li
-                      key={event.id}
-                      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between"
-                    >
-                      <div>
-                        <div className="flex items-center space-x-2 mb-1">
-                          {event.color && (
-                            <span
-                              className="block w-2 h-2 rounded-full"
-                              style={{ backgroundColor: event.color }}
-                            ></span>
-                          )}
-                          <h3 className="font-semibold text-gray-800 dark:text-gray-200">{event.title}</h3>
-                        </div>
-                        <div className="text-gray-600 dark:text-gray-400 text-sm flex items-center space-x-2">
-                          <Clock className="w-4 h-4" />
-                          <span>{event.start_time}</span>
-                          {event.duration_minutes && <span>({event.duration_minutes} minutes)</span>}
-                        </div>
-                        {event.location && (
-                          <div className="text-gray-600 dark:text-gray-400 text-sm flex items-center space-x-2">
-                            <MapPin className="w-4 h-4" />
-                            <span>{event.location}</span>
-                          </div>
+        {/* Calendar Grid */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+          {/* Day headers */}
+          <div className="grid grid-cols-7 gap-2 mb-4">
+            {dayNames.map(day => (
+              <div key={day} className="text-center text-sm font-medium text-gray-600 dark:text-gray-400 py-2">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar days */}
+          <div className="grid grid-cols-7 gap-2">
+            {days.map((day, index) => {
+              const isToday = day === new Date().getDate() && 
+                            selectedDate.getMonth() === new Date().getMonth() &&
+                            selectedDate.getFullYear() === new Date().getFullYear();
+              
+              const dayEvents = day ? getEventsForDate(day) : [];
+              
+              return (
+                <div key={index} className="aspect-square flex flex-col items-center justify-start relative p-1">
+                  {day && (
+                    <>
+                      <button
+                        onClick={() => handleDayClick(day)}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                          isToday 
+                            ? 'bg-blue-500 text-white' 
+                            : 'text-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        {day}
+                      </button>
+                      {/* Event indicators */}
+                      <div className="flex flex-wrap gap-0.5 mt-1 max-w-full">
+                        {dayEvents.slice(0, 2).map((event, eventIndex) => (
+                          <div
+                            key={eventIndex}
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ backgroundColor: event.color }}
+                            title={event.title}
+                          />
+                        ))}
+                        {dayEvents.length > 2 && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-gray-400" title={`+${dayEvents.length - 2} more`} />
                         )}
                       </div>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => {
-                            setEditingEvent(event);
-                            setShowEventModal(true);
-                          }}
-                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteEvent(event.id)}
-                          className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="text-center py-4 text-gray-500 dark:text-gray-400">No events for this date.</div>
-              )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Month Events */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+          <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">
+            Events in {monthNames[selectedDate.getMonth()]}
+          </h3>
+          {loading ? (
+            <div className="text-center py-4">
+              <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <p className="text-gray-500 dark:text-gray-400 mt-2">Loading events...</p>
+            </div>
+          ) : monthEvents.length > 0 ? (
+            <div className="space-y-3">
+              {monthEvents.map((event) => (
+                <div key={event.id} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+                  <div 
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: event.color }}
+                  />
+                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400 w-20 flex-shrink-0">
+                    {new Date(event.event_date).toLocaleDateString()}
+                  </div>
+                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400 w-20 flex-shrink-0">
+                    {event.start_time}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-gray-800 dark:text-gray-200 truncate">{event.title}</div>
+                    {event.location && (
+                      <div className="text-sm text-gray-600 dark:text-gray-400 truncate">{event.location}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-gray-500 dark:text-gray-400">No events scheduled for this month</p>
+              <button
+                onClick={() => {
+                  setClickedDate(new Date());
+                  setShowCreateModal(true);
+                }}
+                className="mt-2 text-blue-500 hover:text-blue-600 text-sm font-medium"
+              >
+                Create your first event
+              </button>
             </div>
           )}
         </div>
-
-        {/* Add Event Button */}
-        <button
-          onClick={() => setShowEventModal(true)}
-          className="fixed bottom-20 right-6 w-14 h-14 bg-purple-500 rounded-full shadow-lg flex items-center justify-center hover:bg-purple-600 transition-all hover:scale-110 text-white"
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-
-        {/* Event Modal */}
-        <EventModal
-          isOpen={showEventModal}
-          onClose={() => {
-            setShowEventModal(false);
-            setEditingEvent(null);
-          }}
-          onSave={handleSaveEvent}
-          editingEvent={editingEvent}
-        />
       </div>
+
+      {/* Create Event FAB */}
+      <button
+        onClick={() => {
+          setClickedDate(new Date());
+          setShowCreateModal(true);
+        }}
+        className="fixed bottom-20 right-6 w-14 h-14 bg-blue-500 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all hover:scale-110"
+      >
+        <Plus className="w-6 h-6 text-white" />
+      </button>
+
+      {/* Event Creation Modal */}
+      <EventModal
+        isOpen={showCreateModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          setClickedDate(null);
+        }}
+        selectedDate={clickedDate}
+        onEventCreated={handleEventCreated}
+      />
     </div>
   );
 };
