@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
+import { DayPicker } from 'react-day-picker';
 import { ChevronLeft, ChevronRight, Plus, Clock, MapPin, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { EventModal } from '@/components/EventModal';
 import { notificationService } from '@/utils/notificationService';
-import { Calendar } from '@/components/ui/calendar';
+import 'react-day-picker/dist/style.css';
 
 interface CalendarScreenProps {
   onBack: () => void;
@@ -65,7 +66,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
     loadEvents();
   }, [selectedDate, user]);
 
-  const handleEventCreated = () => {
+  const handleEventCreated = async () => {
     setShowEventModal(false);
     setEditingEvent(null);
     loadEvents();
@@ -99,12 +100,23 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
     return events.map(event => new Date(event.event_date));
   };
 
+  const modifiers = {
+    highlighted: getDaysWithEvents(),
+  };
+
+  const modifiersStyles = {
+    highlighted: {
+      backgroundColor: 'rgba(168, 85, 247, 0.2)',
+      color: '#8B5CF6',
+    },
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
       <div className="container mx-auto px-4">
         {/* Calendar */}
         <div className="mb-8">
-          <Calendar
+          <DayPicker
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
@@ -122,6 +134,8 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
               IconLeft: ({ ...props }) => <ChevronLeft className="h-5 w-5" />,
               IconRight: ({ ...props }) => <ChevronRight className="h-5 w-5" />,
             }}
+            modifiers={modifiers}
+            modifiersStyles={modifiersStyles}
           />
         </div>
 

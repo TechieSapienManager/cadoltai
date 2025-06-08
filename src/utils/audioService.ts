@@ -19,11 +19,11 @@ export const ambientSounds: AmbientSound[] = [
 ];
 
 export const alarmSounds: AlarmSound[] = [
-  { id: 'default', name: 'Default Alarm', frequency: 800 },
-  { id: 'gentle', name: 'Gentle Wake', frequency: 400 },
-  { id: 'nature', name: 'Nature Sounds', frequency: 600 },
-  { id: 'electronic', name: 'Electronic', frequency: 1000 },
-  { id: 'classic', name: 'Classic Bell', frequency: 500 }
+  { id: 'beep', name: '🔔 Classic Beep', frequency: 800 },
+  { id: 'chime', name: '🎵 Chime', frequency: 1000 },
+  { id: 'buzz', name: '📳 Buzz', frequency: 200 },
+  { id: 'bell', name: '🔔 Bell', frequency: 1200 },
+  { id: 'alarm', name: '⏰ Alarm', frequency: 600 }
 ];
 
 class AudioService {
@@ -66,7 +66,7 @@ class AudioService {
     }
   }
 
-  async playAlarmSound(sound: AlarmSound, duration?: number) {
+  async playAlarmSound(sound: AlarmSound, duration = 2000) {
     try {
       // Stop any currently playing audio
       this.stopSound();
@@ -89,30 +89,24 @@ class AudioService {
     }
   }
 
-  private generateAlarmAudio(frequency: number, duration?: number) {
+  private generateAlarmAudio(frequency: number, duration: number) {
     if (!this.audioContext) return;
 
     const ctx = this.audioContext;
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
 
-    oscillator.type = 'sine';
-    oscillator.frequency.value = frequency;
-    
-    gainNode.gain.value = 0.3;
-    gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1);
-
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
 
-    oscillator.start();
-    
-    if (duration) {
-      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + duration / 1000 - 0.1);
-      oscillator.stop(ctx.currentTime + duration / 1000);
-    }
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    gainNode.gain.value = 0.1;
 
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + duration / 1000);
+
+    // Store reference to stop later
     this.currentAudio = oscillator as any;
   }
 
@@ -323,7 +317,7 @@ class AudioService {
   stopSound() {
     if (this.currentAudio) {
       try {
-        if (this.currentAudio instanceof AudioBufferSourceNode || this.currentAudio instanceof OscillatorNode) {
+        if (this.currentAudio instanceof AudioBufferSourceNode) {
           this.currentAudio.stop();
         } else if (this.currentAudio.pause) {
           this.currentAudio.pause();
