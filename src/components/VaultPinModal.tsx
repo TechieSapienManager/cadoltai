@@ -28,28 +28,16 @@ export const VaultPinModal: React.FC<VaultPinModalProps> = ({ isOpen, onClose, o
     if (!user) return;
     
     try {
-      // Try to get the vault_pin using RPC call to avoid schema issues
-      const { data, error } = await supabase.rpc('get_user_vault_pin', { 
-        user_id: user.id 
-      });
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
-      if (error) {
-        console.log('No vault PIN RPC function, checking profiles directly...');
-        // Fallback to direct table access
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (profileError) throw profileError;
-        // Check if vault_pin property exists and has a value
-        const vaultPin = (profileData as any)?.vault_pin;
-        setHasExistingPin(!!vaultPin);
-        return;
-      }
-
-      setHasExistingPin(!!data);
+      if (error) throw error;
+      // Check if vault_pin property exists and has a value
+      const vaultPin = (data as any)?.vault_pin;
+      setHasExistingPin(!!vaultPin);
     } catch (error) {
       console.error('Error checking existing PIN:', error);
       // If there's an error, assume no PIN exists and allow setting one
@@ -74,53 +62,26 @@ export const VaultPinModal: React.FC<VaultPinModalProps> = ({ isOpen, onClose, o
     setLoading(true);
     try {
       if (isSettingPin) {
-        // Set new PIN using RPC call first, then fallback to direct update
-        const { error: rpcError } = await supabase.rpc('set_user_vault_pin', {
-          user_id: user.id,
-          new_pin: pin
-        });
+        // Set new PIN
+        const { error } = await supabase
+          .from('profiles')
+          .update({ vault_pin: pin } as any)
+          .eq('id', user.id);
 
-        if (rpcError) {
-          console.log('No vault PIN RPC function, updating profiles directly...');
-          // Fallback to direct table update
-          const { error } = await supabase
-            .from('profiles')
-            .update({ vault_pin: pin } as any)
-            .eq('id', user.id);
-
-          if (error) throw error;
-        }
-        
+        if (error) throw error;
         onSuccess();
       } else {
         // Verify existing PIN
-        const { data, error } = await supabase.rpc('verify_user_vault_pin', {
-          user_id: user.id,
-          pin_to_verify: pin
-        });
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
 
-        if (error) {
-          console.log('No vault PIN RPC function, checking profiles directly...');
-          // Fallback to direct table access
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-
-          if (profileError) throw profileError;
-          
-          const storedPin = (profileData as any)?.vault_pin;
-          if (storedPin === pin) {
-            onSuccess();
-          } else {
-            alert('Incorrect PIN');
-            setPin('');
-          }
-          return;
-        }
-
-        if (data) {
+        if (error) throw error;
+        
+        const storedPin = (data as any)?.vault_pin;
+        if (storedPin === pin) {
           onSuccess();
         } else {
           alert('Incorrect PIN');
