@@ -37,28 +37,13 @@ export const useNotifications = () => {
         
         // If event is within 30 minutes, show notification
         if (timeDiff > 0 && timeDiff <= 30 * 60 * 1000) {
-          // Check if notification already sent
-          const { data: existingNotification } = await supabase
-            .from('notifications')
-            .select('*')
-            .eq('event_id', event.id)
-            .eq('sent', true)
-            .single();
+          // Simple check to avoid duplicate notifications - use localStorage
+          const notificationKey = `notification_${event.id}_${event.event_date}`;
+          const alreadySent = localStorage.getItem(notificationKey);
 
-          if (!existingNotification) {
+          if (!alreadySent) {
             showEventNotification(event);
-            
-            // Mark notification as sent
-            await supabase
-              .from('notifications')
-              .insert({
-                user_id: user.id,
-                event_id: event.id,
-                title: 'Upcoming Event',
-                message: `${event.title} starts in ${Math.round(timeDiff / 60000)} minutes`,
-                scheduled_for: now.toISOString(),
-                sent: true
-              });
+            localStorage.setItem(notificationKey, 'true');
           }
         }
       }

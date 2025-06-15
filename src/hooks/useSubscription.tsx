@@ -20,12 +20,13 @@ export const useSubscription = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('subscription_plan')
+        .select('*')
         .eq('id', user.id)
         .single();
 
       if (error) throw error;
-      setSubscriptionPlan(data?.subscription_plan || 'basic');
+      // Use type assertion to access the subscription_plan field
+      setSubscriptionPlan((data as any)?.subscription_plan || 'basic');
     } catch (error) {
       console.error('Error loading subscription:', error);
       setSubscriptionPlan('basic');
@@ -40,7 +41,7 @@ export const useSubscription = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ subscription_plan: newPlan })
+        .update({ subscription_plan: newPlan } as any)
         .eq('id', user.id);
 
       if (error) throw error;

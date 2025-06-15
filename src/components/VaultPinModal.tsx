@@ -30,12 +30,13 @@ export const VaultPinModal: React.FC<VaultPinModalProps> = ({ isOpen, onClose, o
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('vault_pin')
+        .select('*')
         .eq('id', user.id)
         .single();
 
       if (error) throw error;
-      setHasExistingPin(!!data?.vault_pin);
+      // Use type assertion to access the vault_pin field
+      setHasExistingPin(!!(data as any)?.vault_pin);
     } catch (error) {
       console.error('Error checking existing PIN:', error);
     }
@@ -61,7 +62,7 @@ export const VaultPinModal: React.FC<VaultPinModalProps> = ({ isOpen, onClose, o
         // Set new PIN
         const { error } = await supabase
           .from('profiles')
-          .update({ vault_pin: pin })
+          .update({ vault_pin: pin } as any)
           .eq('id', user.id);
 
         if (error) throw error;
@@ -70,13 +71,13 @@ export const VaultPinModal: React.FC<VaultPinModalProps> = ({ isOpen, onClose, o
         // Verify existing PIN
         const { data, error } = await supabase
           .from('profiles')
-          .select('vault_pin')
+          .select('*')
           .eq('id', user.id)
           .single();
 
         if (error) throw error;
         
-        if (data?.vault_pin === pin) {
+        if ((data as any)?.vault_pin === pin) {
           onSuccess();
         } else {
           alert('Incorrect PIN');
