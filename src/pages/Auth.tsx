@@ -97,64 +97,218 @@ const Auth = () => {
     }
   };
 
-  const termsContent = `Effective Date: June 6, 2025
+  const termsContent = `**TERMS OF SERVICE**
 
-Welcome to Cadolt AI. By accessing and using our app, you agree to the following Terms of Service:
+**Effective Date:** ${new Date().toLocaleDateString()}
 
-1. Acceptance of Terms:
-By using Cadolt AI, you agree to comply with these terms.
+**1. ACCEPTANCE OF TERMS**
+By accessing and using Cadolt AI ("Service"), you accept and agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.
 
-2. Use of Service:
-You may use our services for personal and non-commercial purposes in compliance with applicable laws.
+**2. DESCRIPTION OF SERVICE**
+Cadolt AI provides a comprehensive productivity platform featuring:
+- Intelligent calendar and event management
+- Advanced task and todo organization
+- Secure note storage and file vault
+- Focus timer and productivity enhancement tools
+- AI-powered assistance and automation
+- Alarm and notification systems
 
-3. Payments:
-Some features may require payment. Transactions are handled securely via Razorpay.
+**3. USER ACCOUNTS**
+- You must provide accurate and complete information during registration
+- You are responsible for maintaining the confidentiality of your account credentials
+- You must notify us immediately of any unauthorized access to your account
+- One person may not maintain more than one account
 
-4. User Conduct:
-You agree not to misuse the platform, disrupt services, or engage in fraudulent behavior.
+**4. ACCEPTABLE USE POLICY**
+You agree NOT to:
+- Use the Service for any unlawful purpose or in violation of applicable laws
+- Upload malicious content, viruses, or harmful code
+- Attempt to gain unauthorized access to other users' accounts or data
+- Reverse engineer, modify, or create derivative works of the Service
+- Use the Service to spam, harass, or abuse other users
+- Violate any intellectual property rights
 
-5. Intellectual Property:
-All content, branding, and features are the property of Cadolt AI.
+**5. SUBSCRIPTION AND PAYMENTS**
+- Premium features require a paid subscription
+- Subscription fees are charged in advance on a recurring basis
+- All fees are non-refundable except as required by applicable law
+- We reserve the right to change subscription prices with 30 days' notice
+- Payment processing is handled securely through Razorpay
 
-6. Termination:
-We reserve the right to suspend or terminate your access for any violations.
+**6. PRIVACY AND DATA PROTECTION**
+- Your privacy is important to us. Please review our Privacy Policy
+- We implement industry-standard security measures to protect your data
+- We do not sell your personal information to third parties
+- You retain ownership of content you upload to the Service
 
-7. Modifications:
-These terms may change from time to time. Continued use indicates acceptance of the updated terms.
+**7. INTELLECTUAL PROPERTY**
+- The Service and its content are owned by Cadolt AI and protected by copyright
+- You grant us a license to use your content solely to provide the Service
+- You retain ownership of your uploaded content and data
 
-8. Contact:
-Questions? Reach out at techiesapienmanager@gmail.com
+**8. SERVICE AVAILABILITY**
+- We strive to maintain high uptime but cannot guarantee uninterrupted service
+- We may perform maintenance that temporarily affects service availability
+- We are not liable for data loss due to service interruptions
 
-By using Cadolt AI, you agree to these Terms of Service.`;
+**9. LIMITATION OF LIABILITY**
+- Our liability is limited to the amount you paid for the Service in the past 12 months
+- We are not liable for indirect, incidental, or consequential damages
+- Some jurisdictions may not allow these limitations
 
-  const privacyContent = `Effective Date: June 6, 2025
+**10. TERMINATION**
+- Either party may terminate this agreement at any time
+- We may suspend accounts that violate these Terms
+- Upon termination, your right to use the Service ceases immediately
+- You may export your data before termination
 
-Welcome to Cadolt AI. We respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data.
+**11. MODIFICATIONS TO TERMS**
+- We may modify these Terms at any time
+- Changes will be posted with an updated effective date
+- Continued use after changes constitutes acceptance of new Terms
 
-1. Information We Collect:
-- Personal details (e.g., name, email address)
-- Device data and usage activity
+**12. GOVERNING LAW**
+These Terms are governed by applicable laws without regard to conflict of law principles.
 
-2. How We Use Your Information:
-- To provide and maintain our services
-- To improve user experience and performance
-- To process payments securely via Razorpay
-- To send notifications or important updates
+**13. CONTACT INFORMATION**
+For questions about these Terms, contact us at: techiesapienmanager@gmail.com
 
-3. Data Sharing:
-- We do not sell your personal information
-- We may share data with trusted third parties (e.g., Razorpay) only when necessary for service delivery
+By using Cadolt AI, you acknowledge that you have read and agree to these Terms of Service.`;
 
-4. Security:
-- We use encryption, firewalls, and other technical measures to secure your data
+  const privacyContent = `**PRIVACY POLICY**
 
-5. User Rights:
-- You can request access, correction, or deletion of your personal data by contacting us
+**Effective Date:** ${new Date().toLocaleDateString()}
 
-6. Contact Us:
-If you have any questions, email us at techiesapienmanager@gmail.com
+**1. INFORMATION WE COLLECT**
 
-By using Cadolt AI, you consent to this Privacy Policy.`;
+**Personal Information:**
+- Name and email address (required for account creation)
+- Phone number (optional, for SMS notifications)
+- Profile picture and display preferences
+- Payment information (processed securely through Razorpay)
+
+**Usage Data:**
+- Features used and frequency of access
+- Device information (browser type, operating system, IP address)
+- Log data (access times, pages viewed, errors encountered)
+- Performance metrics and analytics
+
+**User-Generated Content:**
+- Calendar events and scheduling data
+- Tasks, todos, and productivity information
+- Notes and documents stored in your vault
+- Custom settings and preferences
+- Uploaded files and attachments
+
+**2. HOW WE USE YOUR INFORMATION**
+
+We use collected information to:
+- Provide, maintain, and improve our services
+- Process transactions and manage subscriptions
+- Send notifications, reminders, and important updates
+- Provide customer support and technical assistance
+- Analyze usage patterns to enhance user experience
+- Ensure security and prevent fraud
+- Comply with legal obligations
+
+**3. DATA STORAGE AND SECURITY**
+
+**Security Measures:**
+- All data is encrypted in transit using TLS 1.3
+- Sensitive data is encrypted at rest using AES-256 encryption
+- Vault content is protected with user-defined PINs
+- Regular security audits and vulnerability assessments
+- Multi-factor authentication support
+
+**Data Location:**
+- Data is stored on secure servers provided by Supabase
+- Servers are located in secure, SOC 2 Type II compliant data centers
+- Regular automated backups ensure data integrity
+- Redundant storage systems prevent data loss
+
+**4. DATA SHARING AND DISCLOSURE**
+
+We do NOT sell, trade, or rent your personal information. We may share data only in these circumstances:
+- With your explicit consent
+- To comply with legal obligations, court orders, or regulatory requirements
+- To protect our rights, property, or safety, or that of our users
+- With trusted service providers under strict confidentiality agreements
+- In connection with a business merger, acquisition, or sale (with user notification)
+
+**5. YOUR PRIVACY RIGHTS**
+
+You have the right to:
+- Access your personal data and download your information
+- Correct inaccurate or incomplete information
+- Delete your account and associated data
+- Export your data in a portable format
+- Opt-out of non-essential communications
+- Withdraw consent for data processing (where applicable)
+
+**6. COOKIES AND TRACKING TECHNOLOGIES**
+
+We use essential cookies and similar technologies to:
+- Maintain your logged-in session
+- Remember your preferences and settings
+- Analyze usage patterns for service improvement
+- Provide personalized content and features
+
+You can control cookie settings through your browser, though this may affect functionality.
+
+**7. THIRD-PARTY SERVICES**
+
+Our Service integrates with:
+- **Supabase:** Database, authentication, and storage services
+- **Razorpay:** Secure payment processing (PCI DSS compliant)
+- **Email Services:** For notifications and communications
+
+Each service operates under its own privacy policy governing data handling.
+
+**8. DATA RETENTION**
+
+We retain your data as follows:
+- Account information: Until account deletion or as required by law
+- Usage logs: 90 days for security monitoring and analytics
+- Backup data: 30 days after account deletion
+- Financial records: 7 years as required by applicable regulations
+- Anonymized analytics: May be retained indefinitely
+
+**9. CHILDREN'S PRIVACY**
+
+Our Service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If we discover such collection, we will delete it immediately.
+
+**10. INTERNATIONAL DATA TRANSFERS**
+
+If you access our Service from outside our primary jurisdiction, your data may be transferred internationally. We ensure adequate protection through:
+- Standard contractual clauses
+- Adequacy decisions where applicable
+- Appropriate safeguards for cross-border data protection
+
+**11. PRIVACY POLICY CHANGES**
+
+We may update this Privacy Policy to reflect:
+- Changes in our data practices
+- New legal or regulatory requirements
+- Introduction of new features or services
+- User feedback and best practices
+
+We will notify you of significant changes via email or prominent in-app notification.
+
+**12. CONTACT US**
+
+For privacy-related questions, requests, or concerns:
+- **Email:** techiesapienmanager@gmail.com
+- **Subject Line:** "Privacy Policy Inquiry"
+- **Response Time:** We aim to respond within 72 hours
+
+**13. COMPLAINT RESOLUTION**
+
+If you believe we have not complied with this Privacy Policy:
+- Contact us directly using the information above
+- File a complaint with your local data protection authority
+- Seek resolution through applicable legal mechanisms
+
+By using Cadolt AI, you acknowledge that you have read and understand this Privacy Policy.`;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-4">

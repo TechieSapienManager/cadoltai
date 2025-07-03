@@ -45,26 +45,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+          }
         }
-      }
-    });
-    
-    // If no error, user will be automatically signed in for new signups
-    return { error };
+      });
+      
+      return { error };
+    } catch (err) {
+      console.error('Network error during sign up:', err);
+      return { error: { message: 'Network error. Please check your connection and try again.' } };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error };
+    } catch (err) {
+      console.error('Network error during sign in:', err);
+      return { error: { message: 'Network error. Please check your connection and try again.' } };
+    }
   };
 
   const signInWithGoogle = async () => {
