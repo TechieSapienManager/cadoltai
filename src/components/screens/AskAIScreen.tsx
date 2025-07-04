@@ -1,6 +1,10 @@
 
 import React, { useState } from 'react';
 import { Send, Sparkles } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useFeatureLimit } from '@/hooks/useFeatureLimit';
+import { UpgradeModal } from '@/components/UpgradeModal';
 
 interface AskAIScreenProps {
   onBack: () => void;
@@ -13,6 +17,8 @@ interface Message {
 }
 
 export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
+  const { user } = useAuth();
+  const { checkLimit, showUpgradeModal, setShowUpgradeModal, handleUpgrade, incrementCount } = useFeatureLimit('vault_items', 'AI conversations');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState<Message[]>([
@@ -34,6 +40,8 @@ export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
 
   const handleSend = async () => {
     if (!message.trim()) return;
+    
+    if (!checkLimit()) return;
 
     const userMessage: Message = {
       id: Date.now(),
@@ -85,6 +93,7 @@ export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
           content: data.candidates[0].content.parts[0].text
         };
         setConversation(prev => [...prev, aiResponse]);
+        incrementCount();
       } else {
         throw new Error('Invalid response format from Gemini API');
       }
@@ -184,6 +193,13 @@ export const AskAIScreen: React.FC<AskAIScreenProps> = ({ onBack }) => {
           </div>
         )}
       </div>
+      
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="AI conversations"
+        onUpgrade={handleUpgrade}
+      />
     </div>
   );
 };

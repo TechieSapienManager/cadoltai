@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useFeatureLimit } from '@/hooks/useFeatureLimit';
+import { UpgradeModal } from '@/components/UpgradeModal';
 
 interface NotesScreenProps {
   onBack: () => void;
@@ -18,6 +20,7 @@ interface Note {
 
 export const NotesScreen: React.FC<NotesScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
+  const { checkLimit, showUpgradeModal, setShowUpgradeModal, handleUpgrade, incrementCount, decrementCount } = useFeatureLimit('notes', 'notes');
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,6 +84,7 @@ export const NotesScreen: React.FC<NotesScreenProps> = ({ onBack }) => {
       setShowCreateModal(false);
       setEditingNote(null);
       loadNotes();
+      if (!editingNote) incrementCount();
     } catch (error) {
       console.error('Error saving note:', error);
       alert('Failed to save note. Please try again.');
@@ -98,6 +102,7 @@ export const NotesScreen: React.FC<NotesScreenProps> = ({ onBack }) => {
 
       if (error) throw error;
       loadNotes();
+      decrementCount();
     } catch (error) {
       console.error('Error deleting note:', error);
       alert('Failed to delete note. Please try again.');
@@ -201,6 +206,7 @@ export const NotesScreen: React.FC<NotesScreenProps> = ({ onBack }) => {
       {/* Create/Edit Note FAB */}
       <button
         onClick={() => {
+          if (!checkLimit()) return;
           setEditingNote(null);
           setNoteForm({ title: '', content: '' });
           setShowCreateModal(true);
@@ -280,6 +286,13 @@ export const NotesScreen: React.FC<NotesScreenProps> = ({ onBack }) => {
           </div>
         </div>
       )}
+      
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="notes"
+        onUpgrade={handleUpgrade}
+      />
     </div>
   );
 };

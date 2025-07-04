@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Clock, Edit, Trash2, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useFeatureLimit } from '@/hooks/useFeatureLimit';
+import { UpgradeModal } from '@/components/UpgradeModal';
 
 interface TodoScreenProps {
   onBack: () => void;
@@ -20,6 +22,7 @@ interface Todo {
 
 export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
+  const { checkLimit, showUpgradeModal, setShowUpgradeModal, handleUpgrade, incrementCount, decrementCount } = useFeatureLimit('todos', 'todos');
   const [activeTab, setActiveTab] = useState('all');
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,6 +101,7 @@ export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
 
       resetForm();
       loadTodos();
+      if (!editingTodo) incrementCount();
     } catch (error) {
       console.error('Error saving todo:', error);
       alert('Failed to save todo. Please try again.');
@@ -129,6 +133,7 @@ export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
 
       if (error) throw error;
       loadTodos();
+      decrementCount();
     } catch (error) {
       console.error('Error deleting todo:', error);
     }
@@ -302,6 +307,7 @@ export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
       {/* Add Todo FAB */}
       <button
         onClick={() => {
+          if (!checkLimit()) return;
           setEditingTodo(null);
           resetForm();
           setShowCreateModal(true);
@@ -413,6 +419,13 @@ export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
           </div>
         </div>
       )}
+      
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="todos"
+        onUpgrade={handleUpgrade}
+      />
     </div>
   );
 };

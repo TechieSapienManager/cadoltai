@@ -5,6 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { VaultPinModal } from '@/components/VaultPinModal';
 import { SubscriptionGate } from '@/components/SubscriptionGate';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useFeatureLimit } from '@/hooks/useFeatureLimit';
+import { UpgradeModal } from '@/components/UpgradeModal';
 
 interface VaultScreenProps {
   onBack: () => void;
@@ -26,6 +28,7 @@ interface VaultItem {
 export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
   const { subscriptionPlan } = useSubscription();
+  const { checkLimit, showUpgradeModal, setShowUpgradeModal, handleUpgrade, incrementCount, decrementCount } = useFeatureLimit('vault_items', 'vault items');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
   const [visibleItems, setVisibleItems] = useState<{[key: string]: boolean}>({});
@@ -123,6 +126,7 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
       if (dbError) throw dbError;
 
       loadVaultItems();
+      incrementCount();
       alert('File uploaded successfully!');
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -152,6 +156,7 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
       setShowCreateModal(false);
       setNewItem({ title: '', content: '', type: 'password', category: 'general' });
       loadVaultItems();
+      incrementCount();
       alert('Item created successfully!');
     } catch (error) {
       console.error('Error creating item:', error);
@@ -183,6 +188,7 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
       }
 
       loadVaultItems();
+      decrementCount();
       alert('Item deleted successfully!');
     } catch (error) {
       console.error('Error deleting item:', error);
@@ -352,7 +358,10 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
 
         {/* Add Item FAB */}
         <button 
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => {
+            if (!checkLimit()) return;
+            setShowCreateModal(true);
+          }}
           className="fixed bottom-20 right-6 w-14 h-14 bg-blue-500 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all hover:scale-110"
         >
           <Plus className="w-6 h-6 text-white" />
@@ -426,6 +435,13 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
             </div>
           </div>
         )}
+        
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          feature="vault items"
+          onUpgrade={handleUpgrade}
+        />
       </div>
     </SubscriptionGate>
   );

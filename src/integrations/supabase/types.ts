@@ -129,8 +129,10 @@ export type Database = {
           id: string
           notification_enabled: boolean | null
           phone: string | null
+          subscription_plan: string | null
           theme_preference: string | null
           updated_at: string
+          vault_pin: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -140,8 +142,10 @@ export type Database = {
           id: string
           notification_enabled?: boolean | null
           phone?: string | null
+          subscription_plan?: string | null
           theme_preference?: string | null
           updated_at?: string
+          vault_pin?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -151,8 +155,10 @@ export type Database = {
           id?: string
           notification_enabled?: boolean | null
           phone?: string | null
+          subscription_plan?: string | null
           theme_preference?: string | null
           updated_at?: string
+          vault_pin?: string | null
         }
         Relationships: []
       }
