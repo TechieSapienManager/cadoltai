@@ -26,12 +26,7 @@ const Index = () => {
   } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-    }
-  }, [user, loading, navigate]);
+  // No automatic redirect to auth - let users access the dashboard without authentication
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     if (tab === 'pricing') {
@@ -66,7 +61,51 @@ const Index = () => {
             <AdPlaceholder />
             <WelcomeSection />
             <FeatureGrid onFeatureClick={setActiveScreen} />
-            <div className="pb-20" />
+            
+            {/* Footer */}
+            <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-16 mb-20">
+              <div className="max-w-6xl mx-auto px-4 py-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Product</h3>
+                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Features</a></li>
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Pricing</a></li>
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Updates</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Company</h3>
+                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">About</a></li>
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Careers</a></li>
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Contact</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Support</h3>
+                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Help Center</a></li>
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Documentation</a></li>
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Community</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Legal</h3>
+                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Privacy Policy</a></li>
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Terms of Service</a></li>
+                      <li><a href="#" className="hover:text-purple-500 transition-colors">Cookie Policy</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    © 2025 CadoltAI. All rights reserved.
+                  </p>
+                </div>
+              </div>
+            </footer>
           </div>;
     }
   };

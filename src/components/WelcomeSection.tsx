@@ -91,7 +91,7 @@ export const WelcomeSection: React.FC = () => {
     if (user?.email) {
       return user.email.split('@')[0];
     }
-    return 'User';
+    return 'Guest';
   };
 
   return (
@@ -99,10 +99,10 @@ export const WelcomeSection: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-            Welcome back, {getUserName()}! 👋
+            {user ? `Welcome back, ${getUserName()}! 👋` : `Welcome to Cadolt AI! 👋`}
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Here's your productivity overview for today
+            {user ? "Here's your productivity overview for today" : "Your AI-powered productivity companion"}
           </p>
         </div>
         

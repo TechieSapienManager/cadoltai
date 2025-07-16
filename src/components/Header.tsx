@@ -150,20 +150,27 @@ export const Header: React.FC<HeaderProps> = ({
               Ask AI
             </button>
             
-            {/* User Profile */}
+            {/* User Profile / Login */}
             <button
               onClick={onProfileClick}
               className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              <Avatar className="w-8 h-8">
-                <AvatarImage 
-                  src={getUserProfileImage() || user?.user_metadata?.avatar_url} 
-                  alt={getDisplayName()}
-                />
-                <AvatarFallback className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
+              {user ? (
+                <Avatar className="w-8 h-8">
+                  <AvatarImage 
+                    src={getUserProfileImage() || user?.user_metadata?.avatar_url} 
+                    alt={getDisplayName()}
+                  />
+                  <AvatarFallback className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all">
+                  <User className="w-4 h-4" />
+                  <span className="text-sm font-medium">Login</span>
+                </div>
+              )}
             </button>
           </div>
         </div>
