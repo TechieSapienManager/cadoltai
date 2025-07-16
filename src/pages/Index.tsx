@@ -69,33 +69,33 @@ const Index = () => {
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Product</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Features</a></li>
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Pricing</a></li>
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Updates</a></li>
+                      <li><a href="https://cadolt.ai/features" className="hover:text-purple-500 transition-colors">Features</a></li>
+                      <li><a href="https://cadolt.ai/pricing" className="hover:text-purple-500 transition-colors">Pricing</a></li>
+                      <li><a href="https://cadolt.ai/updates" className="hover:text-purple-500 transition-colors">Updates</a></li>
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Company</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">About</a></li>
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Careers</a></li>
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Contact</a></li>
+                      <li><a href="https://cadolt.ai/about" className="hover:text-purple-500 transition-colors">About</a></li>
+                      <li><a href="https://cadolt.ai/careers" className="hover:text-purple-500 transition-colors">Careers</a></li>
+                      <li><a href="https://cadolt.ai/contact" className="hover:text-purple-500 transition-colors">Contact</a></li>
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Support</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Help Center</a></li>
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Documentation</a></li>
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Community</a></li>
+                      <li><a href="https://help.cadolt.ai" className="hover:text-purple-500 transition-colors">Help Center</a></li>
+                      <li><a href="https://docs.cadolt.ai" className="hover:text-purple-500 transition-colors">Documentation</a></li>
+                      <li><a href="https://community.cadolt.ai" className="hover:text-purple-500 transition-colors">Community</a></li>
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Legal</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Privacy Policy</a></li>
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Terms of Service</a></li>
-                      <li><a href="#" className="hover:text-purple-500 transition-colors">Cookie Policy</a></li>
+                      <li><a href="https://cadolt.ai/privacy" className="hover:text-purple-500 transition-colors">Privacy Policy</a></li>
+                      <li><a href="https://cadolt.ai/terms" className="hover:text-purple-500 transition-colors">Terms of Service</a></li>
+                      <li><a href="https://cadolt.ai/cookies" className="hover:text-purple-500 transition-colors">Cookie Policy</a></li>
                     </ul>
                   </div>
                 </div>

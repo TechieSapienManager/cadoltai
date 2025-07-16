@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { ArrowLeft, User } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, User, Moon, Sun } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -24,6 +24,30 @@ export const Header: React.FC<HeaderProps> = ({
   screenTitle
 }) => {
   const { user } = useAuth();
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    // Check if dark mode is enabled
+    const isDark = localStorage.getItem('darkMode') === 'true' || 
+                  (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setDarkMode(isDark);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const getDisplayName = () => {
     if (user?.user_metadata?.full_name) {
@@ -140,8 +164,20 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
 
-          {/* Right side - Ask AI and Profile */}
+          {/* Right side - Dark Mode, Ask AI and Profile */}
           <div className="flex items-center space-x-2">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              {darkMode ? (
+                <Sun className="w-5 h-5 text-yellow-500" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+            
             {/* Ask AI Button */}
             <button
               onClick={onAskAI}
