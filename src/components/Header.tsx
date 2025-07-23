@@ -80,8 +80,6 @@ export const Header: React.FC<HeaderProps> = ({
         return 'Smart Alarms';
       case 'ask-ai':
         return 'Ask AI';
-      case 'pricing':
-        return 'Pricing Plans';
       default:
         return 'Dashboard';
     }
@@ -150,16 +148,6 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 Dashboard
-              </button>
-              <button
-                onClick={() => onTabChange('pricing')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'pricing'
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                }`}
-              >
-                Pricing
               </button>
             </div>
           )}

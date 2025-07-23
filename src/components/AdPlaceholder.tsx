@@ -10,7 +10,7 @@ export const AdPlaceholder: React.FC = () => {
           📱 AdMob Banner Space
         </p>
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-          Upgrade to Pro to remove ads
+          Sponsored Content
         </p>
       </div>
     </div>

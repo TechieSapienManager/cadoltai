@@ -3,10 +3,6 @@ import { Lock, Plus, Eye, EyeOff, FileText, Upload, Image as ImageIcon, FileIcon
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { VaultPinModal } from '@/components/VaultPinModal';
-import { SubscriptionGate } from '@/components/SubscriptionGate';
-import { useSubscription } from '@/hooks/useSubscription';
-import { useFeatureLimit } from '@/hooks/useFeatureLimit';
-import { UpgradeModal } from '@/components/UpgradeModal';
 
 interface VaultScreenProps {
   onBack: () => void;
@@ -27,8 +23,6 @@ interface VaultItem {
 
 export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
-  const { subscriptionPlan } = useSubscription();
-  const { checkLimit, showUpgradeModal, setShowUpgradeModal, handleUpgrade, incrementCount, decrementCount } = useFeatureLimit('vault_items', 'vault items');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
   const [visibleItems, setVisibleItems] = useState<{[key: string]: boolean}>({});
@@ -126,7 +120,6 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
       if (dbError) throw dbError;
 
       loadVaultItems();
-      incrementCount();
       alert('File uploaded successfully!');
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -156,7 +149,6 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
       setShowCreateModal(false);
       setNewItem({ title: '', content: '', type: 'password', category: 'general' });
       loadVaultItems();
-      incrementCount();
       alert('Item created successfully!');
     } catch (error) {
       console.error('Error creating item:', error);
@@ -188,7 +180,6 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
       }
 
       loadVaultItems();
-      decrementCount();
       alert('Item deleted successfully!');
     } catch (error) {
       console.error('Error deleting item:', error);
@@ -244,27 +235,26 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
   }
 
   return (
-    <SubscriptionGate feature="Secure Vault" requiredPlan="pro" userPlan={subscriptionPlan}>
-      <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
-        <div className="p-4">
-          {/* File Upload */}
-          <div className="mb-6">
-            <label className="flex items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors cursor-pointer">
-              <div className="text-center">
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Upload files (PDF, Images, Documents)
-                </span>
-              </div>
-              <input
-                type="file"
-                className="hidden"
-                onChange={handleFileUpload}
-                accept=".pdf,.jpg,.jpeg,.png,.txt,.doc,.docx"
-                disabled={loading}
-              />
-            </label>
-          </div>
+    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+      <div className="p-4">
+        {/* File Upload */}
+        <div className="mb-6">
+          <label className="flex items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors cursor-pointer">
+            <div className="text-center">
+              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Upload files (PDF, Images, Documents)
+              </span>
+            </div>
+            <input
+              type="file"
+              className="hidden"
+              onChange={handleFileUpload}
+              accept=".pdf,.jpg,.jpeg,.png,.txt,.doc,.docx"
+              disabled={loading}
+            />
+          </label>
+        </div>
 
           {/* Vault Items */}
           {loading ? (
@@ -359,7 +349,6 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
         {/* Add Item FAB */}
         <button 
           onClick={() => {
-            if (!checkLimit()) return;
             setShowCreateModal(true);
           }}
           className="fixed bottom-20 right-6 w-14 h-14 bg-blue-500 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all hover:scale-110"
@@ -432,17 +421,9 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
                   </button>
                 </div>
               </div>
-            </div>
           </div>
-        )}
-        
-        <UpgradeModal
-          isOpen={showUpgradeModal}
-          onClose={() => setShowUpgradeModal(false)}
-          feature="vault items"
-          onUpgrade={handleUpgrade}
-        />
-      </div>
-    </SubscriptionGate>
+        </div>
+      )}
+    </div>
   );
 };

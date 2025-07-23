@@ -5,8 +5,6 @@ import { EventDeleteModal } from '@/components/EventDeleteModal';
 import { Calendar } from '@/components/ui/calendar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useFeatureLimit } from '@/hooks/useFeatureLimit';
-import { UpgradeModal } from '@/components/UpgradeModal';
 import { useNotifications } from '@/hooks/useNotifications';
 
 interface CalendarScreenProps {
@@ -28,7 +26,6 @@ interface Event {
 
 export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
-  const { checkLimit, showUpgradeModal, setShowUpgradeModal, handleUpgrade, incrementCount, decrementCount } = useFeatureLimit('events', 'events');
   const { requestNotificationPermission } = useNotifications();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showCreateModal, setShowCreateModal] = useState(false);

@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Clock, Volume2, Trash2, Edit2, Play, Pause } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useFeatureLimit } from '@/hooks/useFeatureLimit';
-import { UpgradeModal } from '@/components/UpgradeModal';
 import { audioService, alarmSounds } from '@/utils/audioService';
 
 interface AlarmsScreenProps {
@@ -23,7 +21,6 @@ interface Alarm {
 
 export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
-  const { checkLimit, showUpgradeModal, setShowUpgradeModal, handleUpgrade, incrementCount, decrementCount } = useFeatureLimit('alarms', 'alarms');
   const [alarms, setAlarms] = useState<Alarm[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -91,7 +88,6 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
       setShowCreateModal(false);
       setNewAlarm({ title: '', time: '', days: [], sound_type: 'default' });
       loadAlarms();
-      incrementCount();
     } catch (error) {
       console.error('Error creating alarm:', error);
       alert('Failed to create alarm. Please try again.');
@@ -140,7 +136,6 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
 
       if (error) throw error;
       loadAlarms();
-      decrementCount();
     } catch (error) {
       console.error('Error deleting alarm:', error);
       alert('Failed to delete alarm. Please try again.');
@@ -317,7 +312,6 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
       {/* Add Alarm FAB */}
       <button 
         onClick={() => {
-          if (!checkLimit()) return;
           setShowCreateModal(true);
         }}
         className="fixed bottom-20 right-6 w-14 h-14 bg-blue-500 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all hover:scale-110"
@@ -546,13 +540,6 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
           </div>
         </div>
       )}
-      
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        feature="alarms"
-        onUpgrade={handleUpgrade}
-      />
     </div>
   );
 };

@@ -14,7 +14,7 @@ import { TodoScreen } from '@/components/screens/TodoScreen';
 import { FocusScreen } from '@/components/screens/FocusScreen';
 import { VaultScreen } from '@/components/screens/VaultScreen';
 import { AlarmsScreen } from '@/components/screens/AlarmsScreen';
-import { PricingScreen } from '@/components/screens/PricingScreen';
+
 import { AskAIScreen } from '@/components/screens/AskAIScreen';
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -47,13 +47,6 @@ const Index = () => {
         return <FocusScreen onBack={() => setActiveScreen('dashboard')} />;
       case 'vault':
         return <VaultScreen onBack={() => setActiveScreen('dashboard')} />;
-      case 'alarms':
-        return <AlarmsScreen onBack={() => setActiveScreen('dashboard')} />;
-      case 'pricing':
-        return <PricingScreen onBack={() => {
-          setActiveScreen('dashboard');
-          setActiveTab('dashboard');
-        }} />;
       case 'ask-ai':
         return <AskAIScreen onBack={() => setActiveScreen('dashboard')} />;
       default:
@@ -70,7 +63,7 @@ const Index = () => {
                     <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Product</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                       <li><a href="https://cadolt.ai/features" className="hover:text-purple-500 transition-colors">Features</a></li>
-                      <li><a href="https://cadolt.ai/pricing" className="hover:text-purple-500 transition-colors">Pricing</a></li>
+                      
                       <li><a href="https://cadolt.ai/updates" className="hover:text-purple-500 transition-colors">Updates</a></li>
                     </ul>
                   </div>
