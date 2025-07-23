@@ -206,7 +206,6 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
         <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Podington_Bear/Solo_Piano/Podington_Bear_-_Lament.mp3" type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>
-      </div>
     </div>
   );
 };
