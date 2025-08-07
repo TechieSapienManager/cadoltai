@@ -17,11 +17,26 @@ import { AlarmsScreen } from '@/components/screens/AlarmsScreen';
 
 import { AskAIScreen } from '@/components/screens/AskAIScreen';
 import { useNotifications } from '@/hooks/useNotifications';
+import { LegalModal } from '@/components/modals/LegalModal';
+import { SupportModal } from '@/components/modals/SupportModal';
+import { ProductModal } from '@/components/modals/ProductModal';
+import { CompanyModal } from '@/components/modals/CompanyModal';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeScreen, setActiveScreen] = useState('dashboard');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [modalState, setModalState] = useState<{
+    legal: { isOpen: boolean; type: 'privacy' | 'terms' | 'cookies' | null };
+    support: { isOpen: boolean; type: 'help' | 'docs' | 'community' | null };
+    product: { isOpen: boolean; type: 'features' | 'updates' | null };
+    company: { isOpen: boolean; type: 'about' | 'careers' | 'contact' | null };
+  }>({
+    legal: { isOpen: false, type: null },
+    support: { isOpen: false, type: null },
+    product: { isOpen: false, type: null },
+    company: { isOpen: false, type: null }
+  });
   const {
     user,
     loading
@@ -35,6 +50,20 @@ const Index = () => {
       requestNotificationPermission();
     }
   }, [user, requestNotificationPermission]);
+
+  const openModal = (category: 'legal' | 'support' | 'product' | 'company', type: string) => {
+    setModalState(prev => ({
+      ...prev,
+      [category]: { isOpen: true, type: type as any }
+    }));
+  };
+
+  const closeModal = (category: 'legal' | 'support' | 'product' | 'company') => {
+    setModalState(prev => ({
+      ...prev,
+      [category]: { isOpen: false, type: null }
+    }));
+  };
 
   // No automatic redirect to auth - let users access the dashboard without authentication
   const handleTabChange = (tab: string) => {
@@ -72,33 +101,32 @@ const Index = () => {
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Product</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><a href="https://cadolt.ai/features" className="hover:text-purple-500 transition-colors">Features</a></li>
-                      
-                      <li><a href="https://cadolt.ai/updates" className="hover:text-purple-500 transition-colors">Updates</a></li>
+                      <li><button onClick={() => openModal('product', 'features')} className="hover:text-purple-500 transition-colors">Features</button></li>
+                      <li><button onClick={() => openModal('product', 'updates')} className="hover:text-purple-500 transition-colors">Updates</button></li>
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Company</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><a href="https://cadolt.ai/about" className="hover:text-purple-500 transition-colors">About</a></li>
-                      <li><a href="https://cadolt.ai/careers" className="hover:text-purple-500 transition-colors">Careers</a></li>
-                      <li><a href="https://cadolt.ai/contact" className="hover:text-purple-500 transition-colors">Contact</a></li>
+                      <li><button onClick={() => openModal('company', 'about')} className="hover:text-purple-500 transition-colors">About</button></li>
+                      <li><button onClick={() => openModal('company', 'careers')} className="hover:text-purple-500 transition-colors">Careers</button></li>
+                      <li><button onClick={() => openModal('company', 'contact')} className="hover:text-purple-500 transition-colors">Contact</button></li>
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Support</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><a href="https://help.cadolt.ai" className="hover:text-purple-500 transition-colors">Help Center</a></li>
-                      <li><a href="https://docs.cadolt.ai" className="hover:text-purple-500 transition-colors">Documentation</a></li>
-                      <li><a href="https://community.cadolt.ai" className="hover:text-purple-500 transition-colors">Community</a></li>
+                      <li><button onClick={() => openModal('support', 'help')} className="hover:text-purple-500 transition-colors">Help Center</button></li>
+                      <li><button onClick={() => openModal('support', 'docs')} className="hover:text-purple-500 transition-colors">Documentation</button></li>
+                      <li><button onClick={() => openModal('support', 'community')} className="hover:text-purple-500 transition-colors">Community</button></li>
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Legal</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><a href="https://cadolt.ai/privacy" className="hover:text-purple-500 transition-colors">Privacy Policy</a></li>
-                      <li><a href="https://cadolt.ai/terms" className="hover:text-purple-500 transition-colors">Terms of Service</a></li>
-                      <li><a href="https://cadolt.ai/cookies" className="hover:text-purple-500 transition-colors">Cookie Policy</a></li>
+                      <li><button onClick={() => openModal('legal', 'privacy')} className="hover:text-purple-500 transition-colors">Privacy Policy</button></li>
+                      <li><button onClick={() => openModal('legal', 'terms')} className="hover:text-purple-500 transition-colors">Terms of Service</button></li>
+                      <li><button onClick={() => openModal('legal', 'cookies')} className="hover:text-purple-500 transition-colors">Cookie Policy</button></li>
                     </ul>
                   </div>
                 </div>
@@ -133,6 +161,28 @@ const Index = () => {
       {(activeScreen === 'dashboard' || activeScreen === 'pricing') && <BottomNavigation activeItem="" onItemClick={setActiveScreen} />}
       
       <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      
+      {/* Modal Components */}
+      <LegalModal 
+        isOpen={modalState.legal.isOpen} 
+        onClose={() => closeModal('legal')} 
+        type={modalState.legal.type!} 
+      />
+      <SupportModal 
+        isOpen={modalState.support.isOpen} 
+        onClose={() => closeModal('support')} 
+        type={modalState.support.type!} 
+      />
+      <ProductModal 
+        isOpen={modalState.product.isOpen} 
+        onClose={() => closeModal('product')} 
+        type={modalState.product.type!} 
+      />
+      <CompanyModal 
+        isOpen={modalState.company.isOpen} 
+        onClose={() => closeModal('company')} 
+        type={modalState.company.type!} 
+      />
     </div>;
 };
 export default Index;
