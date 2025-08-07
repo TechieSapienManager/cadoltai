@@ -46,6 +46,13 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
     loadVaultItems();
   };
 
+  // Load vault items when unlocked state changes
+  useEffect(() => {
+    if (isUnlocked && user) {
+      loadVaultItems();
+    }
+  }, [isUnlocked, user]);
+
   const loadVaultItems = async () => {
     if (!user || !isUnlocked) return;
 

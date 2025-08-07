@@ -16,6 +16,8 @@ import { VaultScreen } from '@/components/screens/VaultScreen';
 import { AlarmsScreen } from '@/components/screens/AlarmsScreen';
 
 import { AskAIScreen } from '@/components/screens/AskAIScreen';
+import { useNotifications } from '@/hooks/useNotifications';
+
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeScreen, setActiveScreen] = useState('dashboard');
@@ -24,7 +26,15 @@ const Index = () => {
     user,
     loading
   } = useAuth();
+  const { requestNotificationPermission } = useNotifications();
   const navigate = useNavigate();
+
+  // Request notification permission when component mounts
+  useEffect(() => {
+    if (user) {
+      requestNotificationPermission();
+    }
+  }, [user, requestNotificationPermission]);
 
   // No automatic redirect to auth - let users access the dashboard without authentication
   const handleTabChange = (tab: string) => {
