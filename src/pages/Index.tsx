@@ -21,6 +21,7 @@ import { LegalModal } from '@/components/modals/LegalModal';
 import { SupportModal } from '@/components/modals/SupportModal';
 import { ProductModal } from '@/components/modals/ProductModal';
 import { CompanyModal } from '@/components/modals/CompanyModal';
+import { AbstractBackground } from '@/components/AbstractBackground';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -89,54 +90,57 @@ const Index = () => {
       case 'ask-ai':
         return <AskAIScreen onBack={() => setActiveScreen('dashboard')} />;
       default:
-        return <div className="min-h-screen transition-colors duration-200 bg-slate-50 dark:bg-gray-900">
-            <AdPlaceholder />
-            <WelcomeSection />
-            <FeatureGrid onFeatureClick={setActiveScreen} />
-            
-            {/* Footer */}
-            <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-16 mb-20">
-              <div className="max-w-6xl mx-auto px-4 py-8">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                  <div>
-                    <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Product</h3>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><button onClick={() => openModal('product', 'features')} className="hover:text-purple-500 transition-colors">Features</button></li>
-                      <li><button onClick={() => openModal('product', 'updates')} className="hover:text-purple-500 transition-colors">Updates</button></li>
-                    </ul>
+        return <div className="relative min-h-screen transition-colors duration-200 app-gradient-bg overflow-hidden">
+            <AbstractBackground />
+            <div className="relative z-10 pt-20">
+              <AdPlaceholder />
+              <WelcomeSection />
+              <FeatureGrid onFeatureClick={setActiveScreen} />
+              
+              {/* Footer */}
+              <footer className="backdrop-blur-xl bg-white/60 dark:bg-gray-900/40 border-t border-white/20 dark:border-white/10 mt-16 mb-20">
+                <div className="max-w-6xl mx-auto px-4 py-8">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                    <div>
+                      <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Product</h3>
+                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <li><button onClick={() => openModal('product', 'features')} className="hover:text-purple-500 transition-colors">Features</button></li>
+                        <li><button onClick={() => openModal('product', 'updates')} className="hover:text-purple-500 transition-colors">Updates</button></li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Company</h3>
+                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <li><button onClick={() => openModal('company', 'about')} className="hover:text-purple-500 transition-colors">About</button></li>
+                        <li><button onClick={() => openModal('company', 'careers')} className="hover:text-purple-500 transition-colors">Careers</button></li>
+                        <li><button onClick={() => openModal('company', 'contact')} className="hover:text-purple-500 transition-colors">Contact</button></li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Support</h3>
+                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <li><button onClick={() => openModal('support', 'help')} className="hover:text-purple-500 transition-colors">Help Center</button></li>
+                        <li><button onClick={() => openModal('support', 'docs')} className="hover:text-purple-500 transition-colors">Documentation</button></li>
+                        <li><button onClick={() => openModal('support', 'community')} className="hover:text-purple-500 transition-colors">Community</button></li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Legal</h3>
+                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <li><button onClick={() => openModal('legal', 'privacy')} className="hover:text-purple-500 transition-colors">Privacy Policy</button></li>
+                        <li><button onClick={() => openModal('legal', 'terms')} className="hover:text-purple-500 transition-colors">Terms of Service</button></li>
+                        <li><button onClick={() => openModal('legal', 'cookies')} className="hover:text-purple-500 transition-colors">Cookie Policy</button></li>
+                      </ul>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Company</h3>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><button onClick={() => openModal('company', 'about')} className="hover:text-purple-500 transition-colors">About</button></li>
-                      <li><button onClick={() => openModal('company', 'careers')} className="hover:text-purple-500 transition-colors">Careers</button></li>
-                      <li><button onClick={() => openModal('company', 'contact')} className="hover:text-purple-500 transition-colors">Contact</button></li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Support</h3>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><button onClick={() => openModal('support', 'help')} className="hover:text-purple-500 transition-colors">Help Center</button></li>
-                      <li><button onClick={() => openModal('support', 'docs')} className="hover:text-purple-500 transition-colors">Documentation</button></li>
-                      <li><button onClick={() => openModal('support', 'community')} className="hover:text-purple-500 transition-colors">Community</button></li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Legal</h3>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li><button onClick={() => openModal('legal', 'privacy')} className="hover:text-purple-500 transition-colors">Privacy Policy</button></li>
-                      <li><button onClick={() => openModal('legal', 'terms')} className="hover:text-purple-500 transition-colors">Terms of Service</button></li>
-                      <li><button onClick={() => openModal('legal', 'cookies')} className="hover:text-purple-500 transition-colors">Cookie Policy</button></li>
-                    </ul>
+                  <div className="border-t border-white/20 dark:border-white/10 pt-6 text-center">
+                    <p className="text-sm text-gray-700/80 dark:text-gray-300/80">
+                      © 2025 CadoltAI. All rights reserved.
+                    </p>
                   </div>
                 </div>
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    © 2025 CadoltAI. All rights reserved.
-                  </p>
-                </div>
-              </div>
-            </footer>
+              </footer>
+            </div>
           </div>;
     }
   };
@@ -158,7 +162,7 @@ const Index = () => {
       
       {renderScreen()}
       
-      {(activeScreen === 'dashboard' || activeScreen === 'pricing') && <BottomNavigation activeItem="" onItemClick={setActiveScreen} />}
+      {(activeScreen === 'dashboard' || activeScreen === 'pricing') && <BottomNavigation activeItem={activeScreen} onItemClick={setActiveScreen} />}
       
       <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
       

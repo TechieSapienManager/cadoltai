@@ -22,11 +22,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="bg-white dark:bg-gray-800 rounded-3xl p-4 md:p-6 shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-xl hover:scale-105 hover:-translate-y-2 transition-all duration-500 group animate-fade-in"
+      className="glass rounded-3xl p-4 md:p-6 shadow-sm border border-white/20 dark:border-white/10 cursor-pointer hover:shadow-xl hover:scale-105 hover:-translate-y-2 transition-all duration-500 group animate-fade-in will-change-transform"
       style={{ animationDelay: `${delay}s` }}
     >
       <div className="flex items-start space-x-3 md:space-x-4">
-        <div className={`${bgColor} rounded-2xl p-3 md:p-4 flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
+        <div className={`${bgColor} rounded-2xl p-3 md:p-4 flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg neon`}>
           {icon}
         </div>
         <div className="flex-1 min-w-0">

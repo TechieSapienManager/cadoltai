@@ -173,7 +173,7 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({ isOpen, onClose, typ
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+              <div className="space-y-4">
                   <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <h4 className="font-semibold mb-2 flex items-center">
                       <Mail className="w-5 h-5 mr-2 text-blue-500" />
@@ -186,6 +186,20 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({ isOpen, onClose, typ
                       hello@cadolt.ai
                     </a>
                     <div className="text-xs text-gray-500 mt-1">Response time: 24-48 hours</div>
+                  </div>
+                  
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <h4 className="font-semibold mb-2 flex items-center">
+                      <Mail className="w-5 h-5 mr-2 text-purple-500" />
+                      Gmail Contact
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      Preferred Gmail contact for quick assistance
+                    </p>
+                    <a href="mailto:techiesapienmanager@gmail.com" className="text-blue-500 hover:text-blue-600 text-sm">
+                      techiesapienmanager@gmail.com
+                    </a>
+                    <div className="text-xs text-gray-500 mt-1">Response time: Within 24 hours</div>
                   </div>
                   
                   <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">

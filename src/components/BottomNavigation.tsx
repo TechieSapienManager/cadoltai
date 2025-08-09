@@ -21,8 +21,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-2">
-      <div className="flex justify-around items-center">
+    <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-white/60 dark:bg-gray-900/40 border-t border-white/20 dark:border-white/10 px-4 py-2 pb-[env(safe-area-inset-bottom)]">
+      <div className="flex justify-between items-center max-w-md mx-auto w-full">
         {navItems.map(({ key, icon: Icon, label }) => {
           const isActive = activeItem === key;
           return (
@@ -36,7 +36,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
               }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'scale-120' : ''} transition-transform duration-200`} />
-              <span className="text-xs font-medium">{label}</span>
+              <span className="text-xs font-medium hidden sm:block">{label}</span>
             </button>
           );
         })}

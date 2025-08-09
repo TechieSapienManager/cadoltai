@@ -47,6 +47,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose, typ
                   <p className="text-sm">Still need help? Reach out to our support team:</p>
                   <ul className="space-y-1 text-sm mt-2">
                     <li>• Email: support@cadolt.ai</li>
+                    <li>• Alt email: techiesapienmanager@gmail.com</li>
                     <li>• Response time: Within 24 hours</li>
                     <li>• Live chat: Available 9 AM - 6 PM EST</li>
                   </ul>

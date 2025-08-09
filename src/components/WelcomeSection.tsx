@@ -96,23 +96,23 @@ export const WelcomeSection: React.FC = () => {
 
   return (
     <div className="px-4 md:px-6 mb-8">
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+      <div className="glass rounded-3xl shadow-sm p-6 border border-white/20 dark:border-white/10">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-            {user ? `Welcome back, ${getUserName()}! 👋` : `Welcome to Cadolt AI! 👋`}
+          <h2 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 bg-clip-text text-transparent mb-2">
+            {user ? `Welcome back, ${getUserName()} 👋` : `Welcome to Cadolt AI 👋`}
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-700/80 dark:text-gray-300/80">
             {user ? "Here's your productivity overview for today" : "Your AI-powered productivity companion"}
           </p>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center">
+            <div key={index} className="text-center glass rounded-2xl p-4 border border-white/20 dark:border-white/10">
               <div className={`text-xl md:text-2xl font-bold ${stat.color} mb-1`}>
                 {stat.value}
               </div>
-              <div className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
                 {stat.label}
               </div>
             </div>

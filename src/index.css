@@ -73,12 +73,12 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: white;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: transparent;
   }
 
   .dark body {
-    background: #0f172a;
+    background: transparent;
   }
 }
 
@@ -195,3 +195,26 @@
     margin-top: 0.75rem;
   }
 }
+
+/* Glassmorphism utilities */
+.app-gradient-bg {
+  background: linear-gradient(135deg, #ede7ff 0%, #fde2f1 100%);
+}
+.dark .app-gradient-bg {
+  background: linear-gradient(135deg, #0b1020 0%, #1b1020 100%);
+}
+.glass {
+  background: hsl(var(--card) / 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid hsl(var(--border) / 0.5);
+  box-shadow: 0 10px 30px -10px hsl(var(--ring) / 0.25);
+}
+.neon { filter: drop-shadow(0 0 8px hsl(262 84% 60% / 0.7)); }
+.neon-blue { filter: drop-shadow(0 0 8px hsl(217 91% 60% / 0.7)); }
+.neon-green { filter: drop-shadow(0 0 8px hsl(142 71% 45% / 0.6)); }
+.neon-orange { filter: drop-shadow(0 0 8px hsl(24 95% 53% / 0.6)); }
+.neon-purple { filter: drop-shadow(0 0 8px hsl(262 84% 60% / 0.7)); }
+.neon-gray { filter: drop-shadow(0 0 8px hsl(215 20% 65% / 0.5)); }
+.neon-red { filter: drop-shadow(0 0 8px hsl(0 84% 60% / 0.6)); }
+.will-change-transform { will-change: transform; }

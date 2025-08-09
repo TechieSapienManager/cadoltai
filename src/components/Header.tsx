@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, User, Moon, Sun } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import logo from '@/assets/logo-cadoltai.png';
 
 interface HeaderProps {
   activeTab: string;
@@ -100,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl border border-white/20 dark:border-white/10">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Left side - Back button or Logo */}
@@ -122,13 +123,14 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* App Main Logo - Using uploaded brain logo */}
                 <div className="flex items-center space-x-3">
                   <div className="relative">
-                    <img 
-                      src="/lovable-uploads/0979893b-0c4d-40b7-a3d1-e69a16dc5c50.png" 
-                      alt="Cadolt AI Logo" 
-                      className="w-10 h-10 rounded-xl shadow-lg"
+                    <img
+                      src={logo}
+                      alt="Cadolt AI logo"
+                      className="w-9 h-9 rounded-xl shadow-lg"
+                      loading="lazy"
                     />
                   </div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  <h1 className="text-xl font-extrabold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
                     Cadolt AI
                   </h1>
                 </div>
