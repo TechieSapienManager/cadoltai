@@ -52,42 +52,42 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
       title: "Advanced Calendar",
       description: "Manage your schedule with drag-and-drop, weather integration, and smart suggestions",
       icon: <Calendar className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      bgColor: "bg-gradient-to-br from-blue-500 to-blue-600",
       key: "calendar"
     },
     {
       title: "Smart Notes",
       description: "Create unlimited notes with rich formatting and templates",
       icon: <FileText className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      bgColor: "bg-gradient-to-br from-green-500 to-green-600",
       key: "notes"
     },
     {
       title: "AI To-Do Lists",
       description: "Smart task management with insights and productivity reports",
       icon: <CheckCircle className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      bgColor: "bg-gradient-to-br from-orange-500 to-orange-600",
       key: "todo"
     },
     {
       title: "Focus Mode+",
       description: "Distraction-free environment with focus music and custom timers",
       icon: <Target className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      bgColor: "bg-gradient-to-br from-purple-500 to-purple-600",
       key: "focus"
     },
     {
       title: "Advanced Vault",
       description: "Secure password vault with biometric lock and cloud backup",
       icon: <Shield className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      bgColor: "bg-gradient-to-br from-gray-600 to-gray-700",
       key: "vault"
     },
     {
       title: "Smart Alarms",
       description: "Set custom alarms with various ringtones and smart scheduling",
       icon: <Clock className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      bgColor: "bg-gradient-to-br from-red-500 to-red-600",
       key: "alarms"
     }
   ];

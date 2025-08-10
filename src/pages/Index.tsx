@@ -90,7 +90,8 @@ const Index = () => {
       case 'ask-ai':
         return <AskAIScreen onBack={() => setActiveScreen('dashboard')} />;
       default:
-        return <div className="relative min-h-screen transition-colors duration-200 bg-white dark:bg-gray-900 overflow-hidden">
+        return <div className="relative min-h-screen transition-colors duration-200 app-gradient-bg overflow-hidden">
+            <AbstractBackground />
             <div className="relative z-10 pt-20">
               <AdPlaceholder />
               <WelcomeSection />

@@ -1,7 +1,5 @@
 
 import { useEffect } from 'react';
-import { Capacitor } from '@capacitor/core';
-import { LocalNotifications } from '@capacitor/local-notifications';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -55,19 +53,6 @@ export const useNotifications = () => {
   };
 
   const showEventNotification = (event: any) => {
-    if (Capacitor.isNativePlatform()) {
-      LocalNotifications.schedule({
-        notifications: [
-          {
-            id: Number(String(event.id).slice(-7)),
-            title: 'Upcoming Event',
-            body: `${event.title} starts soon`,
-            schedule: { at: new Date(Date.now() + 1000) },
-          },
-        ],
-      });
-      return;
-    }
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('Upcoming Event', {
         body: `${event.title} starts soon`,
@@ -77,10 +62,6 @@ export const useNotifications = () => {
   };
 
   const requestNotificationPermission = async () => {
-    if (Capacitor.isNativePlatform()) {
-      const perm = await LocalNotifications.requestPermissions();
-      return perm.display === 'granted';
-    }
     if ('Notification' in window) {
       const permission = await Notification.requestPermission();
       return permission === 'granted';
