@@ -8,6 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Eye, EyeOff, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Capacitor } from '@capacitor/core';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import logo from '@/assets/logo-cadoltai-v3.png';
 
 const Auth = () => {
   const { signIn, signUp, user, loading } = useAuth();
@@ -21,6 +24,8 @@ const Auth = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -77,10 +82,13 @@ const Auth = () => {
     
     setIsSubmitting(true);
     
-    try {
+  try {
       console.log('Attempting sign up with email:', email);
-      const result = await signUp(email, password);
+      const result = await signUp(email, password, displayName || undefined);
       console.log('Sign up result:', result);
+      if (!result.error && displayName) {
+        localStorage.setItem('userProfile', JSON.stringify({ displayName, profileImage }));
+      }
       
       if (result.error) {
         console.error('Sign up error:', result.error);
@@ -317,9 +325,9 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <img 
-              src="/lovable-uploads/0979893b-0c4d-40b7-a3d1-e69a16dc5c50.png" 
+              src={logo}
               alt="Cadolt AI Logo" 
-              className="w-6 h-6 rounded-lg shadow-md"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg shadow-md"
             />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Cadolt AI
@@ -417,10 +425,45 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
                     )}
                   </Button>
                 </form>
+
+                {Capacitor.isNativePlatform() && (
+                  <div className="mt-6 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-sm font-semibold mb-3 text-gray-900 dark:text-white">Profile (optional)</h3>
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
+                        {profileImage ? (
+                          <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Photo</div>
+                        )}
+                      </div>
+                      <Button type="button" variant="outline" className="text-primary border-primary" onClick={async () => {
+                        const photo = await Camera.getPhoto({ resultType: CameraResultType.DataUrl, source: CameraSource.Photos, quality: 80 });
+                        setProfileImage(photo.dataUrl || null);
+                        localStorage.setItem('userProfile', JSON.stringify({ displayName, profileImage: photo.dataUrl }));
+                      }}>
+                        Choose Photo
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </TabsContent>
               
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Display Name
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Your name"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      disabled={isSubmitting}
+                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
+                    />
+                  </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Email
@@ -483,10 +526,37 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
                       </button>
                     </div>
                   </div>
+
+                  {Capacitor.isNativePlatform() && (
+                    <div className="space-y-3 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Profile Photo (optional)
+                        </label>
+                        <div className="flex items-center space-x-4 mt-2">
+                          <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
+                            {profileImage ? (
+                              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Photo</div>
+                            )}
+                          </div>
+                          <Button type="button" variant="outline" className="text-primary border-primary" onClick={async () => {
+                            const photo = await Camera.getPhoto({ resultType: CameraResultType.DataUrl, source: CameraSource.Photos, quality: 80 });
+                            setProfileImage(photo.dataUrl || null);
+                            localStorage.setItem('userProfile', JSON.stringify({ displayName, profileImage: photo.dataUrl }));
+                          }}>
+                            Choose from Gallery
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <Button 
                     type="submit" 
                     disabled={isSubmitting}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg"
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
                   >
                     {isSubmitting ? (
                       <>

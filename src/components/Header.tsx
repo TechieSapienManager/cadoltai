@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, User, Moon, Sun } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import logo from '@/assets/logo-cadoltai-v2.png';
+import logo from '@/assets/logo-cadoltai-v3.png';
 
 interface HeaderProps {
   activeTab: string;
@@ -129,7 +129,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl shadow-lg"
                     />
                   </div>
-                  <h1 className="text-lg sm:text-xl font-extrabold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  <h1 className="text-lg sm:text-xl font-extrabold text-primary">
                     Cadolt AI
                   </h1>
                 </div>
@@ -170,7 +170,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Ask AI Button */}
             <button
               onClick={onAskAI}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-xs sm:text-sm font-medium"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-xs sm:text-sm font-medium"
             >
               Ask AI
             </button>
@@ -186,12 +186,12 @@ export const Header: React.FC<HeaderProps> = ({
                     src={getUserProfileImage() || user?.user_metadata?.avatar_url} 
                     alt={getDisplayName()}
                   />
-                  <AvatarFallback className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
               ) : (
-                <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all">
+                <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all">
                   <User className="w-4 h-4" />
                   <span className="text-sm font-medium">Login</span>
                 </div>

@@ -6,10 +6,10 @@ import { supabase } from '@/integrations/supabase/client';
 export const WelcomeSection: React.FC = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState([
-    { label: "Focus Time Today", value: "0h 0m", color: "text-purple-500" },
-    { label: "Tasks Done", value: "0/0", color: "text-blue-500" },
-    { label: "Upcoming Events", value: "0", color: "text-green-500" },
-    { label: "Notes Count", value: "0", color: "text-orange-500" }
+    { label: "Focus Time Today", value: "0h 0m", color: "text-primary" },
+    { label: "Tasks Done", value: "0/0", color: "text-primary" },
+    { label: "Upcoming Events", value: "0", color: "text-primary" },
+    { label: "Notes Count", value: "0", color: "text-primary" }
   ]);
 
   useEffect(() => {
@@ -61,22 +61,22 @@ export const WelcomeSection: React.FC = () => {
         { 
           label: "Focus Time Today", 
           value: `${focusHours}h ${remainingMinutes}m`, 
-          color: "text-purple-500" 
+          color: "text-primary" 
         },
         { 
           label: "Tasks Done", 
           value: `${completedTodos}/${totalTodos}`, 
-          color: "text-blue-500" 
+          color: "text-primary" 
         },
         { 
           label: "Upcoming Events", 
           value: upcomingEvents.toString(), 
-          color: "text-green-500" 
+          color: "text-primary" 
         },
         { 
           label: "Notes Count", 
           value: notesCount.toString(), 
-          color: "text-orange-500" 
+          color: "text-primary" 
         }
       ]);
     } catch (error) {
@@ -98,7 +98,7 @@ export const WelcomeSection: React.FC = () => {
     <div className="px-4 md:px-6 mb-8">
       <div className="glass rounded-3xl shadow-sm p-6 border border-white/20 dark:border-white/10">
         <div className="mb-6">
-          <h2 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 bg-clip-text text-transparent mb-2">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-2">
             {user ? `Welcome back, ${getUserName()} 👋` : `Welcome to Cadolt AI 👋`}
           </h2>
           <p className="text-gray-700/80 dark:text-gray-300/80">

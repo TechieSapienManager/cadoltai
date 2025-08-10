@@ -217,7 +217,7 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
   if (!isUnlocked) {
     return (
       <>
-        <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+        <div className="min-h-screen bg-white dark:bg-gray-900 pt-24 pb-28">
           <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -242,7 +242,7 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-white dark:bg-gray-900 pt-24 pb-28">
       <div className="p-4">
         {/* File Upload */}
         <div className="mb-6">
