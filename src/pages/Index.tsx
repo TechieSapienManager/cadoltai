@@ -21,7 +21,7 @@ import { LegalModal } from '@/components/modals/LegalModal';
 import { SupportModal } from '@/components/modals/SupportModal';
 import { ProductModal } from '@/components/modals/ProductModal';
 import { CompanyModal } from '@/components/modals/CompanyModal';
-import { AbstractBackground } from '@/components/AbstractBackground';
+import { FuturisticBackground } from '@/components/FuturisticBackground';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -91,50 +91,50 @@ const Index = () => {
         return <AskAIScreen onBack={() => setActiveScreen('dashboard')} />;
       default:
         return <div className="relative min-h-screen transition-colors duration-200 app-gradient-bg overflow-hidden">
-            <AbstractBackground />
+            <FuturisticBackground />
             <div className="relative z-10 pt-20">
               <AdPlaceholder />
               <WelcomeSection />
               <FeatureGrid onFeatureClick={setActiveScreen} />
               
               {/* Footer */}
-              <footer className="backdrop-blur-xl bg-white/60 dark:bg-gray-900/40 border-t border-white/20 dark:border-white/10 mt-16 mb-20">
+              <footer className="glass-intense border-t border-primary/20 mt-16 mb-20">
                 <div className="max-w-6xl mx-auto px-4 py-8">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                     <div>
-                      <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Product</h3>
-                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li><button onClick={() => openModal('product', 'features')} className="hover:text-purple-500 transition-colors">Features</button></li>
-                        <li><button onClick={() => openModal('product', 'updates')} className="hover:text-purple-500 transition-colors">Updates</button></li>
+                      <h3 className="font-semibold text-foreground text-glow-subtle mb-3">Product</h3>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li><button onClick={() => openModal('product', 'features')} className="hover:text-primary transition-colors micro-bounce">Features</button></li>
+                        <li><button onClick={() => openModal('product', 'updates')} className="hover:text-primary transition-colors micro-bounce">Updates</button></li>
                       </ul>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Company</h3>
-                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li><button onClick={() => openModal('company', 'about')} className="hover:text-purple-500 transition-colors">About</button></li>
-                        <li><button onClick={() => openModal('company', 'careers')} className="hover:text-purple-500 transition-colors">Careers</button></li>
-                        <li><button onClick={() => openModal('company', 'contact')} className="hover:text-purple-500 transition-colors">Contact</button></li>
+                      <h3 className="font-semibold text-foreground text-glow-subtle mb-3">Company</h3>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li><button onClick={() => openModal('company', 'about')} className="hover:text-primary transition-colors micro-bounce">About</button></li>
+                        <li><button onClick={() => openModal('company', 'careers')} className="hover:text-primary transition-colors micro-bounce">Careers</button></li>
+                        <li><button onClick={() => openModal('company', 'contact')} className="hover:text-primary transition-colors micro-bounce">Contact</button></li>
                       </ul>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Support</h3>
-                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li><button onClick={() => openModal('support', 'help')} className="hover:text-purple-500 transition-colors">Help Center</button></li>
-                        <li><button onClick={() => openModal('support', 'docs')} className="hover:text-purple-500 transition-colors">Documentation</button></li>
-                        <li><button onClick={() => openModal('support', 'community')} className="hover:text-purple-500 transition-colors">Community</button></li>
+                      <h3 className="font-semibold text-foreground text-glow-subtle mb-3">Support</h3>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li><button onClick={() => openModal('support', 'help')} className="hover:text-primary transition-colors micro-bounce">Help Center</button></li>
+                        <li><button onClick={() => openModal('support', 'docs')} className="hover:text-primary transition-colors micro-bounce">Documentation</button></li>
+                        <li><button onClick={() => openModal('support', 'community')} className="hover:text-primary transition-colors micro-bounce">Community</button></li>
                       </ul>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-800 dark:text-white mb-3">Legal</h3>
-                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li><button onClick={() => openModal('legal', 'privacy')} className="hover:text-purple-500 transition-colors">Privacy Policy</button></li>
-                        <li><button onClick={() => openModal('legal', 'terms')} className="hover:text-purple-500 transition-colors">Terms of Service</button></li>
-                        <li><button onClick={() => openModal('legal', 'cookies')} className="hover:text-purple-500 transition-colors">Cookie Policy</button></li>
+                      <h3 className="font-semibold text-foreground text-glow-subtle mb-3">Legal</h3>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li><button onClick={() => openModal('legal', 'privacy')} className="hover:text-primary transition-colors micro-bounce">Privacy Policy</button></li>
+                        <li><button onClick={() => openModal('legal', 'terms')} className="hover:text-primary transition-colors micro-bounce">Terms of Service</button></li>
+                        <li><button onClick={() => openModal('legal', 'cookies')} className="hover:text-primary transition-colors micro-bounce">Cookie Policy</button></li>
                       </ul>
                     </div>
                   </div>
-                  <div className="border-t border-white/20 dark:border-white/10 pt-6 text-center">
-                    <p className="text-sm text-gray-700/80 dark:text-gray-300/80">
+                  <div className="border-t border-primary/20 pt-6 text-center">
+                    <p className="text-sm text-muted-foreground">
                       © 2025 CadoltAI. All rights reserved.
                     </p>
                   </div>
@@ -147,14 +147,15 @@ const Index = () => {
 
   // Show loading state while checking auth
   if (loading) {
-    return <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-purple-300">Loading...</p>
+    return <div className="min-h-screen app-gradient-bg flex items-center justify-center overflow-hidden">
+        <FuturisticBackground />
+        <div className="text-center relative z-10">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4 neon-purple"></div>
+          <p className="text-primary text-glow-subtle animate-glow">Loading...</p>
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-white dark:bg-gray-900 w-full">
+  return <div className="min-h-screen bg-background w-full">
       <Header activeTab={activeTab} onTabChange={handleTabChange} onProfileClick={() => setIsProfileOpen(true)} onAskAI={() => setActiveScreen('ask-ai')} showBackButton={activeScreen !== 'dashboard' && activeScreen !== 'pricing'} onBack={() => {
       setActiveScreen('dashboard');
       setActiveTab('dashboard');
