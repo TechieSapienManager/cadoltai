@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, User, Moon, Sun, Brain } from 'lucide-react';
+import { ArrowLeft, User, Moon, Sun } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import logo from '@/assets/logo-cadoltai-v3.png';
 
 interface HeaderProps {
   activeTab: string;
@@ -100,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass-intense border-0 border-b border-primary/20">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl border border-white/20 dark:border-white/10">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Left side - Back button or Logo */}
@@ -109,22 +110,26 @@ export const Header: React.FC<HeaderProps> = ({
               <>
                 <button
                   onClick={onBack}
-                  className="p-2 rounded-xl glass-card hover:scale-105 transition-all duration-300 neon-purple micro-bounce"
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <ArrowLeft className="w-5 h-5 text-primary" />
+                  <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
-                <h1 className="text-lg font-semibold text-glow text-primary animate-glow">
+                <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                   {getScreenTitle()}
                 </h1>
               </>
             ) : (
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3">
-                  <div className="relative p-2 rounded-xl glass-card animate-float neon-purple">
-                    <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-glow" />
-                    <div className="absolute inset-0 rounded-xl bg-primary/20 animate-pulse" />
+                {/* App Main Logo - Using uploaded brain logo */}
+              <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <img
+                      src={logo}
+                      alt="Cadolt AI logo"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl shadow-lg"
+                    />
                   </div>
-                  <h1 className="text-lg sm:text-xl font-extrabold text-glow-subtle text-primary animate-holographic bg-clip-text">
+                  <h1 className="text-lg sm:text-xl font-extrabold text-primary">
                     Cadolt AI
                   </h1>
                 </div>
@@ -134,13 +139,13 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Center - Navigation (only on dashboard) */}
           {!showBackButton && (
-            <div className="hidden md:flex items-center space-x-1 glass-card rounded-xl p-1">
+            <div className="hidden md:flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
               <button
                 onClick={() => onTabChange('dashboard')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   activeTab === 'dashboard'
-                    ? 'glass-intense text-primary shadow-lg neon-purple scale-105'
-                    : 'text-muted-foreground hover:text-primary hover:scale-105'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                 }`}
               >
                 Dashboard
@@ -153,40 +158,40 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-xl glass-card hover:scale-105 transition-all duration-300 micro-bounce"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               {darkMode ? (
-                <Sun className="w-5 h-5 text-warning neon-orange animate-glow" />
+                <Sun className="w-5 h-5 text-yellow-500" />
               ) : (
-                <Moon className="w-5 h-5 text-secondary neon-blue animate-glow" />
+                <Moon className="w-5 h-5 text-gray-600" />
               )}
             </button>
             
             {/* Ask AI Button */}
             <button
               onClick={onAskAI}
-              className="btn-holographic px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-white text-xs sm:text-sm font-medium shadow-lg micro-bounce animate-glow"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-xs sm:text-sm font-medium"
             >
-              <span className="relative z-10">Ask AI</span>
+              Ask AI
             </button>
             
             {/* User Profile / Login */}
             <button
               onClick={onProfileClick}
-              className="p-1 rounded-full glass-card hover:scale-105 transition-all duration-300 micro-bounce"
+              className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               {user ? (
-                <Avatar className="w-8 h-8 neon-purple">
+                <Avatar className="w-8 h-8">
                   <AvatarImage 
                     src={getUserProfileImage() || user?.user_metadata?.avatar_url} 
                     alt={getDisplayName()}
                   />
-                  <AvatarFallback className="btn-holographic text-white text-sm font-bold">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
               ) : (
-                <div className="flex items-center space-x-2 px-3 py-2 rounded-xl btn-holographic text-white shadow-lg micro-bounce">
+                <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all">
                   <User className="w-4 h-4" />
                   <span className="text-sm font-medium">Login</span>
                 </div>

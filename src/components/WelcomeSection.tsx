@@ -6,10 +6,10 @@ import { supabase } from '@/integrations/supabase/client';
 export const WelcomeSection: React.FC = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState([
-    { label: "Focus Time Today", value: "0h 0m", color: "text-primary", glow: "neon-purple" },
-    { label: "Tasks Done", value: "0/0", color: "text-secondary", glow: "neon-blue" },
-    { label: "Upcoming Events", value: "0", color: "text-success", glow: "neon-green" },
-    { label: "Notes Count", value: "0", color: "text-warning", glow: "neon-orange" }
+    { label: "Focus Time Today", value: "0h 0m", color: "text-primary" },
+    { label: "Tasks Done", value: "0/0", color: "text-primary" },
+    { label: "Upcoming Events", value: "0", color: "text-primary" },
+    { label: "Notes Count", value: "0", color: "text-primary" }
   ]);
 
   useEffect(() => {
@@ -61,26 +61,22 @@ export const WelcomeSection: React.FC = () => {
         { 
           label: "Focus Time Today", 
           value: `${focusHours}h ${remainingMinutes}m`, 
-          color: "text-primary",
-          glow: "neon-purple"
+          color: "text-primary" 
         },
         { 
           label: "Tasks Done", 
           value: `${completedTodos}/${totalTodos}`, 
-          color: "text-secondary",
-          glow: "neon-blue"
+          color: "text-primary" 
         },
         { 
           label: "Upcoming Events", 
           value: upcomingEvents.toString(), 
-          color: "text-success",
-          glow: "neon-green"
+          color: "text-primary" 
         },
         { 
           label: "Notes Count", 
           value: notesCount.toString(), 
-          color: "text-warning",
-          glow: "neon-orange"
+          color: "text-primary" 
         }
       ]);
     } catch (error) {
@@ -100,27 +96,23 @@ export const WelcomeSection: React.FC = () => {
 
   return (
     <div className="px-4 md:px-6 mb-8">
-      <div className="glass-intense rounded-3xl p-6 border border-primary/20 animate-float">
+      <div className="glass rounded-3xl shadow-sm p-6 border border-white/20 dark:border-white/10">
         <div className="mb-6">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-glow text-primary animate-holographic mb-2">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-2">
             {user ? `Welcome back, ${getUserName()} 👋` : `Welcome to Cadolt AI 👋`}
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-gray-700/80 dark:text-gray-300/80">
             {user ? "Here's your productivity overview for today" : "Your AI-powered productivity companion"}
           </p>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
-            <div 
-              key={index} 
-              className="text-center glass-card rounded-2xl p-4 border border-primary/10 hover:scale-105 transition-all duration-300 micro-bounce animate-scale-in" 
-              style={{ animationDelay: `${0.5 + index * 0.1}s` }}
-            >
-              <div className={`text-xl md:text-2xl font-bold ${stat.color} ${stat.glow} mb-1 animate-glow text-glow-subtle`}>
+            <div key={index} className="text-center glass rounded-2xl p-4 border border-white/20 dark:border-white/10">
+              <div className={`text-xl md:text-2xl font-bold ${stat.color} mb-1`}>
                 {stat.value}
               </div>
-              <div className="text-xs md:text-sm text-muted-foreground">
+              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
                 {stat.label}
               </div>
             </div>

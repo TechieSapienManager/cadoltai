@@ -12,31 +12,31 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   onItemClick
 }) => {
   const navItems = [
-    { key: 'calendar', icon: Calendar, label: 'Calendar', color: 'neon-blue' },
-    { key: 'notes', icon: FileText, label: 'Notes', color: 'neon-green' },
-    { key: 'todo', icon: CheckCircle, label: 'To-Do', color: 'neon-orange' },
-    { key: 'focus', icon: Clock, label: 'Focus', color: 'neon-purple' },
-    { key: 'vault', icon: Shield, label: 'Vault', color: 'neon-gray' },
-    { key: 'alarms', icon: AlarmClock, label: 'Alarm', color: 'neon-pink' }
+    { key: 'calendar', icon: Calendar, label: 'Calendar' },
+    { key: 'notes', icon: FileText, label: 'Notes' },
+    { key: 'todo', icon: CheckCircle, label: 'To-Do' },
+    { key: 'focus', icon: Clock, label: 'Focus' },
+    { key: 'vault', icon: Shield, label: 'Vault' },
+    { key: 'alarms', icon: AlarmClock, label: 'Alarm' }
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 glass-intense border-0 border-t border-primary/20 px-4 py-2 pb-[env(safe-area-inset-bottom)]">
+    <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-white/60 dark:bg-gray-900/40 border-t border-white/20 dark:border-white/10 px-4 py-2 pb-[env(safe-area-inset-bottom)]">
       <div className="flex justify-between items-center max-w-md mx-auto w-full">
-        {navItems.map(({ key, icon: Icon, label, color }) => {
+        {navItems.map(({ key, icon: Icon, label }) => {
           const isActive = activeItem === key;
           return (
             <button
               key={key}
               onClick={() => onItemClick(key)}
-              className={`flex flex-col items-center space-y-1 p-1.5 sm:p-2 rounded-lg transition-all duration-300 micro-bounce ${
+              className={`flex flex-col items-center space-y-1 p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
                 isActive 
-                  ? `text-primary scale-110 ${color} animate-glow` 
-                  : 'text-muted-foreground hover:text-primary hover:scale-105'
+                  ? 'text-primary scale-110' 
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isActive ? 'scale-120 text-glow-subtle' : ''} transition-transform duration-300`} />
-              <span className={`text-xs font-medium hidden sm:block ${isActive ? 'text-glow-subtle' : ''}`}>{label}</span>
+              <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isActive ? 'scale-120' : ''} transition-transform duration-200`} />
+              <span className="text-xs font-medium hidden sm:block">{label}</span>
             </button>
           );
         })}
