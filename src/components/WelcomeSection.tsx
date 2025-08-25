@@ -96,23 +96,27 @@ export const WelcomeSection: React.FC = () => {
 
   return (
     <div className="px-4 md:px-6 mb-8">
-      <div className="glass rounded-3xl shadow-sm p-6 border border-white/20 dark:border-white/10">
+      <div className="glass-enhanced rounded-3xl p-6 animate-fade-in">
         <div className="mb-6">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-2">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-2 subtle-glow">
             {user ? `Welcome back, ${getUserName()} 👋` : `Welcome to Cadolt AI 👋`}
           </h2>
-          <p className="text-gray-700/80 dark:text-gray-300/80">
+          <p className="text-muted-foreground">
             {user ? "Here's your productivity overview for today" : "Your AI-powered productivity companion"}
           </p>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center glass rounded-2xl p-4 border border-white/20 dark:border-white/10">
-              <div className={`text-xl md:text-2xl font-bold ${stat.color} mb-1`}>
+            <div 
+              key={index} 
+              className="text-center glass rounded-2xl p-4 glass-hover transition-all duration-300 animate-fade-in will-change-transform hover:animate-micro-bounce"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <div className={`text-xl md:text-2xl font-bold ${stat.color} mb-1 subtle-glow`}>
                 {stat.value}
               </div>
-              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-xs md:text-sm text-muted-foreground">
                 {stat.label}
               </div>
             </div>

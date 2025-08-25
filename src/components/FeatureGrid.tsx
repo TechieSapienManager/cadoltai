@@ -22,18 +22,18 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="glass rounded-3xl p-4 md:p-6 shadow-sm border border-white/20 dark:border-white/10 cursor-pointer hover:shadow-xl hover:scale-105 hover:-translate-y-2 transition-all duration-500 group animate-fade-in will-change-transform"
+      className="glass-enhanced rounded-3xl p-4 md:p-6 cursor-pointer glass-hover transition-all duration-500 group animate-fade-in will-change-transform hover:animate-micro-bounce"
       style={{ animationDelay: `${delay}s` }}
     >
       <div className="flex items-start space-x-3 md:space-x-4">
-        <div className={`${bgColor} rounded-2xl p-3 md:p-4 flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg neon`}>
+        <div className="futuristic-button rounded-2xl p-3 md:p-4 flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 subtle-glow">
           {icon}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-base md:text-lg mb-2 transition-colors duration-300 text-gray-800 dark:text-white">
+          <h3 className="font-bold text-base md:text-lg mb-2 transition-colors duration-300 text-foreground subtle-glow">
             {title}
           </h3>
-          <p className="text-xs md:text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+          <p className="text-xs md:text-sm leading-relaxed text-muted-foreground">
             {description}
           </p>
         </div>
@@ -51,43 +51,43 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({ onFeatureClick }) => {
     {
       title: "Advanced Calendar",
       description: "Manage your schedule with drag-and-drop, weather integration, and smart suggestions",
-      icon: <Calendar className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      icon: <Calendar className="w-5 md:w-6 h-5 md:h-6 text-primary-foreground" />,
+      bgColor: "",
       key: "calendar"
     },
     {
       title: "Smart Notes",
       description: "Create unlimited notes with rich formatting and templates",
-      icon: <FileText className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      icon: <FileText className="w-5 md:w-6 h-5 md:h-6 text-primary-foreground" />,
+      bgColor: "",
       key: "notes"
     },
     {
       title: "AI To-Do Lists",
       description: "Smart task management with insights and productivity reports",
-      icon: <CheckCircle className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      icon: <CheckCircle className="w-5 md:w-6 h-5 md:h-6 text-primary-foreground" />,
+      bgColor: "",
       key: "todo"
     },
     {
       title: "Focus Mode+",
       description: "Distraction-free environment with focus music and custom timers",
-      icon: <Target className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      icon: <Target className="w-5 md:w-6 h-5 md:h-6 text-primary-foreground" />,
+      bgColor: "",
       key: "focus"
     },
     {
       title: "Advanced Vault",
       description: "Secure password vault with biometric lock and cloud backup",
-      icon: <Shield className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      icon: <Shield className="w-5 md:w-6 h-5 md:h-6 text-primary-foreground" />,
+      bgColor: "",
       key: "vault"
     },
     {
       title: "Smart Alarms",
       description: "Set custom alarms with various ringtones and smart scheduling",
-      icon: <Clock className="w-5 md:w-6 h-5 md:h-6 text-white" />,
-      bgColor: "bg-primary",
+      icon: <Clock className="w-5 md:w-6 h-5 md:h-6 text-primary-foreground" />,
+      bgColor: "",
       key: "alarms"
     }
   ];
