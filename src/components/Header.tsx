@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, User, Moon, Sun } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import logo from '@/assets/cadolt-ai-logo.png';
+import logo from '/lovable-uploads/071cd9aa-9dde-4a6b-a6c5-d568b389a986.png';
 
 interface HeaderProps {
   activeTab: string;
@@ -121,11 +121,11 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-3">
-                  <div className="relative animate-float">
+                  <div className="relative">
                     <img
                       src={logo}
                       alt="Cadolt AI"
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl subtle-glow transition-all duration-300 hover:animate-glow-pulse will-change-transform"
+                      className="w-8 h-8 sm:w-10 sm:h-10"
                     />
                   </div>
                   <h1 className="text-lg sm:text-xl font-extrabold text-primary subtle-glow">
