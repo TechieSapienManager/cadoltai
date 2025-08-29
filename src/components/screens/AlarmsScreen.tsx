@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Clock, Volume2, Trash2, Edit2, Play, Pause } from 'lucide-react';
+import { Plus, Clock, Volume2, Trash2, Edit2, Play, Pause, Brain, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { audioService, alarmSounds } from '@/utils/audioService';
+import { SmartAlarmModal } from '@/components/SmartAlarmModal';
+import { smartAlarmService } from '@/utils/smartAlarmService';
 
 interface AlarmsScreenProps {
   onBack: () => void;
@@ -26,6 +28,8 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingAlarm, setEditingAlarm] = useState<Alarm | null>(null);
   const [playingSound, setPlayingSound] = useState<string | null>(null);
+  const [showSmartModal, setShowSmartModal] = useState(false);
+  const [currentAlarmForSmart, setCurrentAlarmForSmart] = useState<string>('');
   const [newAlarm, setNewAlarm] = useState({
     title: '',
     time: '',
@@ -197,6 +201,19 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
     }
   };
 
+  const handleSmartOptimization = (time: string) => {
+    setCurrentAlarmForSmart(time);
+    setShowSmartModal(true);
+  };
+
+  const handleOptimizedTime = (optimizedTime: string) => {
+    if (editingAlarm) {
+      setEditingAlarm({ ...editingAlarm, time: optimizedTime });
+    } else {
+      setNewAlarm({ ...newAlarm, time: optimizedTime });
+    }
+  };
+
   const formatTime = (time: string) => {
     const [hours, minutes] = time.split(':');
     const hour = parseInt(hours);
@@ -252,6 +269,14 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
                   </div>
 
                   <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleSmartOptimization(alarm.time)}
+                      className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors group"
+                      title="Smart optimization"
+                    >
+                      <Brain className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                    </button>
+                    
                     <button
                       onClick={() => previewSound(alarm.sound_type)}
                       className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -345,12 +370,22 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Time
                 </label>
-                <input
-                  type="time"
-                  value={newAlarm.time}
-                  onChange={(e) => setNewAlarm({ ...newAlarm, time: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                />
+                <div className="flex space-x-2">
+                  <input
+                    type="time"
+                    value={newAlarm.time}
+                    onChange={(e) => setNewAlarm({ ...newAlarm, time: e.target.value })}
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                  <button
+                    onClick={() => handleSmartOptimization(newAlarm.time || '07:00')}
+                    className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-1"
+                    title="Smart time optimization"
+                  >
+                    <Zap className="w-4 h-4" />
+                    <span className="text-sm">Smart</span>
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -456,12 +491,22 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Time
                 </label>
-                <input
-                  type="time"
-                  value={editingAlarm.time}
-                  onChange={(e) => setEditingAlarm({ ...editingAlarm, time: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                />
+                <div className="flex space-x-2">
+                  <input
+                    type="time"
+                    value={editingAlarm.time}
+                    onChange={(e) => setEditingAlarm({ ...editingAlarm, time: e.target.value })}
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                  <button
+                    onClick={() => handleSmartOptimization(editingAlarm.time)}
+                    className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-1"
+                    title="Smart time optimization"
+                  >
+                    <Zap className="w-4 h-4" />
+                    <span className="text-sm">Smart</span>
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -540,6 +585,14 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
           </div>
         </div>
       )}
+
+      {/* Smart Alarm Modal */}
+      <SmartAlarmModal
+        isOpen={showSmartModal}
+        onClose={() => setShowSmartModal(false)}
+        alarmTime={currentAlarmForSmart}
+        onOptimize={handleOptimizedTime}
+      />
     </div>
   );
 };
