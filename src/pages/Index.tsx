@@ -87,10 +87,12 @@ const Index = () => {
         return <FocusScreen onBack={() => setActiveScreen('dashboard')} />;
       case 'vault':
         return <VaultScreen onBack={() => setActiveScreen('dashboard')} />;
+      case 'alarms':
+        return <AlarmsScreen onBack={() => setActiveScreen('dashboard')} />;
       case 'ask-ai':
         return <AskAIScreen onBack={() => setActiveScreen('dashboard')} />;
       default:
-        return <div className="relative min-h-screen cosmic-bg overflow-hidden">
+        return <div className="relative min-h-screen bg-slate-50 dark:bg-gray-900 overflow-hidden">
             <AbstractBackground />
             <div className="relative z-10 pt-20">
               <AdPlaceholder />
@@ -147,14 +149,14 @@ const Index = () => {
 
   // Show loading state while checking auth
   if (loading) {
-    return <div className="min-h-screen cosmic-bg flex items-center justify-center">
-        <div className="text-center glass-enhanced rounded-3xl p-8">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4 subtle-glow"></div>
-          <p className="text-primary subtle-glow">Loading...</p>
+    return <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center bg-white dark:bg-gray-800 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-xl rounded-3xl p-8">
+          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-900 dark:text-white">Loading...</p>
         </div>
       </div>;
   }
-  return <div className="min-h-screen cosmic-bg w-full">
+  return <div className="min-h-screen bg-slate-50 dark:bg-gray-900 w-full">
       <Header activeTab={activeTab} onTabChange={handleTabChange} onProfileClick={() => setIsProfileOpen(true)} onAskAI={() => setActiveScreen('ask-ai')} showBackButton={activeScreen !== 'dashboard' && activeScreen !== 'pricing'} onBack={() => {
       setActiveScreen('dashboard');
       setActiveTab('dashboard');
