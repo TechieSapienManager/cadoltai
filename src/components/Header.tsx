@@ -1,8 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, User, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, User, Moon, Sun, Heart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
 import logo from '/lovable-uploads/071cd9aa-9dde-4a6b-a6c5-d568b389a986.png';
 
 interface HeaderProps {
@@ -26,6 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { user } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if dark mode is enabled
@@ -48,6 +51,37 @@ export const Header: React.FC<HeaderProps> = ({
     } else {
       document.documentElement.classList.remove('dark');
     }
+  };
+
+  const handleTipClick = () => {
+    const amount = prompt("Enter tip amount (in ₹):");
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return;
+    }
+
+    const options = {
+      key: 'rzp_live_CouMrcHdbVNAvD',
+      amount: Number(amount) * 100, // Amount in paise
+      currency: 'INR',
+      name: 'Cadolt AI',
+      description: 'Support Cadolt AI Development',
+      handler: function (response: any) {
+        toast({
+          title: "Thank you! 💙",
+          description: "Thanks for supporting Cadolt AI 💙 Your tip helps keep this app free for everyone!",
+        });
+      },
+      prefill: {
+        name: user?.user_metadata?.full_name || 'Supporter',
+        email: user?.email || '',
+      },
+      theme: {
+        color: '#6366f1'
+      }
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
   };
 
   const getDisplayName = () => {
@@ -100,6 +134,16 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/20">
       <div className="px-4 py-3">
@@ -149,6 +193,21 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 Dashboard
               </button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={handleTipClick}
+                      className="p-2 rounded-xl glass-hover transition-all duration-200 will-change-transform hover:animate-micro-bounce"
+                    >
+                      <Heart className="w-6 h-6 text-blue-500 fill-blue-500 hover:fill-blue-600 transition-colors" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Support Cadolt AI</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           )}
 
