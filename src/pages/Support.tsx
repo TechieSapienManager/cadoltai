@@ -101,7 +101,7 @@ const Support: React.FC = () => {
           {/* Header Message */}
           <div className="text-center mb-8">
             <div className="mb-4">
-              <Heart className="w-16 h-16 mx-auto text-blue-500 fill-blue-500" />
+              <Heart className="w-16 h-16 mx-auto text-primary fill-primary" />
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-3">
               Support Cadolt AI
@@ -149,7 +149,7 @@ const Support: React.FC = () => {
           {/* Tip Now Button */}
           <Button
             onClick={handleTipNow}
-            className="w-full py-3 rounded-xl font-medium bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full py-3 rounded-xl font-medium"
             disabled={!selectedAmount && !customAmount}
           >
             <Heart className="w-4 h-4 mr-2 fill-current" />
