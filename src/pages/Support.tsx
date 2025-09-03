@@ -4,27 +4,25 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
 const Support: React.FC = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
-
   const quickAmounts = [50, 100, 200];
-
   useEffect(() => {
     // Initialize dark mode from localStorage
-    const isDark = localStorage.getItem('darkMode') === 'true' || 
-      (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    
+    const isDark = localStorage.getItem('darkMode') === 'true' || !localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (isDark) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
   }, []);
-
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -34,20 +32,16 @@ const Support: React.FC = () => {
       document.body.removeChild(script);
     };
   }, []);
-
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
     setCustomAmount('');
   };
-
   const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCustomAmount(e.target.value);
     setSelectedAmount(null);
   };
-
   const handleTipNow = () => {
     const amount = selectedAmount || Number(customAmount);
-    
     if (!amount || isNaN(amount) || amount <= 0) {
       toast({
         title: "Invalid Amount",
@@ -56,10 +50,10 @@ const Support: React.FC = () => {
       });
       return;
     }
-
     const options = {
       key: 'rzp_live_CouMrcHdbVNAvD',
-      amount: amount * 100, // Amount in paise
+      amount: amount * 100,
+      // Amount in paise
       currency: 'INR',
       name: 'Cadolt AI',
       description: 'Support Cadolt AI Development',
@@ -77,26 +71,19 @@ const Support: React.FC = () => {
         color: '#6366f1'
       }
     };
-
     const rzp = new (window as any).Razorpay(options);
     rzp.open();
   };
-
   const handleBack = () => {
     window.history.back();
   };
-
-  return (
-    <div className="min-h-screen bg-background cosmic-bg">
+  return <div className="min-h-screen cosmic-bg bg-slate-900">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/20">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <button 
-                onClick={handleBack} 
-                className="p-2 rounded-lg glass-hover transition-all duration-200 will-change-transform hover:animate-micro-bounce"
-              >
+              <button onClick={handleBack} className="p-2 rounded-lg glass-hover transition-all duration-200 will-change-transform hover:animate-micro-bounce">
                 <ArrowLeft className="w-5 h-5 text-foreground" />
               </button>
               <h1 className="text-lg font-semibold text-foreground subtle-glow">
@@ -127,16 +114,9 @@ const Support: React.FC = () => {
           <div className="mb-6">
             <h3 className="text-sm font-medium text-foreground mb-3">Quick amounts</h3>
             <div className="grid grid-cols-3 gap-3">
-              {quickAmounts.map((amount) => (
-                <Button
-                  key={amount}
-                  variant={selectedAmount === amount ? "default" : "outline"}
-                  onClick={() => handleAmountSelect(amount)}
-                  className="py-3 rounded-xl font-medium"
-                >
+              {quickAmounts.map(amount => <Button key={amount} variant={selectedAmount === amount ? "default" : "outline"} onClick={() => handleAmountSelect(amount)} className="py-3 rounded-xl font-medium bg-slate-900 hover:bg-slate-800">
                   ₹{amount}
-                </Button>
-              ))}
+                </Button>)}
             </div>
           </div>
 
@@ -147,23 +127,12 @@ const Support: React.FC = () => {
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                 ₹
               </span>
-              <Input
-                type="number"
-                placeholder="Enter amount"
-                value={customAmount}
-                onChange={handleCustomAmountChange}
-                className="pl-8 py-3 rounded-xl"
-                min="1"
-              />
+              <Input type="number" placeholder="Enter amount" value={customAmount} onChange={handleCustomAmountChange} min="1" className="pl-8 py-3 rounded-xl bg-gray-900" />
             </div>
           </div>
 
           {/* Tip Now Button */}
-          <Button
-            onClick={handleTipNow}
-            className="w-full py-3 rounded-xl font-medium"
-            disabled={!selectedAmount && !customAmount}
-          >
+          <Button onClick={handleTipNow} className="w-full py-3 rounded-xl font-medium" disabled={!selectedAmount && !customAmount}>
             <Heart className="w-4 h-4 mr-2 fill-current" />
             Tip Now
           </Button>
@@ -174,8 +143,6 @@ const Support: React.FC = () => {
           </p>
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Support;
