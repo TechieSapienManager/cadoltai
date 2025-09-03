@@ -51,33 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
   const handleTipClick = () => {
-    const amount = prompt("Enter tip amount (in ₹):");
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      return;
-    }
-    const options = {
-      key: 'rzp_live_CouMrcHdbVNAvD',
-      amount: Number(amount) * 100,
-      // Amount in paise
-      currency: 'INR',
-      name: 'Cadolt AI',
-      description: 'Support Cadolt AI Development',
-      handler: function (response: any) {
-        toast({
-          title: "Thank you! 💙",
-          description: "Thanks for supporting Cadolt AI 💙 Your tip helps keep this app free for everyone!"
-        });
-      },
-      prefill: {
-        name: user?.user_metadata?.full_name || 'Supporter',
-        email: user?.email || ''
-      },
-      theme: {
-        color: '#6366f1'
-      }
-    };
-    const rzp = new (window as any).Razorpay(options);
-    rzp.open();
+    window.location.href = '/support';
   };
   const getDisplayName = () => {
     if (user?.user_metadata?.full_name) {
