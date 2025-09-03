@@ -77,16 +77,16 @@ const Support: React.FC = () => {
   const handleBack = () => {
     window.history.back();
   };
-  return <div className="min-h-screen cosmic-bg bg-blue-950">
+  return <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/20">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <button onClick={handleBack} className="p-2 rounded-lg glass-hover transition-all duration-200 will-change-transform hover:animate-micro-bounce">
-                <ArrowLeft className="w-5 h-5 text-foreground" />
+              <button onClick={handleBack} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </button>
-              <h1 className="text-lg font-semibold text-foreground subtle-glow">
+              <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                 Support Cadolt AI
               </h1>
             </div>
@@ -100,21 +100,21 @@ const Support: React.FC = () => {
           {/* Header Message */}
           <div className="text-center mb-8">
             <div className="mb-4">
-              <Heart className="w-16 h-16 mx-auto text-primary fill-primary" />
+              <Heart className="w-16 h-16 mx-auto text-blue-500 fill-blue-500" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-3">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3">
               Support Cadolt AI
             </h2>
-            <p className="text-muted-foreground text-base leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-400 text-base leading-relaxed">
               Cadolt AI is free for everyone 💙. If you'd like to support us, you can send a tip of any amount.
             </p>
           </div>
 
           {/* Quick Amount Buttons */}
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-foreground mb-3">Quick amounts</h3>
+            <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-3">Quick amounts</h3>
             <div className="grid grid-cols-3 gap-3">
-              {quickAmounts.map(amount => <Button key={amount} variant={selectedAmount === amount ? "default" : "outline"} onClick={() => handleAmountSelect(amount)} className="py-3 rounded-xl font-medium bg-slate-900 hover:bg-slate-800">
+              {quickAmounts.map(amount => <Button key={amount} variant={selectedAmount === amount ? "default" : "outline"} onClick={() => handleAmountSelect(amount)} className="py-3 rounded-xl font-medium">
                   ₹{amount}
                 </Button>)}
             </div>
@@ -122,12 +122,12 @@ const Support: React.FC = () => {
 
           {/* Custom Amount Input */}
           <div className="mb-8">
-            <h3 className="text-sm font-medium text-foreground mb-3">Custom amount</h3>
+            <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-3">Custom amount</h3>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400">
                 ₹
               </span>
-              <Input type="number" placeholder="Enter amount" value={customAmount} onChange={handleCustomAmountChange} min="1" className="pl-8 py-3 rounded-xl bg-gray-900" />
+              <Input type="number" placeholder="Enter amount" value={customAmount} onChange={handleCustomAmountChange} min="1" className="pl-8 py-3 rounded-xl" />
             </div>
           </div>
 
@@ -138,7 +138,7 @@ const Support: React.FC = () => {
           </Button>
 
           {/* Footer Note */}
-          <p className="text-xs text-muted-foreground text-center mt-6">
+          <p className="text-xs text-gray-500 dark:text-gray-500 text-center mt-6">
             Your support helps us keep Cadolt AI free and accessible for everyone.
           </p>
         </div>
