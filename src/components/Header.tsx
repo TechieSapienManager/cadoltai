@@ -143,18 +143,9 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right side - Tip, Dark Mode, Ask AI and Profile */}
           <div className="flex items-center space-x-2">
             {/* Tip Button - Always visible */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button onClick={handleTipClick} className="p-2 rounded-xl glass-hover transition-all duration-200 will-change-transform hover:animate-micro-bounce">
-                    <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 fill-blue-500 hover:fill-blue-600 transition-colors" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-blue-950">
-                  <p>Support Cadolt AI</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <button onClick={handleTipClick} className="p-2 rounded-xl glass-hover transition-all duration-200 will-change-transform hover:animate-micro-bounce">
+              <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 fill-blue-500 hover:fill-blue-600 transition-colors" />
+            </button>
             {/* Dark Mode Toggle */}
             <button onClick={toggleDarkMode} className="p-2 rounded-xl glass-hover transition-all duration-200 will-change-transform hover:animate-micro-bounce">
               {darkMode ? <Sun className="w-5 h-5 text-yellow-400 cosmic-glow" /> : <Moon className="w-5 h-5 text-muted-foreground subtle-glow" />}
