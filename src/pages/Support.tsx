@@ -14,6 +14,18 @@ const Support: React.FC = () => {
   const quickAmounts = [50, 100, 200];
 
   useEffect(() => {
+    // Initialize dark mode from localStorage
+    const isDark = localStorage.getItem('darkMode') === 'true' || 
+      (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
