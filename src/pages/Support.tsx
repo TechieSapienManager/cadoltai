@@ -77,7 +77,7 @@ const Support: React.FC = () => {
   const handleBack = () => {
     window.history.back();
   };
-  return <div className="min-h-screen cosmic-bg bg-slate-900">
+  return <div className="min-h-screen cosmic-bg bg-blue-950">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/20">
         <div className="px-4 py-3">
