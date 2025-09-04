@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, User, Moon, Sun, Heart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -26,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   const {
     user
   } = useAuth();
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const {
     toast
@@ -51,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
   const handleTipClick = () => {
-    window.location.href = '/support';
+    navigate('/support');
   };
   const getDisplayName = () => {
     if (user?.user_metadata?.full_name) {
