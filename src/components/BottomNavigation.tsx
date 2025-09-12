@@ -29,13 +29,13 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
             <button
               key={key}
               onClick={() => onItemClick(key)}
-              className={`flex flex-col items-center space-y-1 p-1.5 sm:p-2 rounded-xl transition-all duration-200 will-change-transform hover:animate-micro-bounce ${
+              className={`flex flex-col items-center space-y-1 p-1.5 sm:p-2 rounded-xl transition-colors duration-200 ${
                 isActive 
-                  ? 'text-primary scale-110 subtle-glow' 
-                  : 'text-muted-foreground hover:text-foreground glass-hover'
+                  ? 'text-primary' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isActive ? 'scale-120 animate-glow-pulse' : ''} transition-transform duration-200`} />
+              <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isActive ? 'scale-110' : ''} transition-transform duration-200`} />
               <span className="text-xs font-medium hidden sm:block">{label}</span>
             </button>
           );

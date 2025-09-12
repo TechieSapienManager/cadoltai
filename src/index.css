@@ -95,10 +95,42 @@
     @apply bg-background text-foreground;
     font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: transparent;
+    /* Mobile performance optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Hardware acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    /* Reduce repaints */
+    will-change: auto;
   }
 
   .dark body {
     background: transparent;
+  }
+
+  /* Mobile-specific optimizations */
+  * {
+    /* Reduce unnecessary GPU layers */
+    transform: translateZ(0);
+    /* Optimize scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent text selection lag */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Allow text selection for inputs and content areas */
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
   }
 }
 
@@ -214,6 +246,32 @@
   .space-y-4 > :not([hidden]) ~ :not([hidden]) {
     margin-top: 0.75rem;
   }
+
+  /* Disable heavy effects on mobile for better performance */
+  .glass, .glass-enhanced {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: hsl(var(--card) / 0.15);
+    box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
+  }
+
+  /* Reduce animation complexity on mobile */
+  .animate-glow-pulse, .animate-float, .holographic-gradient {
+    animation: none !important;
+  }
+
+  /* Optimize scrolling for mobile */
+  * {
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+  }
+
+  /* Disable transforms on mobile that cause lag */
+  .hover\:scale-102:hover,
+  .hover\:scale-105:hover,
+  .hover\:scale-110:hover {
+    transform: none;
+  }
 }
 
 /* Futuristic Glassmorphism */
@@ -244,18 +302,23 @@
   50% { transform: scale(1.05); }
 }
 
-/* Advanced Glassmorphism Components */
+/* Advanced Glassmorphism Components - Mobile Optimized */
 .glass {
   background: linear-gradient(135deg, 
     hsl(var(--card) / 0.1) 0%,
     hsl(var(--card) / 0.05) 100%);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  /* Reduced blur for better mobile performance */
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
   border: 1px solid hsl(var(--border) / 0.2);
   box-shadow: 
-    0 8px 32px hsl(var(--foreground) / 0.1),
+    0 4px 16px hsl(var(--foreground) / 0.08),
     inset 0 1px 0 hsl(var(--ice-white) / 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Optimized transition for mobile */
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  /* Hardware acceleration */
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .glass-enhanced {
@@ -263,12 +326,16 @@
     hsl(var(--card) / 0.15) 0%,
     hsl(var(--card) / 0.08) 50%,
     hsl(var(--card) / 0.12) 100%);
-  backdrop-filter: blur(24px) saturate(200%);
+  /* Reduced blur for mobile performance */
+  backdrop-filter: blur(10px) saturate(150%);
   border: 1px solid hsl(var(--cyber-blue) / 0.3);
   box-shadow: 
-    0 12px 40px hsl(var(--cyber-blue) / 0.15),
+    0 6px 20px hsl(var(--cyber-blue) / 0.12),
     0 0 0 1px hsl(var(--cosmic-purple) / 0.1),
     inset 0 1px 0 hsl(var(--ice-white) / 0.2);
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .glass-hover:hover {
