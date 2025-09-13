@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -11,9 +10,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import logo from '/lovable-uploads/071cd9aa-9dde-4a6b-a6c5-d568b389a986.png';
-
 const Auth = () => {
-  const { signIn, signUp, user, loading } = useAuth();
+  const {
+    signIn,
+    signUp,
+    user,
+    loading
+  } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,20 +37,16 @@ const Auth = () => {
       navigate('/');
     }
   }, [user, loading, navigate]);
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
-    
     console.log('Starting sign in process...');
     setError('');
     setIsSubmitting(true);
-    
     try {
       console.log('Attempting sign in with email:', email);
       const result = await signIn(email, password);
       console.log('Sign in result:', result);
-      
       if (result.error) {
         console.error('Sign in error:', result.error);
         setError(result.error.message || 'Failed to sign in');
@@ -62,34 +61,30 @@ const Auth = () => {
       setIsSubmitting(false);
     }
   };
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
-    
     console.log('Starting sign up process...');
     setError('');
-    
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
     if (password.length < 6) {
       setError('Password must be at least 6 characters long');
       return;
     }
-    
     setIsSubmitting(true);
-    
-  try {
+    try {
       console.log('Attempting sign up with email:', email);
       const result = await signUp(email, password, displayName || undefined);
       console.log('Sign up result:', result);
       if (!result.error && displayName) {
-        localStorage.setItem('userProfile', JSON.stringify({ displayName, profileImage }));
+        localStorage.setItem('userProfile', JSON.stringify({
+          displayName,
+          profileImage
+        }));
       }
-      
       if (result.error) {
         console.error('Sign up error:', result.error);
         setError(result.error.message || 'Failed to create account');
@@ -104,7 +99,6 @@ const Auth = () => {
       setIsSubmitting(false);
     }
   };
-
   const termsContent = `**TERMS OF SERVICE**
 
 **Effective Date:** ${new Date().toLocaleDateString()}
@@ -182,7 +176,6 @@ These Terms are governed by applicable laws without regard to conflict of law pr
 For questions about these Terms, contact us at: techiesapienmanager@gmail.com
 
 By using Cadolt AI, you acknowledge that you have read and agree to these Terms of Service.`;
-
   const privacyContent = `**PRIVACY POLICY**
 
 **Effective Date:** ${new Date().toLocaleDateString()}
@@ -317,18 +310,12 @@ If you believe we have not complied with this Privacy Policy:
 - Seek resolution through applicable legal mechanisms
 
 By using Cadolt AI, you acknowledge that you have read and understand this Privacy Policy.`;
-
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-4">
+  return <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <img 
-              src={logo}
-              alt="Cadolt AI Logo" 
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg shadow-md"
-            />
+            <img src={logo} alt="Cadolt AI Logo" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg shadow-md" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Cadolt AI
             </h1>
@@ -348,24 +335,16 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                 <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
-              </div>
-            )}
+              </div>}
             
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-700">
-                <TabsTrigger 
-                  value="signin"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white"
-                >
+                <TabsTrigger value="signin" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">
                   Sign In
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="signup"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white"
-                >
+                <TabsTrigger value="signup" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">
                   Sign Up
                 </TabsTrigger>
               </TabsList>
@@ -376,77 +355,49 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Email
                     </label>
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      disabled={isSubmitting}
-                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    />
+                    <Input type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required disabled={isSubmitting} className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Password
                     </label>
                     <div className="relative">
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        disabled={isSubmitting}
-                        className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        disabled={isSubmitting}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
+                      <Input type={showPassword ? 'text' : 'password'} placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required disabled={isSubmitting} className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10" />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} disabled={isSubmitting} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg"
-                  >
-                    {isSubmitting ? (
-                      <>
+                  <Button type="submit" disabled={isSubmitting} className="w-full text-white shadow-lg bg-sky-950 hover:bg-sky-800">
+                    {isSubmitting ? <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Signing in...
-                      </>
-                    ) : (
-                      'Sign In'
-                    )}
+                      </> : 'Sign In'}
                   </Button>
                 </form>
 
-                {Capacitor.isNativePlatform() && (
-                  <div className="mt-6 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                {Capacitor.isNativePlatform() && <div className="mt-6 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <h3 className="text-sm font-semibold mb-3 text-gray-900 dark:text-white">Profile (optional)</h3>
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
-                        {profileImage ? (
-                          <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Photo</div>
-                        )}
+                        {profileImage ? <img src={profileImage} alt="Profile" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Photo</div>}
                       </div>
                       <Button type="button" variant="outline" className="text-primary border-primary" onClick={async () => {
-                        const photo = await Camera.getPhoto({ resultType: CameraResultType.DataUrl, source: CameraSource.Photos, quality: 80 });
-                        setProfileImage(photo.dataUrl || null);
-                        localStorage.setItem('userProfile', JSON.stringify({ displayName, profileImage: photo.dataUrl }));
-                      }}>
+                    const photo = await Camera.getPhoto({
+                      resultType: CameraResultType.DataUrl,
+                      source: CameraSource.Photos,
+                      quality: 80
+                    });
+                    setProfileImage(photo.dataUrl || null);
+                    localStorage.setItem('userProfile', JSON.stringify({
+                      displayName,
+                      profileImage: photo.dataUrl
+                    }));
+                  }}>
                         Choose Photo
                       </Button>
                     </div>
-                  </div>
-                )}
+                  </div>}
               </TabsContent>
               
               <TabsContent value="signup">
@@ -455,49 +406,21 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Display Name
                     </label>
-                    <Input
-                      type="text"
-                      placeholder="Your name"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      disabled={isSubmitting}
-                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    />
+                    <Input type="text" placeholder="Your name" value={displayName} onChange={e => setDisplayName(e.target.value)} disabled={isSubmitting} className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Email
                     </label>
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      disabled={isSubmitting}
-                      className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    />
+                    <Input type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required disabled={isSubmitting} className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Password
                     </label>
                     <div className="relative">
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Create a password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        disabled={isSubmitting}
-                        className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        disabled={isSubmitting}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
+                      <Input type={showPassword ? 'text' : 'password'} placeholder="Create a password" value={password} onChange={e => setPassword(e.target.value)} required disabled={isSubmitting} className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10" />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} disabled={isSubmitting} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
@@ -507,65 +430,45 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
                       Confirm Password
                     </label>
                     <div className="relative">
-                      <Input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="Confirm your password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        disabled={isSubmitting}
-                        className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        disabled={isSubmitting}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
+                      <Input type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm your password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required disabled={isSubmitting} className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10" />
+                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} disabled={isSubmitting} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
 
-                  {Capacitor.isNativePlatform() && (
-                    <div className="space-y-3 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                  {Capacitor.isNativePlatform() && <div className="space-y-3 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                       <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           Profile Photo (optional)
                         </label>
                         <div className="flex items-center space-x-4 mt-2">
                           <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
-                            {profileImage ? (
-                              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Photo</div>
-                            )}
+                            {profileImage ? <img src={profileImage} alt="Profile" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Photo</div>}
                           </div>
                           <Button type="button" variant="outline" className="text-primary border-primary" onClick={async () => {
-                            const photo = await Camera.getPhoto({ resultType: CameraResultType.DataUrl, source: CameraSource.Photos, quality: 80 });
-                            setProfileImage(photo.dataUrl || null);
-                            localStorage.setItem('userProfile', JSON.stringify({ displayName, profileImage: photo.dataUrl }));
-                          }}>
+                        const photo = await Camera.getPhoto({
+                          resultType: CameraResultType.DataUrl,
+                          source: CameraSource.Photos,
+                          quality: 80
+                        });
+                        setProfileImage(photo.dataUrl || null);
+                        localStorage.setItem('userProfile', JSON.stringify({
+                          displayName,
+                          profileImage: photo.dataUrl
+                        }));
+                      }}>
                             Choose from Gallery
                           </Button>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    </div>}
 
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
-                  >
-                    {isSubmitting ? (
-                      <>
+                  <Button type="submit" disabled={isSubmitting} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg">
+                    {isSubmitting ? <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Creating account...
-                      </>
-                    ) : (
-                      'Sign Up'
-                    )}
+                      </> : 'Sign Up'}
                   </Button>
                 </form>
               </TabsContent>
@@ -574,17 +477,11 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 By continuing, you agree to our{' '}
-                <button
-                  onClick={() => setShowTerms(true)}
-                  className="text-pink-500 hover:text-pink-600 underline font-medium"
-                >
+                <button onClick={() => setShowTerms(true)} className="text-pink-500 hover:text-pink-600 underline font-medium">
                   Terms of Service
                 </button>
                 {' '}and{' '}
-                <button
-                  onClick={() => setShowPrivacy(true)}
-                  className="text-pink-500 hover:text-pink-600 underline font-medium"
-                >
+                <button onClick={() => setShowPrivacy(true)} className="text-pink-500 hover:text-pink-600 underline font-medium">
                   Privacy Policy
                 </button>
               </p>
@@ -598,10 +495,7 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
             <DialogHeader>
               <DialogTitle className="flex items-center justify-between">
                 Terms of Service
-                <button
-                  onClick={() => setShowTerms(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
+                <button onClick={() => setShowTerms(false)} className="text-gray-500 hover:text-gray-700">
                   <X className="w-5 h-5" />
                 </button>
               </DialogTitle>
@@ -618,10 +512,7 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
             <DialogHeader>
               <DialogTitle className="flex items-center justify-between">
                 Privacy Policy
-                <button
-                  onClick={() => setShowPrivacy(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
+                <button onClick={() => setShowPrivacy(false)} className="text-gray-500 hover:text-gray-700">
                   <X className="w-5 h-5" />
                 </button>
               </DialogTitle>
@@ -632,8 +523,6 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
           </DialogContent>
         </Dialog>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Auth;
