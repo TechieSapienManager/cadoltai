@@ -10,7 +10,7 @@ import { Loader2, Eye, EyeOff, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import logo from '@/assets/cadolt-ai-logo.png';
+import logo from '/lovable-uploads/071cd9aa-9dde-4a6b-a6c5-d568b389a986.png';
 
 const Auth = () => {
   const { signIn, signUp, user, loading } = useAuth();
