@@ -368,7 +368,7 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
                       </button>
                     </div>
                   </div>
-                  <Button type="submit" disabled={isSubmitting} className="w-full text-white shadow-lg bg-sky-950 hover:bg-sky-800">
+                  <Button type="submit" disabled={isSubmitting} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg">
                     {isSubmitting ? <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Signing in...
