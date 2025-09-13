@@ -3,6 +3,7 @@ import { Lock, Plus, Eye, EyeOff, FileText, Upload, Image as ImageIcon, FileIcon
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { VaultPinModal } from '@/components/VaultPinModal';
+import { FileViewer } from '@/components/FileViewer';
 
 interface VaultScreenProps {
   onBack: () => void;
@@ -35,6 +36,8 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
     type: 'password' as 'password' | 'note' | 'file',
     category: 'general'
   });
+  const [fileViewerOpen, setFileViewerOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<VaultItem | null>(null);
 
   useEffect(() => {
     setShowPinModal(true);
@@ -321,7 +324,10 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
                       
                       {item.item_type === 'file' && item.file_url && (
                         <button
-                          onClick={() => window.open(item.file_url, '_blank')}
+                          onClick={() => {
+                            setSelectedFile(item);
+                            setFileViewerOpen(true);
+                          }}
                           className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                         >
                           <Eye className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -431,6 +437,20 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
           </div>
         </div>
       )}
+
+        {/* File Viewer */}
+        {selectedFile && (
+          <FileViewer
+            isOpen={fileViewerOpen}
+            onClose={() => {
+              setFileViewerOpen(false);
+              setSelectedFile(null);
+            }}
+            fileUrl={selectedFile.file_url || ''}
+            fileName={selectedFile.file_name || selectedFile.title}
+            mimeType={selectedFile.mime_type || 'application/octet-stream'}
+          />
+        )}
     </div>
   );
 };
