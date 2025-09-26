@@ -310,7 +310,7 @@ If you believe we have not complied with this Privacy Policy:
 - Seek resolution through applicable legal mechanisms
 
 By using Cadolt AI, you acknowledge that you have read and understand this Privacy Policy.`;
-  return <div className="min-h-screen bg-background flex items-center justify-center p-4">
+  return <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
@@ -325,7 +325,7 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
           </p>
         </div>
 
-        <Card className="backdrop-blur-sm shadow-xl">
+        <Card className="glass backdrop-blur-lg shadow-2xl border-white/10">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">
               Welcome Back
