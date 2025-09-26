@@ -313,10 +313,10 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
   return <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo Section */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 animate-fade-in">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <img src={logo} alt="Cadolt AI Logo" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg shadow-md" />
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-bold text-primary subtle-glow">
               Cadolt AI
             </h1>
           </div>
@@ -325,26 +325,26 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
           </p>
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">
+        <div className="glass-enhanced rounded-3xl p-6 animate-fade-in">
+          <div className="space-y-1 mb-6">
+            <h2 className="text-2xl font-extrabold text-primary text-center subtle-glow">
               Welcome Back
-            </CardTitle>
-            <CardDescription className="text-center">
+            </h2>
+            <p className="text-muted-foreground text-center">
               Sign in to your account or create a new one
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+          </div>
+          
             {error && <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
                 <p className="text-destructive text-sm">{error}</p>
               </div>}
             
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">
+              <TabsList className="grid w-full grid-cols-2 glass rounded-2xl">
+                <TabsTrigger value="signin" className="glass-hover">
                   Sign In
                 </TabsTrigger>
-                <TabsTrigger value="signup">
+                <TabsTrigger value="signup" className="glass-hover">
                   Sign Up
                 </TabsTrigger>
               </TabsList>
@@ -486,8 +486,7 @@ By using Cadolt AI, you acknowledge that you have read and understand this Priva
                 </button>
               </p>
             </div>
-          </CardContent>
-        </Card>
+        </div>
 
         {/* Terms of Service Modal */}
         <Dialog open={showTerms} onOpenChange={setShowTerms}>
