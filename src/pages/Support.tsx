@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Heart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 const Support: React.FC = () => {
@@ -13,7 +14,9 @@ const Support: React.FC = () => {
   } = useToast();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
+  const [profilePhone, setProfilePhone] = useState<string | null>(null);
   const quickAmounts = [50, 100, 200];
+
   useEffect(() => {
     // Initialize dark mode from localStorage
     const isDark = localStorage.getItem('darkMode') === 'true' || !localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -23,6 +26,7 @@ const Support: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
   }, []);
+
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -32,6 +36,39 @@ const Support: React.FC = () => {
       document.body.removeChild(script);
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPhone = async () => {
+      if (!user?.id) {
+        setProfilePhone(null);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('phone')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      if (error) {
+        // Non-blocking: checkout will fall back to Razorpay asking for phone
+        setProfilePhone(null);
+        return;
+      }
+
+      setProfilePhone(data?.phone ?? null);
+    };
+
+    loadPhone();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
     setCustomAmount('');
@@ -50,6 +87,9 @@ const Support: React.FC = () => {
       });
       return;
     }
+    const rawContact = (user as any)?.phone || (user as any)?.user_metadata?.phone || profilePhone;
+    const contact = typeof rawContact === 'string' ? rawContact.replace(/\D/g, '').slice(-10) : undefined;
+
     const options = {
       key: 'rzp_live_CouMrcHdbVNAvD',
       amount: amount * 100,
@@ -62,16 +102,17 @@ const Support: React.FC = () => {
           description: "Thanks for supporting Cadolt AI 💙 Your tip helps keep this app free for everyone!"
         });
       },
+      prefill: {
+        name: user?.user_metadata?.full_name || 'Supporter',
+        email: user?.email || undefined,
+        contact: contact || undefined
+      },
+      readonly: {
+        email: Boolean(user?.email),
+        contact: Boolean(contact)
+      },
       theme: {
         color: '#6366f1'
-      },
-      config: {
-        display: {
-          hide: [{ method: 'contact' }],
-          preferences: {
-            show_default_blocks: true
-          }
-        }
       }
     };
     const rzp = new (window as any).Razorpay(options);
