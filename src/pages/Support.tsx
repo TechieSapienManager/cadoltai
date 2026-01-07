@@ -53,7 +53,6 @@ const Support: React.FC = () => {
     const options = {
       key: 'rzp_live_CouMrcHdbVNAvD',
       amount: amount * 100,
-      // Amount in paise
       currency: 'INR',
       name: 'Cadolt AI',
       description: 'Support Cadolt AI Development',
@@ -63,12 +62,16 @@ const Support: React.FC = () => {
           description: "Thanks for supporting Cadolt AI 💙 Your tip helps keep this app free for everyone!"
         });
       },
-      prefill: {
-        name: user?.user_metadata?.full_name || 'Supporter',
-        email: user?.email || ''
-      },
       theme: {
         color: '#6366f1'
+      },
+      config: {
+        display: {
+          hide: [{ method: 'contact' }],
+          preferences: {
+            show_default_blocks: true
+          }
+        }
       }
     };
     const rzp = new (window as any).Razorpay(options);
