@@ -57,34 +57,24 @@ const Support: React.FC = () => {
     }
   };
 
-  const handlePayWithUPI = () => {
+  const handlePay = () => {
     const amount = selectedAmount || Number(customAmount);
     if (!amount || isNaN(amount) || amount <= 0) {
       toast.error('Please enter a valid amount');
       return;
     }
 
-    // Create UPI deep link - works with all UPI apps
+    // Create UPI deep link
     const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Support Cadolt AI')}`;
-
-    console.log('[Support] UPI click', {
-      amount,
-      upiUrl,
-      isMobile: isMobileDevice(),
-      inIframe: isInIframe(),
-    });
-
     setUpiPaymentUrl(upiUrl);
+    setIsUpiDialogOpen(true);
+  };
 
-    // In desktop browsers (and in the Lovable preview iframe), UPI deep links won't open.
-    if (!isMobileDevice() || isInIframe()) {
-      setIsUpiDialogOpen(true);
-      return;
+  const handleOpenUpiApp = () => {
+    if (upiPaymentUrl) {
+      window.location.href = upiPaymentUrl;
+      toast.success('Opening UPI app...', { duration: 2000 });
     }
-
-    // Open UPI app
-    window.location.href = upiUrl;
-    toast.success('Opening UPI app...', { duration: 2000 });
   };
 
   const handleCopyUpiLink = async () => {
@@ -174,65 +164,85 @@ const Support: React.FC = () => {
 
           {/* Pay Button */}
           <Button 
-            onClick={handlePayWithUPI} 
+            onClick={handlePay} 
             className="w-full py-3 rounded-xl font-medium" 
             disabled={!currentAmount}
           >
             <Heart className="w-4 h-4 mr-2 fill-current" />
-            Pay ₹{currentAmount || '0'} with UPI
+            Pay ₹{currentAmount || '0'}
           </Button>
 
           <Dialog open={isUpiDialogOpen} onOpenChange={setIsUpiDialogOpen}>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Pay with UPI</DialogTitle>
+                <DialogTitle>Complete Payment</DialogTitle>
                 <DialogDescription>
-                  Scan this QR with any UPI app (Google Pay, PhonePe, Paytm), or copy the link.
+                  Choose your preferred payment method
                 </DialogDescription>
               </DialogHeader>
 
               {upiPaymentUrl ? (
-                <div className="flex flex-col items-center gap-4">
-                  <div className="rounded-lg border border-border p-3 bg-background">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiPaymentUrl)}`}
-                      alt="UPI payment QR code"
-                      loading="lazy"
-                      className="h-[260px] w-[260px]"
-                    />
+                <div className="flex flex-col gap-4">
+                  {/* QR Code Section */}
+                  <div className="flex flex-col items-center gap-3 p-4 rounded-lg border border-border bg-muted/30">
+                    <h4 className="text-sm font-medium text-foreground">Scan QR Code</h4>
+                    <div className="rounded-lg border border-border p-2 bg-white">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiPaymentUrl)}`}
+                        alt="UPI payment QR code"
+                        loading="lazy"
+                        className="h-[200px] w-[200px]"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Scan with any UPI app (GPay, PhonePe, Paytm)
+                    </p>
                   </div>
 
-                  <div className="w-full rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground break-all">
-                    {upiPaymentUrl}
-                  </div>
-
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-center text-sm text-muted-foreground">
                     Paying <span className="font-medium text-foreground">₹{currentAmount}</span> to{' '}
                     <span className="font-medium text-foreground">{PAYEE_NAME}</span>
                   </div>
+
+                  {/* Payment Options */}
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="button"
+                      onClick={handleOpenUpiApp}
+                      className="w-full"
+                    >
+                      <Smartphone className="w-4 h-4 mr-2" />
+                      Pay with UPI App
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCopyUpiLink}
+                      className="w-full"
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy UPI Link
+                    </Button>
+
+                    <div className="relative my-2">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-border" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">or pay via</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2">
+                      <div className="p-3 rounded-lg border border-border bg-muted/30 text-center">
+                        <p className="text-sm font-medium text-foreground mb-1">Bank Transfer</p>
+                        <p className="text-xs text-muted-foreground">UPI ID: {UPI_ID}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : null}
-
-              <DialogFooter className="gap-2 sm:gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCopyUpiLink}
-                  disabled={!upiPaymentUrl}
-                >
-                  <Copy className="w-4 h-4" />
-                  Copy link
-                </Button>
-
-                {upiPaymentUrl ? (
-                  <Button type="button" asChild>
-                    <a href={upiPaymentUrl} target="_top" rel="noreferrer">
-                      <Smartphone className="w-4 h-4" />
-                      Open UPI app
-                    </a>
-                  </Button>
-                ) : null}
-              </DialogFooter>
             </DialogContent>
           </Dialog>
 
