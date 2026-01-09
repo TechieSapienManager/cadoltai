@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Heart } from 'lucide-react';
+import { ArrowLeft, Heart, Smartphone } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const Support: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
@@ -32,17 +33,32 @@ const Support: React.FC = () => {
     setSelectedAmount(null);
   };
 
+  // Check if device is mobile
+  const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+
   const handlePayWithUPI = () => {
     const amount = selectedAmount || Number(customAmount);
     if (!amount || isNaN(amount) || amount <= 0) {
+      toast.error('Please enter a valid amount');
       return;
     }
 
     // Create UPI deep link - works with all UPI apps
     const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Support Cadolt AI')}`;
     
+    if (!isMobileDevice()) {
+      toast.info('UPI payments only work on mobile devices. Please open this page on your phone.', {
+        duration: 5000,
+      });
+      return;
+    }
+
     // Open UPI app
     window.location.href = upiUrl;
+    
+    toast.success('Opening UPI app...', { duration: 2000 });
   };
 
   const handleBack = () => {
