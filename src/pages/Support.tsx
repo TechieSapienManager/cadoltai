@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, Smartphone } from 'lucide-react';
+import { ArrowLeft, Heart, Smartphone, Copy } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 const Support: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
   const quickAmounts = [50, 100, 200];
+
+  const [upiPaymentUrl, setUpiPaymentUrl] = useState<string | null>(null);
+  const [isUpiDialogOpen, setIsUpiDialogOpen] = useState(false);
 
   // UPI ID for receiving payments
   const UPI_ID = 'techiesapienmanager@oksbi';
@@ -38,6 +49,14 @@ const Support: React.FC = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   };
 
+  const isInIframe = () => {
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
+  };
+
   const handlePayWithUPI = () => {
     const amount = selectedAmount || Number(customAmount);
     if (!amount || isNaN(amount) || amount <= 0) {
@@ -47,18 +66,35 @@ const Support: React.FC = () => {
 
     // Create UPI deep link - works with all UPI apps
     const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Support Cadolt AI')}`;
-    
-    if (!isMobileDevice()) {
-      toast.info('UPI payments only work on mobile devices. Please open this page on your phone.', {
-        duration: 5000,
-      });
+
+    console.log('[Support] UPI click', {
+      amount,
+      upiUrl,
+      isMobile: isMobileDevice(),
+      inIframe: isInIframe(),
+    });
+
+    setUpiPaymentUrl(upiUrl);
+
+    // In desktop browsers (and in the Lovable preview iframe), UPI deep links won't open.
+    if (!isMobileDevice() || isInIframe()) {
+      setIsUpiDialogOpen(true);
       return;
     }
 
     // Open UPI app
     window.location.href = upiUrl;
-    
     toast.success('Opening UPI app...', { duration: 2000 });
+  };
+
+  const handleCopyUpiLink = async () => {
+    if (!upiPaymentUrl) return;
+    try {
+      await navigator.clipboard.writeText(upiPaymentUrl);
+      toast.success('UPI link copied');
+    } catch {
+      toast.error('Could not copy the UPI link');
+    }
   };
 
   const handleBack = () => {
@@ -145,6 +181,60 @@ const Support: React.FC = () => {
             <Heart className="w-4 h-4 mr-2 fill-current" />
             Pay ₹{currentAmount || '0'} with UPI
           </Button>
+
+          <Dialog open={isUpiDialogOpen} onOpenChange={setIsUpiDialogOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Pay with UPI</DialogTitle>
+                <DialogDescription>
+                  Scan this QR with any UPI app (Google Pay, PhonePe, Paytm), or copy the link.
+                </DialogDescription>
+              </DialogHeader>
+
+              {upiPaymentUrl ? (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="rounded-lg border border-border p-3 bg-background">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiPaymentUrl)}`}
+                      alt="UPI payment QR code"
+                      loading="lazy"
+                      className="h-[260px] w-[260px]"
+                    />
+                  </div>
+
+                  <div className="w-full rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground break-all">
+                    {upiPaymentUrl}
+                  </div>
+
+                  <div className="text-sm text-muted-foreground">
+                    Paying <span className="font-medium text-foreground">₹{currentAmount}</span> to{' '}
+                    <span className="font-medium text-foreground">{PAYEE_NAME}</span>
+                  </div>
+                </div>
+              ) : null}
+
+              <DialogFooter className="gap-2 sm:gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCopyUpiLink}
+                  disabled={!upiPaymentUrl}
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy link
+                </Button>
+
+                {upiPaymentUrl ? (
+                  <Button type="button" asChild>
+                    <a href={upiPaymentUrl} target="_top" rel="noreferrer">
+                      <Smartphone className="w-4 h-4" />
+                      Open UPI app
+                    </a>
+                  </Button>
+                ) : null}
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {/* Footer Note */}
           <p className="text-xs text-gray-500 dark:text-gray-500 text-center mt-6">
