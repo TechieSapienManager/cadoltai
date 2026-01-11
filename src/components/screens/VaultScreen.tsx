@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { VaultPinModal } from '@/components/VaultPinModal';
 import { FileViewer } from '@/components/FileViewer';
+import { AuthGuard } from '@/components/AuthGuard';
 
 interface VaultScreenProps {
   onBack: () => void;
@@ -22,7 +23,7 @@ interface VaultItem {
   created_at: string;
 }
 
-export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
+const VaultContent: React.FC<VaultScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
@@ -220,7 +221,7 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
   if (!isUnlocked) {
     return (
       <>
-        <div className="min-h-screen bg-white dark:bg-gray-900 pt-24 pb-28">
+        <div className="min-h-screen bg-background pt-24 pb-28">
           <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -245,7 +246,7 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-24 pb-28">
+    <div className="min-h-screen bg-background pt-24 pb-28">
       <div className="p-4">
         {/* File Upload */}
         <div className="mb-6">
@@ -452,5 +453,13 @@ export const VaultScreen: React.FC<VaultScreenProps> = ({ onBack }) => {
           />
         )}
     </div>
+  );
+};
+
+export const VaultScreen: React.FC<VaultScreenProps> = (props) => {
+  return (
+    <AuthGuard requireAuth={true} featureName="Vault">
+      <VaultContent {...props} />
+    </AuthGuard>
   );
 };

@@ -6,6 +6,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
+import { AuthGuard } from '@/components/AuthGuard';
 
 interface CalendarScreenProps {
   onBack: () => void;
@@ -24,7 +25,7 @@ interface Event {
   repeat_type: string;
 }
 
-export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
+const CalendarContent: React.FC<CalendarScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
   const { requestNotificationPermission } = useNotifications();
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -149,7 +150,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
   const monthEvents = getMonthEvents();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-background pt-16">
       <div className="p-4">
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-6">
@@ -318,5 +319,13 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ onBack }) => {
         loading={deleteLoading}
       />
     </div>
+  );
+};
+
+export const CalendarScreen: React.FC<CalendarScreenProps> = (props) => {
+  return (
+    <AuthGuard requireAuth={true} featureName="Calendar">
+      <CalendarContent {...props} />
+    </AuthGuard>
   );
 };

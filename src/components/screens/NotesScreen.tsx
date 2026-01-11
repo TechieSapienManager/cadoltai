@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthGuard } from '@/components/AuthGuard';
 
 interface NotesScreenProps {
   onBack: () => void;
@@ -16,7 +16,7 @@ interface Note {
   updated_at: string;
 }
 
-export const NotesScreen: React.FC<NotesScreenProps> = ({ onBack }) => {
+const NotesContent: React.FC<NotesScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState<Note[]>([]);
@@ -132,7 +132,7 @@ export const NotesScreen: React.FC<NotesScreenProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-background pt-16">
       <div className="p-4">
         {/* Search Bar */}
         <div className="relative mb-6">
@@ -281,5 +281,13 @@ export const NotesScreen: React.FC<NotesScreenProps> = ({ onBack }) => {
         </div>
       )}
     </div>
+  );
+};
+
+export const NotesScreen: React.FC<NotesScreenProps> = (props) => {
+  return (
+    <AuthGuard requireAuth={true} featureName="Notes">
+      <NotesContent {...props} />
+    </AuthGuard>
   );
 };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, Clock, Volume2, Trash2, Edit2, Play, Pause, Brain, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { audioService, alarmSounds } from '@/utils/audioService';
 import { SmartAlarmModal } from '@/components/SmartAlarmModal';
 import { smartAlarmService } from '@/utils/smartAlarmService';
+import { AuthGuard } from '@/components/AuthGuard';
 
 interface AlarmsScreenProps {
   onBack: () => void;
@@ -21,7 +21,7 @@ interface Alarm {
   created_at: string;
 }
 
-export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
+const AlarmsContent: React.FC<AlarmsScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
   const [alarms, setAlarms] = useState<Alarm[]>([]);
   const [loading, setLoading] = useState(false);
@@ -229,7 +229,7 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-background pt-16">
       <div className="p-4">
         {loading && alarms.length === 0 ? (
           <div className="text-center py-8">
@@ -594,5 +594,13 @@ export const AlarmsScreen: React.FC<AlarmsScreenProps> = ({ onBack }) => {
         onOptimize={handleOptimizedTime}
       />
     </div>
+  );
+};
+
+export const AlarmsScreen: React.FC<AlarmsScreenProps> = (props) => {
+  return (
+    <AuthGuard requireAuth={true} featureName="Alarms">
+      <AlarmsContent {...props} />
+    </AuthGuard>
   );
 };
