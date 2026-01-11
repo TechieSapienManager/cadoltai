@@ -107,7 +107,7 @@ export const FocusScreen: React.FC<FocusScreenProps> = ({ onBack }) => {
   const progress = ((selectedTime * 60 - timeLeft) / (selectedTime * 60)) * 100;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-primary/80 to-accent/80 pt-16">
       <div className="p-6">
         <div className="max-w-md mx-auto">
           {/* Timer Display */}

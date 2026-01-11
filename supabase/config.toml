@@ -1,1 +1,10 @@
 project_id = "txilwgpfxgjklptrwjjd"
+
+[functions.chat]
+verify_jwt = false
+
+[functions.create-razorpay-qr]
+verify_jwt = false
+
+[functions.check-qr-payment]
+verify_jwt = false

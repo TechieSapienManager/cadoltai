@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Clock, Edit, Trash2, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthGuard } from '@/components/AuthGuard';
 
 interface TodoScreenProps {
   onBack: () => void;
@@ -18,7 +19,7 @@ interface Todo {
   created_at: string;
 }
 
-export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
+const TodoContent: React.FC<TodoScreenProps> = ({ onBack }) => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -190,7 +191,7 @@ export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-background pt-16">
       <div className="p-4">
         {/* Tabs */}
         <div className="flex space-x-1 mb-6 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
@@ -414,5 +415,13 @@ export const TodoScreen: React.FC<TodoScreenProps> = ({ onBack }) => {
         </div>
       )}
     </div>
+  );
+};
+
+export const TodoScreen: React.FC<TodoScreenProps> = (props) => {
+  return (
+    <AuthGuard requireAuth={true} featureName="To-Do Lists">
+      <TodoContent {...props} />
+    </AuthGuard>
   );
 };
