@@ -65,33 +65,29 @@ const Support: React.FC = () => {
     setRazorpayQrUrl(null);
     setRazorpayQrId(null);
 
+    // Create UPI deep link (always works)
+    const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Support Cadolt AI')}`;
+    setUpiPaymentUrl(upiUrl);
+
     try {
-      // Create Razorpay QR code via edge function
+      // Try to create Razorpay QR code via edge function
       const { data, error } = await supabase.functions.invoke('create-razorpay-qr', {
         body: { amount }
       });
 
-      if (error) {
-        console.error('Error creating Razorpay QR:', error);
-        toast.error('Failed to create payment QR code');
-        setIsLoading(false);
-        return;
-      }
-
-      if (data?.image_url) {
+      if (!error && data?.image_url) {
         setRazorpayQrUrl(data.image_url);
         setRazorpayQrId(data.qr_id);
+      } else {
+        // Razorpay failed, fallback QR will be used (no error shown to user)
+        console.log('Razorpay QR unavailable, using fallback UPI QR');
       }
-
-      // Also set UPI deep link as fallback
-      const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Support Cadolt AI')}`;
-      setUpiPaymentUrl(upiUrl);
-      setIsUpiDialogOpen(true);
     } catch (err) {
-      console.error('Payment error:', err);
-      toast.error('Something went wrong');
+      // Silently fallback to UPI QR
+      console.log('Razorpay error, using fallback:', err);
     } finally {
       setIsLoading(false);
+      setIsUpiDialogOpen(true);
     }
   };
 
