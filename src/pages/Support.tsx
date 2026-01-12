@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, Smartphone, Copy, Check, QrCode, CreditCard } from 'lucide-react';
+import { ArrowLeft, Heart, Smartphone, Copy, Check, QrCode, CreditCard, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,13 +10,17 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const Support: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [copied, setCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const quickAmounts = [50, 100, 200, 500];
 
+  const [razorpayQrUrl, setRazorpayQrUrl] = useState<string | null>(null);
+  const [razorpayQrId, setRazorpayQrId] = useState<string | null>(null);
   const [upiPaymentUrl, setUpiPaymentUrl] = useState<string | null>(null);
   const [isUpiDialogOpen, setIsUpiDialogOpen] = useState(false);
 
@@ -45,7 +49,7 @@ const Support: React.FC = () => {
     setSelectedAmount(null);
   };
 
-  const handlePay = () => {
+  const handlePay = async () => {
     const amount = selectedAmount || Number(customAmount);
     if (!amount || isNaN(amount) || amount <= 0) {
       toast.error('Please enter a valid amount');
@@ -57,10 +61,38 @@ const Support: React.FC = () => {
       return;
     }
 
-    // Create UPI deep link
-    const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Support Cadolt AI')}`;
-    setUpiPaymentUrl(upiUrl);
-    setIsUpiDialogOpen(true);
+    setIsLoading(true);
+    setRazorpayQrUrl(null);
+    setRazorpayQrId(null);
+
+    try {
+      // Create Razorpay QR code via edge function
+      const { data, error } = await supabase.functions.invoke('create-razorpay-qr', {
+        body: { amount }
+      });
+
+      if (error) {
+        console.error('Error creating Razorpay QR:', error);
+        toast.error('Failed to create payment QR code');
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.image_url) {
+        setRazorpayQrUrl(data.image_url);
+        setRazorpayQrId(data.qr_id);
+      }
+
+      // Also set UPI deep link as fallback
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Support Cadolt AI')}`;
+      setUpiPaymentUrl(upiUrl);
+      setIsUpiDialogOpen(true);
+    } catch (err) {
+      console.error('Payment error:', err);
+      toast.error('Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOpenUpiApp = () => {
@@ -165,11 +197,20 @@ const Support: React.FC = () => {
           <Button 
             onClick={handlePay} 
             className="w-full py-4 rounded-xl font-medium text-lg futuristic-button" 
-            disabled={!currentAmount}
+            disabled={!currentAmount || isLoading}
             size="lg"
           >
-            <Heart className="w-5 h-5 mr-2 fill-current" />
-            Pay ₹{currentAmount || '0'}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Creating Payment...
+              </>
+            ) : (
+              <>
+                <Heart className="w-5 h-5 mr-2 fill-current" />
+                Pay ₹{currentAmount || '0'}
+              </>
+            )}
           </Button>
 
           <Dialog open={isUpiDialogOpen} onOpenChange={setIsUpiDialogOpen}>
@@ -184,80 +225,91 @@ const Support: React.FC = () => {
                 </DialogDescription>
               </DialogHeader>
 
-              {upiPaymentUrl ? (
-                <div className="flex flex-col gap-5">
-                  {/* Amount Display */}
-                  <div className="text-center p-4 rounded-xl bg-primary/10 border border-primary/20">
-                    <p className="text-sm text-muted-foreground mb-1">You're supporting with</p>
-                    <p className="text-3xl font-bold text-primary">₹{currentAmount}</p>
-                  </div>
+              <div className="flex flex-col gap-5">
+                {/* Amount Display */}
+                <div className="text-center p-4 rounded-xl bg-primary/10 border border-primary/20">
+                  <p className="text-sm text-muted-foreground mb-1">You're supporting with</p>
+                  <p className="text-3xl font-bold text-primary">₹{currentAmount}</p>
+                </div>
 
-                  {/* QR Code Section */}
-                  <div className="flex flex-col items-center gap-3 p-4 rounded-xl border border-border bg-card">
-                    <div className="flex items-center gap-2">
-                      <QrCode className="w-4 h-4 text-primary" />
-                      <h4 className="text-sm font-medium text-foreground">Scan QR Code</h4>
-                    </div>
-                    <div className="rounded-xl border-2 border-border p-2 bg-white">
+                {/* QR Code Section - Razorpay */}
+                <div className="flex flex-col items-center gap-3 p-4 rounded-xl border border-border bg-card">
+                  <div className="flex items-center gap-2">
+                    <QrCode className="w-4 h-4 text-primary" />
+                    <h4 className="text-sm font-medium text-foreground">Scan QR Code</h4>
+                  </div>
+                  <div className="rounded-xl border-2 border-border p-2 bg-white">
+                    {isLoading ? (
+                      <div className="h-[180px] w-[180px] flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                      </div>
+                    ) : razorpayQrUrl ? (
+                      <img
+                        src={razorpayQrUrl}
+                        alt="Razorpay UPI QR code"
+                        loading="lazy"
+                        className="h-[180px] w-[180px] object-contain"
+                      />
+                    ) : upiPaymentUrl ? (
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiPaymentUrl)}`}
                         alt="UPI payment QR code"
                         loading="lazy"
                         className="h-[180px] w-[180px]"
                       />
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center">
-                      Scan with GPay, PhonePe, Paytm or any UPI app
-                    </p>
+                    ) : null}
                   </div>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Scan with GPay, PhonePe, Paytm or any UPI app
+                  </p>
+                </div>
 
-                  {/* Divider */}
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-border" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-3 text-muted-foreground">or</span>
-                    </div>
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
                   </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-3 text-muted-foreground">or</span>
+                  </div>
+                </div>
 
-                  {/* Payment Options */}
-                  <div className="flex flex-col gap-3">
-                    <Button
-                      type="button"
-                      onClick={handleOpenUpiApp}
-                      className="w-full futuristic-button"
-                      size="lg"
-                    >
-                      <Smartphone className="w-5 h-5 mr-2" />
-                      Open UPI App
-                    </Button>
+                {/* Payment Options */}
+                <div className="flex flex-col gap-3">
+                  <Button
+                    type="button"
+                    onClick={handleOpenUpiApp}
+                    className="w-full futuristic-button"
+                    size="lg"
+                  >
+                    <Smartphone className="w-5 h-5 mr-2" />
+                    Open UPI App
+                  </Button>
 
-                    {/* UPI ID Copy */}
-                    <div className="p-4 rounded-xl border border-border bg-card">
-                      <p className="text-xs text-muted-foreground mb-2 text-center">Pay manually to</p>
-                      <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-secondary">
-                        <code className="text-sm font-mono text-foreground truncate flex-1">
-                          {UPI_ID}
-                        </code>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleCopyUpiId}
-                          className="flex-shrink-0"
-                        >
-                          {copied ? (
-                            <Check className="w-4 h-4 text-green-500" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </div>
+                  {/* UPI ID Copy */}
+                  <div className="p-4 rounded-xl border border-border bg-card">
+                    <p className="text-xs text-muted-foreground mb-2 text-center">Pay manually to</p>
+                    <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-secondary">
+                      <code className="text-sm font-mono text-foreground truncate flex-1">
+                        {UPI_ID}
+                      </code>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleCopyUpiId}
+                        className="flex-shrink-0"
+                      >
+                        {copied ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </div>
-              ) : null}
+              </div>
             </DialogContent>
           </Dialog>
 
