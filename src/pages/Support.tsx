@@ -1,32 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, Smartphone, Copy, Check, QrCode, CreditCard, Loader2 } from 'lucide-react';
+import { ArrowLeft, Heart, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const Support: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
-  const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const quickAmounts = [50, 100, 200, 500];
-
-  const [razorpayQrUrl, setRazorpayQrUrl] = useState<string | null>(null);
-  const [razorpayQrId, setRazorpayQrId] = useState<string | null>(null);
-  const [upiPaymentUrl, setUpiPaymentUrl] = useState<string | null>(null);
-  const [isUpiDialogOpen, setIsUpiDialogOpen] = useState(false);
-
-  // UPI ID for receiving payments
-  const UPI_ID = 'techiesapienmanager@oksbi';
-  const PAYEE_NAME = 'Cadolt AI';
 
   useEffect(() => {
     const isDark = localStorage.getItem('darkMode') === 'true' || 
@@ -36,6 +25,16 @@ const Support: React.FC = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    // Load Razorpay script
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
   }, []);
 
   const handleAmountSelect = (amount: number) => {
@@ -62,50 +61,58 @@ const Support: React.FC = () => {
     }
 
     setIsLoading(true);
-    setRazorpayQrUrl(null);
-    setRazorpayQrId(null);
-
-    // Create UPI deep link (always works)
-    const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Support Cadolt AI')}`;
-    setUpiPaymentUrl(upiUrl);
 
     try {
-      // Try to create Razorpay QR code via edge function
-      const { data, error } = await supabase.functions.invoke('create-razorpay-qr', {
+      // Create Razorpay order via edge function
+      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
         body: { amount }
       });
 
-      if (!error && data?.image_url) {
-        setRazorpayQrUrl(data.image_url);
-        setRazorpayQrId(data.qr_id);
-      } else {
-        // Razorpay failed, fallback QR will be used (no error shown to user)
-        console.log('Razorpay QR unavailable, using fallback UPI QR');
+      if (error || !data?.order_id) {
+        console.error('Error creating order:', error);
+        toast.error('Failed to initiate payment. Please try again.');
+        setIsLoading(false);
+        return;
       }
+
+      // Open Razorpay checkout
+      const options = {
+        key: data.key_id,
+        amount: amount * 100,
+        currency: 'INR',
+        name: 'Cadolt AI',
+        description: 'Support Cadolt AI',
+        order_id: data.order_id,
+        handler: function (response: any) {
+          toast.success('Thank you for your support! 💙', { duration: 5000 });
+          console.log('Payment successful:', response);
+        },
+        prefill: {
+          name: '',
+          email: '',
+          contact: '',
+        },
+        theme: {
+          color: '#3B82F6',
+        },
+        modal: {
+          ondismiss: function () {
+            toast.info('Payment cancelled');
+          },
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', function (response: any) {
+        console.error('Payment failed:', response.error);
+        toast.error('Payment failed. Please try again.');
+      });
+      razorpay.open();
     } catch (err) {
-      // Silently fallback to UPI QR
-      console.log('Razorpay error, using fallback:', err);
+      console.error('Payment error:', err);
+      toast.error('Something went wrong');
     } finally {
       setIsLoading(false);
-      setIsUpiDialogOpen(true);
-    }
-  };
-
-  const handleOpenUpiApp = () => {
-    if (upiPaymentUrl) {
-      window.location.href = upiPaymentUrl;
-      toast.success('Opening UPI app...', { duration: 2000 });
-    }
-  };
-
-  const handleCopyUpiId = async () => {
-    try {
-      await navigator.clipboard.writeText(UPI_ID);
-      setCopied(true);
-      toast.success('UPI ID copied!');
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error('Could not copy UPI ID');
     }
   };
 
@@ -199,7 +206,7 @@ const Support: React.FC = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Creating Payment...
+                Processing...
               </>
             ) : (
               <>
@@ -208,106 +215,6 @@ const Support: React.FC = () => {
               </>
             )}
           </Button>
-
-          <Dialog open={isUpiDialogOpen} onOpenChange={setIsUpiDialogOpen}>
-            <DialogContent className="sm:max-w-md glass-enhanced border-border/30">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-foreground">
-                  <CreditCard className="w-5 h-5 text-primary" />
-                  Complete Payment
-                </DialogTitle>
-                <DialogDescription>
-                  Choose your preferred payment method
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="flex flex-col gap-5">
-                {/* Amount Display */}
-                <div className="text-center p-4 rounded-xl bg-primary/10 border border-primary/20">
-                  <p className="text-sm text-muted-foreground mb-1">You're supporting with</p>
-                  <p className="text-3xl font-bold text-primary">₹{currentAmount}</p>
-                </div>
-
-                {/* QR Code Section - Razorpay */}
-                <div className="flex flex-col items-center gap-3 p-4 rounded-xl border border-border bg-card">
-                  <div className="flex items-center gap-2">
-                    <QrCode className="w-4 h-4 text-primary" />
-                    <h4 className="text-sm font-medium text-foreground">Scan QR Code</h4>
-                  </div>
-                  <div className="rounded-xl border-2 border-border p-2 bg-white">
-                    {isLoading ? (
-                      <div className="h-[180px] w-[180px] flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                      </div>
-                    ) : razorpayQrUrl ? (
-                      <img
-                        src={razorpayQrUrl}
-                        alt="Razorpay UPI QR code"
-                        loading="lazy"
-                        className="h-[180px] w-[180px] object-contain"
-                      />
-                    ) : upiPaymentUrl ? (
-                      <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiPaymentUrl)}`}
-                        alt="UPI payment QR code"
-                        loading="lazy"
-                        className="h-[180px] w-[180px]"
-                      />
-                    ) : null}
-                  </div>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Scan with GPay, PhonePe, Paytm or any UPI app
-                  </p>
-                </div>
-
-                {/* Divider */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-3 text-muted-foreground">or</span>
-                  </div>
-                </div>
-
-                {/* Payment Options */}
-                <div className="flex flex-col gap-3">
-                  <Button
-                    type="button"
-                    onClick={handleOpenUpiApp}
-                    className="w-full futuristic-button"
-                    size="lg"
-                  >
-                    <Smartphone className="w-5 h-5 mr-2" />
-                    Open UPI App
-                  </Button>
-
-                  {/* UPI ID Copy */}
-                  <div className="p-4 rounded-xl border border-border bg-card">
-                    <p className="text-xs text-muted-foreground mb-2 text-center">Pay manually to</p>
-                    <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-secondary">
-                      <code className="text-sm font-mono text-foreground truncate flex-1">
-                        {UPI_ID}
-                      </code>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleCopyUpiId}
-                        className="flex-shrink-0"
-                      >
-                        {copied ? (
-                          <Check className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <Copy className="w-4 h-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
 
           {/* Footer Note */}
           <p className="text-xs text-muted-foreground text-center mt-6">
