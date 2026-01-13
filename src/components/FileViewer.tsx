@@ -35,16 +35,29 @@ export const FileViewer: React.FC<FileViewerProps> = ({
   const handleRotate = () => setRotation(prev => (prev + 90) % 360);
 
   const renderFileContent = () => {
-    // PDF files
+    // PDF files - use iframe with Google Docs viewer for better compatibility
     if (mimeType === 'application/pdf') {
       return (
-        <div className="w-full h-full">
-          <embed
-            src={fileUrl}
-            type="application/pdf"
-            className="w-full h-full"
-            style={{ minHeight: '600px' }}
+        <div className="w-full h-full flex flex-col">
+          <iframe
+            src={`https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`}
+            className="w-full flex-1 border-0"
+            style={{ minHeight: '80vh' }}
+            title={fileName}
           />
+          <div className="p-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 text-center">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+              Having trouble viewing? 
+            </p>
+            <a 
+              href={fileUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline text-sm"
+            >
+              Open PDF in new tab
+            </a>
+          </div>
         </div>
       );
     }
