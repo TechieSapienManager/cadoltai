@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, Loader2, QrCode, Copy, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ declare global {
 const UPI_ID = '7042920103@ptaxis';
 
 const Support: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -127,7 +129,7 @@ const Support: React.FC = () => {
   };
 
   const handleBack = () => {
-    window.history.back();
+    navigate('/');
   };
 
   const copyUpiId = () => {
