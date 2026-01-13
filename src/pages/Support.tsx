@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, Loader2 } from 'lucide-react';
+import { ArrowLeft, Heart, Loader2, QrCode, Copy, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import upiQrCode from '@/assets/cadolt-ai-upi-qr.jpeg';
 
 declare global {
   interface Window {
@@ -11,10 +18,13 @@ declare global {
   }
 }
 
+const UPI_ID = '7042920103@ptaxis';
+
 const Support: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showUpiDialog, setShowUpiDialog] = useState(false);
   const quickAmounts = [50, 100, 200, 500];
 
   useEffect(() => {
@@ -120,6 +130,17 @@ const Support: React.FC = () => {
     window.history.back();
   };
 
+  const copyUpiId = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    toast.success('UPI ID copied!');
+  };
+
+  const openUpiApp = () => {
+    const amount = selectedAmount || Number(customAmount) || 0;
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Cadolt%20AI&am=${amount}&cu=INR&tn=Support%20Cadolt%20AI`;
+    window.location.href = upiLink;
+  };
+
   const currentAmount = selectedAmount || Number(customAmount) || 0;
 
   return (
@@ -216,12 +237,77 @@ const Support: React.FC = () => {
             )}
           </Button>
 
+          {/* Pay via UPI Button */}
+          <Button 
+            onClick={() => setShowUpiDialog(true)} 
+            variant="outline"
+            className="w-full py-4 rounded-xl font-medium text-lg mt-3" 
+            disabled={!currentAmount}
+            size="lg"
+          >
+            <QrCode className="w-5 h-5 mr-2" />
+            Pay via UPI / QR
+          </Button>
+
           {/* Footer Note */}
           <p className="text-xs text-muted-foreground text-center mt-6">
             Your support helps us keep Cadolt AI free and accessible for everyone. 💙
           </p>
         </div>
       </main>
+
+      {/* UPI Payment Dialog */}
+      <Dialog open={showUpiDialog} onOpenChange={setShowUpiDialog}>
+        <DialogContent className="max-w-sm mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-center">Pay via UPI</DialogTitle>
+          </DialogHeader>
+          
+          <div className="flex flex-col items-center space-y-4">
+            {/* QR Code */}
+            <div className="bg-white p-3 rounded-xl">
+              <img 
+                src={upiQrCode} 
+                alt="Cadolt AI UPI QR Code" 
+                className="w-56 h-auto rounded-lg"
+              />
+            </div>
+
+            {/* Amount Display */}
+            {currentAmount > 0 && (
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">Amount to pay</p>
+                <p className="text-2xl font-bold text-primary">₹{currentAmount}</p>
+              </div>
+            )}
+
+            {/* UPI ID with Copy */}
+            <div className="flex items-center gap-2 bg-muted px-4 py-2 rounded-lg w-full">
+              <span className="text-sm font-mono flex-1 text-center">{UPI_ID}</span>
+              <button 
+                onClick={copyUpiId}
+                className="p-1.5 hover:bg-background rounded transition-colors"
+              >
+                <Copy className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Open in UPI App Button */}
+            <Button 
+              onClick={openUpiApp}
+              className="w-full"
+              disabled={!currentAmount}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open in UPI App
+            </Button>
+
+            <p className="text-xs text-muted-foreground text-center">
+              Scan the QR code or tap the button to pay via any UPI app
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
